@@ -15,3 +15,9 @@ python manage.py runserver
 
 Step 3: Open http://localhost:8000 in your browser
 Step 4 (optional): open the Django admin panel at http://localhost:8000/admin
+
+If you get an eror with migrations:
+
+```bash
+python manage.py migrate
+```
