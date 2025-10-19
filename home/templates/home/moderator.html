@@ -10,13 +10,19 @@
     <nav>
         <h2>CataLog</h2>
         <ul>
+            <li><a href="{% url 'index' %}">Home</a></li>
             <li><a href="#">Map</a></li>
             <li><a href="#">About</a></li>
             <li><a href="#">Community</a></li>
-            <li><a href="/accounts/login">Login</a></li>
+            
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'profile' %}">Profile</a></li>
+                <li><a href="/accounts/logout/">Logout</a></li>
+            {% else %}
+                <li><a href="/accounts/login/">Login</a></li>
+            {% endif %}
         </ul>
     </nav>
 
-    <h1>Moderator Page</h1>
 </body>
 </html>

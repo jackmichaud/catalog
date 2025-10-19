@@ -18,3 +18,7 @@ def moderator(request):
 @login_required
 def profile(request):
     return render(request, 'home/profile.html')
+
+@user_passes_test(is_moderator)
+def moderator(request):
+    return render(request, 'home/moderator.html')

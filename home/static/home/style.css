@@ -26,3 +26,28 @@ nav ul a {
     color: white;
     text-decoration: none;
 }
+
+.mod-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.mod-subtitle {
+    color: #7f8c8d;
+    font-size: 16px;
+    margin-bottom: 30px;
+}
+    
+.mod-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+.control-section {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
