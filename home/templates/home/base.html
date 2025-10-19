@@ -12,6 +12,8 @@
         <ul>
             <li><a href="{% url 'index' %}">Home</a></li>
             <li><a href="#">Map</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Community</a></li>
 
             {% if user.is_authenticated %}
                 <li><a href="{% url 'profile' %}">Profile</a></li>
