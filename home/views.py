@@ -1,5 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from .forms import ProfileForm
 
 from django.contrib.auth.decorators import user_passes_test, login_required
 
@@ -17,7 +18,16 @@ def moderator(request):
 
 @login_required
 def profile(request):
-    return render(request, 'home/profile.html')
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            print("req.f", request.FILES)  # Should show the UploadedFile object
+            print(form.cleaned_data['avatar'])  # Should be an InMemoryUploadedFile
+            form.save()
+            return redirect(".")
+    else:
+        form = ProfileForm(instance=request.user)
+    return render(request, 'home/profile.html', {'form': form})
 
 @user_passes_test(is_moderator)
 def moderator(request):

@@ -6,9 +6,16 @@
     <p><strong>Username:</strong> {{ user.username }}</p>
     <p><strong>Email:</strong> {{ user.email }}</p>
     <p><strong>Your Role:</strong> {{ user.role }}</p>
-
-    <hr>
+    {% if user.avatar %}
+    <img src="{{ request.user.avatar.url }}" alt="Avatar">
+    {% endif %}
     
     <a href="#">Edit Profile</a>
+    <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Upload</button>
+    </form>
+
 </div>
 {% endblock %}
