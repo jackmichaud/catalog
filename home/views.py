@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .forms import ProfileForm
-
+import os
 from django.contrib.auth.decorators import user_passes_test, login_required
 
 def is_moderator(user):
@@ -10,7 +10,8 @@ def is_moderator(user):
 
 # Create your views here.
 def index(request):
-    return render(request, 'home/index.html')
+    mapbox_token = os.getenv("MAPBOX_TOKEN")
+    return render(request, 'home/index.html', {"MAPBOX_TOKEN": mapbox_token})
 
 @user_passes_test(is_moderator)
 def moderator(request):
