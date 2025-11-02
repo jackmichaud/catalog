@@ -1,0 +1,21 @@
+<h1>Pending Tree Submissions</h1>
+
+{% if submissions %}
+    <ul>
+    {% for submission in submissions %}
+        <li>
+            <strong>{{ submission.tree_name }}</strong> – {{ submission.location }} <br>
+            {{ submission.description }} <br>
+            Submitted by: {{ submission.user.username }} <br>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="submission_id" value="{{ submission.id }}">
+                <button name="action" value="approve">Approve</button>
+                <button name="action" value="reject">Reject</button>
+            </form>
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No pending submissions.</p>
+{% endif %}
