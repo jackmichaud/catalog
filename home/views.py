@@ -33,3 +33,9 @@ def profile(request):
 @user_passes_test(is_moderator)
 def moderator(request):
     return render(request, 'home/moderator.html')
+
+def about(request):
+    return render(request, 'home/about.html')
+
+def community(request):
+    return render(request, 'home/community.html')

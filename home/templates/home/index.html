@@ -1,71 +1,49 @@
+{% extends "base.html" %}
 {% load static %}
 
-<!DOCTYPE html>
-<html>
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CataLog</title>
+{% block title %}Home | CataLog{% endblock %}
 
-    <!-- Styles -->
-    <link rel="stylesheet" href="{% static 'home/style.css' %}">
-    <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css" rel="stylesheet">
+{% block extra_head %}
+<!-- Add page-specific <head> content here if needed -->
+{% endblock %}
 
-    <!-- Mapbox JS -->
-    <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.js"></script>
-</head>
-<body>
-    <nav>
-        <h2>CataLog</h2>
-        <ul>
-            <li><a href="{% url 'index' %}">Home</a></li>
-            <li><a href="#">Map</a></li>
-            <li><a href="#">About</a></li>
-            <li><a href="#">Community</a></li>
-            {% if user.is_authenticated %}
-                <li><a href="{% url 'profile' %}">Profile</a></li>
-                <li><a href="/accounts/logout/">Logout</a></li>
-            {% else %}
-                <li><a href="/accounts/login/">Login</a></li>
-            {% endif %}
-        </ul>
-    </nav>
+{% block content %}
+<!-- Passing the mapbox token to JS -->
+<script>
+    const MAPBOX_TOKEN = "{{ MAPBOX_TOKEN }}";
+</script>
 
-    <!-- Pass the mapbox token to the JS -->
-    <script>
-        const MAPBOX_TOKEN = "{{ MAPBOX_TOKEN }}";
-    </script>
+<!-- Mapbox map -->
+<div id="map"></div>
 
-    <!-- Mapbox map div -->
-    <div id="map"></div>
-
-    <!-- Load your custom map logic -->
-    <script src="{% static 'home/map.js' %}"></script>
-
-    {% if user.role == 'moderator' %}
-        <div class="mod-container">
-            <h1>Moderator Dashboard</h1>
-            <p class="mod-subtitle">Administrator Control Panel</p>
-            <div class="mod-controls">
-                <div class="control-section">
-                    <h2>User Management</h2>
-                    <button class="mod-btn">View All Users</button>
-                    <button class="mod-btn">Search Users</button>
-                    <button class="mod-btn">Manage Roles</button>
-                </div>
-                <div class="control-section">
-                    <h2>Activity Monitoring</h2>
-                    <button class="mod-btn">View Analytics</button>
-                    <button class="mod-btn">Activity Reports</button>
-                    <button class="mod-btn">Pickup Statistics</button>
-                </div>
-                <div class="control-section">
-                    <h2>Content Management</h2>
-                    <button class="mod-btn">Review Uploads</button>
-                    <button class="mod-btn">Edit Content</button>
-                    <button class="mod-btn">System Alerts</button>
-                </div>
-            </div>
+{% if user.role == 'moderator' %}
+<div class="mod-container">
+    <h1>Moderator Dashboard</h1>
+    <p class="mod-subtitle">Administrator Control Panel</p>
+    <div class="mod-controls">
+        <div class="control-section">
+            <h2>User Management</h2>
+            <button class="mod-btn">View All Users</button>
+            <button class="mod-btn">Search Users</button>
+            <button class="mod-btn">Manage Roles</button>
         </div>
-    {% endif %}
-</body>
-</html>
+        <div class="control-section">
+            <h2>Activity Monitoring</h2>
+            <button class="mod-btn">View Analytics</button>
+            <button class="mod-btn">Activity Reports</button>
+            <button class="mod-btn">Pickup Statistics</button>
+        </div>
+        <div class="control-section">
+            <h2>Content Management</h2>
+            <button class="mod-btn">Review Uploads</button>
+            <button class="mod-btn">Edit Content</button>
+            <button class="mod-btn">System Alerts</button>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'home/map.js' %}"></script>
+{% endblock %}
