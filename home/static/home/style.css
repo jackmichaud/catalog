@@ -1,8 +1,9 @@
-body {
+html, body {
     margin: 0;
     font-family: Arial, sans-serif;
     background-color: #f4f7f5;
     color: #333;
+    height: 100%;
 }
 
 nav {
@@ -12,6 +13,9 @@ nav {
     justify-content: space-between;
     align-items: center;
     padding: 0.8rem 2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    position: relative;
+    z-index: 10;
 }
 
 nav ul {
@@ -53,6 +57,11 @@ nav ul a {
 }
 
 #map {
+    z-index: 1;
     width: 100%;
-    height: 400px;
+    position: absolute;
+    top: 60px;
+    bottom: 0;
+    left: 0;
+    right: 0;
 }
