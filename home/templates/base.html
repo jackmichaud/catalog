@@ -1,0 +1,44 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CataLog{% endblock %}</title>
+
+    <!-- Global Styles -->
+    <link rel="stylesheet" href="{% static 'home/style.css' %}">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css" rel="stylesheet">
+
+    <!-- Mapbox JS (available globally) -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.js"></script>
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Shared Navbar -->
+    <nav>
+        <h2>CataLog</h2>
+        <ul>
+            <li><a href="{% url 'index' %}">Home</a></li>
+            <li><a href="{% url 'about' %}">About</a></li>
+            <li><a href="{% url 'community' %}">Community</a></li>
+            {% if user.role == 'moderator' %}
+                <li><a href="{% url 'moderator' %}">Moderation</a></li>
+            {% endif %}
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'profile' %}">Profile</a></li>
+                <li><a href="/accounts/logout/">Logout</a></li>
+            {% else %}
+                <li><a href="/accounts/login/">Login</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <!-- Page-specific content -->
+    {% block content %}{% endblock %}
+
+    <!-- Optional per-page scripts -->
+    {% block scripts %}{% endblock %}
+</body>
+</html>

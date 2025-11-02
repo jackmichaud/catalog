@@ -3,8 +3,10 @@
 
 # Development
 
-Step 1: Install dependencies
+Step 1: Install virtual environment and dependencies
 ```bash
+python -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
