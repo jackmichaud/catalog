@@ -11,46 +11,48 @@ let tempMarker = null;
 
 const addBtn = document.getElementById('add-tree-btn');
 const sidebar = document.getElementById('sidebar');
+const cancelBtn = document.getElementById('cancel-sidebar-btn');
 
 addBtn?.addEventListener('click', () => {
     addMode = !addMode;
-    map.getCanvas().style.cursor = addMode ? 'crosshair' : '';
-    addBtn.textContent = addMode ? 'Cancel' : 'Add Tree';
 
-    // hide sidebar if canceling
-    if (!addMode) {
+    if (addMode) {
+        // entering add mode
+        sidebar?.classList.add('open');
+        map.getCanvas().style.cursor = 'crosshair';
+        addBtn.textContent = 'Cancel';
+    } else {
+        // canceling add mode
         sidebar?.classList.remove('open');
+        map.getCanvas().style.cursor = '';
         if (tempMarker) tempMarker.remove();
+        addBtn.textContent = 'Add Tree';
     }
 });
 
 // Map click to place marker
 map.on('click', (e) => {
     if (!addMode) return;
+
     if (tempMarker) tempMarker.remove();
 
     tempMarker = new mapboxgl.Marker({ color: 'green' })
         .setLngLat(e.lngLat)
         .addTo(map);
 
-    // Populate sidebar form if present
     const latInput = document.querySelector('#tree-form [name="latitude"]');
     const lngInput = document.querySelector('#tree-form [name="longitude"]');
     if (latInput && lngInput) {
         latInput.value = e.lngLat.lat.toFixed(6);
         lngInput.value = e.lngLat.lng.toFixed(6);
     }
-
-    sidebar?.classList.add('open');
 });
 
-const cancelBtn = document.getElementById('cancel-sidebar-btn');
 cancelBtn?.addEventListener('click', () => {
     sidebar?.classList.remove('open');
     if (tempMarker) tempMarker.remove();
     map.getCanvas().style.cursor = '';
     addMode = false;
-    const addBtn = document.getElementById('add-tree-btn');
     if (addBtn) addBtn.textContent = 'Add Tree';
 });
 
