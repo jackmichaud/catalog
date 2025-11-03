@@ -28,6 +28,13 @@
 
     <h1>Welcome to CataLog!!</h1>
 
+    <div class="submit-tree-container">
+    {% if user.is_authenticated %}
+        <a href="{% url 'submit_tree' %}" class="submit-btn">Submit a Tree</a>
+    {% else %}
+        <p><a href="/accounts/login/">Log in</a> to submit a tree.</p>
+    {% endif %}
+    </div>
 
     {% if user.role == 'moderator' %}
         <div class="mod-container">

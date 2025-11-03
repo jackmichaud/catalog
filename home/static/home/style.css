@@ -51,3 +51,21 @@ nav ul a {
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
+
+.submit-tree-container {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.submit-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.submit-btn:hover {
+    background-color: #45a049;
+}

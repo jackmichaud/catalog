@@ -42,7 +42,7 @@ def submit_tree(request):
     else:
         form = TreeSubmissionForm()
 
-    return render(request, 'submit_tree.html', {'form': form})
+    return render(request, 'home/submit_tree.html', {'form': form})
 
 @user_passes_test(is_moderator)
 def moderate_trees(request):
