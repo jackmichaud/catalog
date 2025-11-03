@@ -62,4 +62,4 @@ def moderate_trees(request):
     return render(request, 'moderate_trees.html', {'submissions': submissions})
 
 def feedback_success(request):
-    return render(request, 'submission_success.html')
+    return render(request, 'home/submission_success.html')

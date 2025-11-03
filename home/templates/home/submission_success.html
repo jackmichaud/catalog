@@ -1,1 +1,38 @@
-<h1>Thank you! Your tree submission has been received.</h1>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Submission Successful</title>
+    <link rel="stylesheet" href="{% static 'home/style.css' %}">
+    <style>
+        .success-container {
+            text-align: center;
+            margin-top: 100px;
+        }
+        .success-container h1 {
+            color: #4CAF50;
+        }
+        .success-container a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .success-container a:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="success-container">
+        <h1>Tree Submitted Successfully!</h1>
+        <p>Thank you for contributing to CataLog. Your submission will be reviewed shortly.</p>
+        <a href="{% url 'index' %}">Back to Home</a>
+    </div>
+</body>
+</html>
