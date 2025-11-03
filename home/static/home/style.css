@@ -177,7 +177,7 @@ nav a:hover {
     transition: background-color 0.2s ease;
 }
 
-#tree-form button[type="submit"]:hover {
+#tree-form button:hover {
     background-color: #1b5e20;
 }
 
