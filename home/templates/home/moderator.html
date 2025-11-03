@@ -1,28 +1,31 @@
-{% load static %}
-<!DOCTYPE html>
-<html>
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CataLog</title>
-    <link rel="stylesheet" href="{% static 'home/style.css' %}">
-</head>
-<body>
-    <nav>
-        <h2>CataLog</h2>
-        <ul>
-            <li><a href="{% url 'index' %}">Home</a></li>
-            <li><a href="#">Map</a></li>
-            <li><a href="#">About</a></li>
-            <li><a href="#">Community</a></li>
-            
-            {% if user.is_authenticated %}
-                <li><a href="{% url 'profile' %}">Profile</a></li>
-                <li><a href="/accounts/logout/">Logout</a></li>
-            {% else %}
-                <li><a href="/accounts/login/">Login</a></li>
-            {% endif %}
-        </ul>
-    </nav>
+{% extends "base.html" %}
+{% block title %}Moderator Dashboard{% endblock %}
+{% block content %}
+<div class="page-container">
+    <h1 class="page-title">Moderator Dashboard</h1>
+    <p class="page-subtitle">Manage user activity, content, and system performance.</p>
 
-</body>
-</html>
+    <div class="mod-controls">
+        <div class="control-section">
+            <h2>User Management</h2>
+            <button class="mod-btn">View All Users</button>
+            <button class="mod-btn">Search Users</button>
+            <button class="mod-btn">Manage Roles</button>
+        </div>
+
+        <div class="control-section">
+            <h2>Activity Monitoring</h2>
+            <button class="mod-btn">View Analytics</button>
+            <button class="mod-btn">Activity Reports</button>
+            <button class="mod-btn">Pickup Statistics</button>
+        </div>
+
+        <div class="control-section">
+            <h2>Content Management</h2>
+            <button class="mod-btn">Review Uploads</button>
+            <button class="mod-btn">Edit Content</button>
+            <button class="mod-btn">System Alerts</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
