@@ -10,7 +10,7 @@ class CustomUser(AbstractUser):
     )
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')
 
-class TreeSubmisison(models.Model):
+class TreeSubmission(models.Model):
     STATUS_CHOICES = (
         ('pending', 'Pending'),
         ('approved', 'Approved'),
