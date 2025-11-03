@@ -23,11 +23,12 @@ class TreeSubmission(models.Model):
     )
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    tree_name = models.CharField(max_length=100)
-    location = models.CharField(max_length=200)
+    species = models.CharField(max_length=100)
+    latitude = models.FloatField()
+    longitude = models.FloatField()
     description = models.TextField(blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
 
     def __str__(self):
-        return f"{self.tree_name} ({self.status})"
+        return f"{self.species} ({self.latitude}, {self.longitude})"
