@@ -9,11 +9,22 @@ const map = new mapboxgl.Map({
 let addMode = false;
 let tempMarker = null;
 
-document.getElementById('add-tree-btn').addEventListener('click', () => {
+const addBtn = document.getElementById('add-tree-btn');
+const sidebar = document.getElementById('sidebar');
+
+addBtn?.addEventListener('click', () => {
     addMode = !addMode;
     map.getCanvas().style.cursor = addMode ? 'crosshair' : '';
+    addBtn.textContent = addMode ? 'Cancel' : 'Add Tree';
+
+    // hide sidebar if canceling
+    if (!addMode) {
+        sidebar?.classList.remove('open');
+        if (tempMarker) tempMarker.remove();
+    }
 });
 
+// Map click to place marker
 map.on('click', (e) => {
     if (!addMode) return;
     if (tempMarker) tempMarker.remove();
@@ -22,8 +33,19 @@ map.on('click', (e) => {
         .setLngLat(e.lngLat)
         .addTo(map);
 
-    // Populate sidebar form
-    document.querySelector('#tree-form [name="latitude"]').value = e.lngLat.lat;
-    document.querySelector('#tree-form [name="longitude"]').value = e.lngLat.lng;
-    document.getElementById('sidebar').classList.add('open');
+    // Populate sidebar form if present
+    const latInput = document.querySelector('#tree-form [name="latitude"]');
+    const lngInput = document.querySelector('#tree-form [name="longitude"]');
+    if (latInput && lngInput) {
+        latInput.value = e.lngLat.lat.toFixed(6);
+        lngInput.value = e.lngLat.lng.toFixed(6);
+    }
+
+    sidebar?.classList.add('open');
+});
+
+// Prevent form reload
+document.getElementById('tree-form')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    alert('Form submitted! (hook up Django POST later)');
 });
