@@ -44,6 +44,16 @@ map.on('click', (e) => {
     sidebar?.classList.add('open');
 });
 
+const cancelBtn = document.getElementById('cancel-sidebar-btn');
+cancelBtn?.addEventListener('click', () => {
+    sidebar?.classList.remove('open');
+    if (tempMarker) tempMarker.remove();
+    map.getCanvas().style.cursor = '';
+    addMode = false;
+    const addBtn = document.getElementById('add-tree-btn');
+    if (addBtn) addBtn.textContent = 'Add Tree';
+});
+
 // Prevent form reload
 document.getElementById('tree-form')?.addEventListener('submit', (e) => {
     e.preventDefault();
