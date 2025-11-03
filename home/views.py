@@ -5,7 +5,9 @@ import os
 from django.contrib.auth.decorators import user_passes_test, login_required
 from .models import TreeSubmission
 from django import forms
-
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+import json
 class TreeSubmissionForm(forms.ModelForm):
     class Meta:
         model = TreeSubmission
@@ -47,20 +49,23 @@ def about(request):
 def community(request):
     return render(request, 'home/community.html')
 
-
 @login_required
-def submit_tree(request):
+@csrf_exempt 
+def add_tree(request):
     if request.method == 'POST':
-        form = TreeSubmissionForm(request.POST)
-        if form.is_valid():
-            submission = form.save(commit=False)
-            submission.user = request.user
-            submission.save()
-            return redirect('submission_success')
-    else:
-        form = TreeSubmissionForm()
-
-    return render(request, 'home/submit_tree.html', {'form': form})
+        try:
+            data = json.loads(request.body)
+            tree = TreeSubmission.objects.create(
+                user=request.user,
+                species=data['species'],
+                latitude=data['latitude'],
+                longitude=data['longitude'],
+                description=data.get('description', '')
+            )
+            return JsonResponse({'status': 'success', 'id': tree.id})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Invalid method'}, status=405)
 
 @user_passes_test(is_moderator)
 def moderate_trees(request):
