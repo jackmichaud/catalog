@@ -83,6 +83,24 @@ nav a:hover {
     right: 0;
 }
 
+.add-tree-btn {
+    background-color: #2e7d32;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    z-index: 10;
+    position: absolute;
+    top: 80px;
+    right: 20px;
+}
+
+.add-tree-btn:hover {
+    background-color: #1b5e20;
+}
+
 .page-container {
     max-width: 900px;
     margin: 2rem auto;

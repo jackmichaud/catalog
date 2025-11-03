@@ -6,8 +6,24 @@ const map = new mapboxgl.Map({
     zoom: 13
 });
 
-// Example marker
-new mapboxgl.Marker({ color: 'green' })
-    .setLngLat([-78.4767, 38.0293])
-    .setPopup(new mapboxgl.Popup().setHTML("<h3>Example Tree</h3><p>Oak, 25 years old</p>"))
-    .addTo(map);
+let addMode = false;
+let tempMarker = null;
+
+document.getElementById('add-tree-btn').addEventListener('click', () => {
+    addMode = !addMode;
+    map.getCanvas().style.cursor = addMode ? 'crosshair' : '';
+});
+
+map.on('click', (e) => {
+    if (!addMode) return;
+    if (tempMarker) tempMarker.remove();
+
+    tempMarker = new mapboxgl.Marker({ color: 'green' })
+        .setLngLat(e.lngLat)
+        .addTo(map);
+
+    // Populate sidebar form
+    document.querySelector('#tree-form [name="latitude"]').value = e.lngLat.lat;
+    document.querySelector('#tree-form [name="longitude"]').value = e.lngLat.lng;
+    document.getElementById('sidebar').classList.add('open');
+});
