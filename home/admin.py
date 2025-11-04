@@ -15,6 +15,6 @@ class CustomUserAdmin(UserAdmin):
 
 admin.site.register(CustomUser, CustomUserAdmin)
 
-@admin.register(TreeSubmission)
-class TreeSubmissionAdmin(admin.ModelAdmin):
-    list_display = ('tree_name', 'location', 'description')
+# @admin.register(TreeSubmission)
+# class TreeSubmissionAdmin(admin.ModelAdmin):
+#     list_display = ('tree_name', 'location', 'description')

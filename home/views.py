@@ -8,10 +8,10 @@ from django import forms
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
-class TreeSubmissionForm(forms.ModelForm):
-    class Meta:
-        model = TreeSubmission
-        fields = ['tree_name', 'location', 'description']
+# class TreeSubmissionForm(forms.ModelForm):
+#     class Meta:
+#         model = TreeSubmission
+#         fields = ['tree_name', 'location', 'description']
 
 def is_moderator(user):
     return user.is_authenticated and user.role == 'moderator'

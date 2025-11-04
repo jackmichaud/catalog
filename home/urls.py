@@ -7,7 +7,8 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('about/', views.about, name='about'),
     path('community/', views.community, name='community'),
-    path('submit-tree/', views.submit_tree, name='submit_tree'),
+    # path('submit-tree/', views.submit_tree, name='submit_tree'),
     path('moderate/', views.moderate_trees, name='moderate_trees'),
-    path('submission-success/', views.feedback_success, name='submission_success')
+    # path('submission-success/', views.feedback_success, name='submission_success'),
+    path("api/trees/add/", views.add_tree, name="add_tree")
 ]

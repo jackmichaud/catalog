@@ -12,6 +12,7 @@ let tempMarker = null;
 const addBtn = document.getElementById('add-tree-btn');
 const sidebar = document.getElementById('sidebar');
 const cancelBtn = document.getElementById('cancel-sidebar-btn');
+const treeForm = document.getElementById('tree-form');
 
 addBtn?.addEventListener('click', () => {
     addMode = !addMode;
@@ -56,8 +57,56 @@ cancelBtn?.addEventListener('click', () => {
     if (addBtn) addBtn.textContent = 'Add Tree';
 });
 
-// Prevent form reload
-document.getElementById('tree-form')?.addEventListener('submit', (e) => {
+treeForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    alert('Form submitted! (hook up Django POST later)');
+
+    const data = {
+        latitude: parseFloat(treeForm.latitude.value),
+        longitude: parseFloat(treeForm.longitude.value),
+        species: treeForm.species.value,
+        description: treeForm.description.value,
+    };
+
+    try {
+        const response = await fetch('/api/trees/add/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) throw new Error('Failed to submit tree');
+
+        const result = await response.json();
+        alert('🌳 Tree submitted successfully!');
+        
+        // Reset UI
+        treeForm.reset();
+        sidebar?.classList.remove('open');
+        if (tempMarker) tempMarker.remove();
+        addMode = false;
+        if (addBtn) addBtn.textContent = 'Add Tree';
+        map.getCanvas().style.cursor = '';
+
+    } catch (error) {
+        console.error(error);
+        alert('Error submitting tree. Please try again.');
+    }
 });
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
