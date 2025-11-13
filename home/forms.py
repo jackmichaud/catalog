@@ -8,8 +8,10 @@ class ProfileForm(forms.ModelForm):
             "avatar",
             "bio",
             "sustainability_interests",
+            "nickname",
         ]
         widgets = {
             "bio": forms.Textarea(attrs={"rows": 4}),
             "sustainability_interests": forms.TextInput(),
+            "nickname": forms.TextInput(),
         }
