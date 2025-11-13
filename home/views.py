@@ -52,20 +52,31 @@ def community(request):
 @login_required
 @csrf_exempt 
 def add_tree(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            tree = TreeSubmission.objects.create(
-                user=request.user,
-                species=data['species'],
-                latitude=data['latitude'],
-                longitude=data['longitude'],
-                description=data.get('description', '')
-            )
-            return JsonResponse({'status': 'success', 'id': tree.id})
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-    return JsonResponse({'status': 'error', 'message': 'Invalid method'}, status=405)
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    species = data.get("species")
+    latitude = data.get("latitude")
+    longitude = data.get("longitude")
+    description = data.get("description", "")
+
+    if not all([species, latitude, longitude]):
+        return JsonResponse({"error": "Missing required fields"}, status=400)
+
+    tree = TreeSubmission.objects.create(
+        user=request.user,
+        species=species,
+        latitude=latitude,
+        longitude=longitude,
+        description=description
+    )
+
+    return JsonResponse({"success": True, "tree_id": tree.id}, status=201)
 
 @user_passes_test(is_moderator)
 def moderate_trees(request):
