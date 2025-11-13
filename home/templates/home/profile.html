@@ -12,6 +12,12 @@
     
 
         <div id="display-section">
+            {% if user.nickname %}
+                <p><strong>Nickname:</strong> {{ user.nickname }}</p>
+            {% else %}
+                <p>No nickname set.</p>
+            {% endif %}
+            
             {% if user.avatar %}
                 <img src="{{ request.user.avatar.url }}" alt="Avatar">
             {% else %}
@@ -27,6 +33,7 @@
 
         <form id="edit-form" method="post" enctype="multipart/form-data" class="profile-form" style="display: none;">
             {% csrf_token %}
+            <p><strong>Nickname:</strong> {{ form.nickname }}</p>
 
             <p><strong>Avatar:</strong> {{ form.avatar }}</p>
 
