@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser
+from .models import CustomUser, TreeSubmission
 
 # register your models here
 
@@ -14,3 +14,7 @@ class CustomUserAdmin(UserAdmin):
     )
 
 admin.site.register(CustomUser, CustomUserAdmin)
+
+# @admin.register(TreeSubmission)
+# class TreeSubmissionAdmin(admin.ModelAdmin):
+#     list_display = ('tree_name', 'location', 'description')

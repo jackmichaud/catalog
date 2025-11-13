@@ -83,6 +83,113 @@ nav a:hover {
     right: 0;
 }
 
+.add-tree-btn {
+    background-color: #2e7d32;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    z-index: 10;
+    position: absolute;
+    top: 80px;
+    left: 20px;
+}
+
+.add-tree-btn:hover {
+    background-color: #1b5e20;
+}
+
+.sidebar {
+    position: absolute;
+    top: 60px;
+    left: -410px;
+    width: 360px;
+    height: calc(100% - 100px);
+    background-color: #ffffff;
+    border-left: 2px solid #ddd;
+    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.15);
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+    padding: 1.5rem;
+    transition: left 0.35s ease-in-out;
+    z-index: 20;
+    overflow-y: auto;
+}
+
+.sidebar.open {
+    left: 0;
+}
+
+.sidebar h2 {
+    font-size: 1.4rem;
+    color: #2e7d32;
+    margin: 0;
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 0.5rem;
+}
+
+#tree-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+#tree-form label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+#tree-form input,
+#tree-form textarea {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    transition: border-color 0.2s ease;
+}
+
+#tree-form input:focus,
+#tree-form textarea:focus {
+    border-color: #2e7d32;
+    outline: none;
+    box-shadow: 0 0 3px rgba(46, 125, 50, 0.3);
+}
+
+#tree-form button {
+    background-color: #2e7d32;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+}
+
+#tree-form button:hover {
+    background-color: #1b5e20;
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 8px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+}
+
 .page-container {
     max-width: 900px;
     margin: 2rem auto;
@@ -132,4 +239,23 @@ nav a:hover {
 
 .community-btn:hover {
     background-color: #1b5e20;
+}
+
+
+.submit-tree-container {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.submit-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.submit-btn:hover {
+    background-color: #45a049;
 }

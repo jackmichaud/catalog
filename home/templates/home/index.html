@@ -15,6 +15,29 @@
 
 <!-- Mapbox map -->
 <div id="map"></div>
+<button id="add-tree-btn" class="add-tree-btn">Add Tree</button>
+
+<div id="sidebar" class="sidebar">
+    <form id="tree-form">
+        <div class="sidebar-header">
+            <h2>Add Tree</h2>
+            <button type="button" id="cancel-sidebar-btn" class="cancel-btn">&times;</button>
+        </div>
+        <label>Latitude</label>
+        <input type="text" name="latitude" readonly />
+
+        <label>Longitude</label>
+        <input type="text" name="longitude" readonly />
+
+        <label>Species</label>
+        <input type="text" name="species" placeholder="e.g. Oak" required />
+
+        <label>Description</label>
+        <textarea name="description" placeholder="Optional notes..."></textarea>
+
+        <button type="submit">Submit</button>
+    </form>
+</div>
 
 {% endblock %}
 
