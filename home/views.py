@@ -17,6 +17,12 @@ def is_moderator(user):
     return user.is_authenticated and user.role == 'moderator'
 
 
+def google_login_redirect(request):
+    """
+    Automatically redirects /accounts/login/ to Google's OAuth login.
+    """
+    return redirect("google_login")
+
 # Create your views here.
 def index(request):
     mapbox_token = os.getenv("MAPBOX_TOKEN")
