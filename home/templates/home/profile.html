@@ -1,24 +1,37 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container">
-    <h1 class="profile-title">Your Profile</h1>
+<div class="page-container">
+    <h1 class="page-title">Your Profile</h1>
     
     <div class="profile-box">
+        
         <p><strong>Username:</strong> {{ user.username }}</p>
         <p><strong>Email:</strong> {{ user.email }}</p>
-        <p><strong>Your Role:</strong> {{ user.role }}</p>
         
         {% if user.avatar %}
             <img src="{{ request.user.avatar.url }}" alt="Avatar">
         {% else %}
             <p>No avatar uploaded.</p>
         {% endif %}
+
+        <div id="display-section">
+            <p><strong>Your Role:</strong> {{ user.role }}</p>
+
+            <p id="bio-display"><strong>Bio:</strong> {{ user.bio }}</p>
+
+            <p id="si-display">
+                <strong>Sustainability Interests:</strong> {{ user.sustainability_interests }}
+            </p>
+        </div>
+
+        <button id="edit-btn" class="community-btn" type="submit">Edit Profile</button>
     </div>
     
-    <h2 class="edit-section-title">Edit Profile</h2>
-    <form method="post" enctype="multipart/form-data" class="profile-form">
+    <form id="edit-form" method="post" enctype="multipart/form-data" class="profile-form" style="display: none;">
         {% csrf_token %}
+
+        <h2 class="edit-section-title">Edit Profile</h2>
 
         <label>Avatar</label>
         {{ form.avatar }}
@@ -28,9 +41,30 @@
 
         <label>Sustainability Interests</label>
         {{ form.sustainability_interests }}
-
-        <button class="btn-primary" type="submit">Save Changes</button>
     </form>
 
 </div>
+
+<script>
+document.getElementById("edit-btn").addEventListener("click", function() {
+    const editForm = document.getElementById("edit-form");
+    const displaySection = document.getElementById("display-section");
+    const editBtn = document.getElementById("edit-btn");
+
+    // Hide the text display section
+    displaySection.style.display = "none";
+
+    // Show the edit form
+    editForm.style.display = "block";
+
+    // Turn the button into a submit button
+    editBtn.textContent = "Save Changes";
+    editBtn.type = "submit";
+
+    // Make it submit the form
+    editBtn.addEventListener("click", function() {
+        editForm.submit();
+    }, { once: true });
+});
+</script>
 {% endblock %}
