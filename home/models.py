@@ -14,6 +14,8 @@ class CustomUser(AbstractUser):
     )
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')
     avatar = models.ImageField(upload_to='avatars/', storage=s3_storage, null=True, blank=True)
+    bio = models.TextField(blank=True)
+    sustainability_interests = models.CharField(max_length=255, blank=True)
 
 class TreeSubmission(models.Model):
     STATUS_CHOICES = (

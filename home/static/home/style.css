@@ -259,3 +259,10 @@ nav a:hover {
 .submit-btn:hover {
     background-color: #45a049;
 }
+
+.profile-box {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}

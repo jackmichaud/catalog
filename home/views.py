@@ -40,7 +40,7 @@ def profile(request):
             print("req.f", request.FILES)  # Should show the UploadedFile object
             print(form.cleaned_data['avatar'])  # Should be an InMemoryUploadedFile
             form.save()
-            return redirect(".")
+            return redirect("profile")
     else:
         form = ProfileForm(instance=request.user)
     return render(request, 'home/profile.html', {'form': form})
