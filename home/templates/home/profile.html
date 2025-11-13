@@ -2,19 +2,34 @@
 
 {% block content %}
 <div class="container">
-    <h1>User Profile</h1>
-    <p><strong>Username:</strong> {{ user.username }}</p>
-    <p><strong>Email:</strong> {{ user.email }}</p>
-    <p><strong>Your Role:</strong> {{ user.role }}</p>
-    {% if user.avatar %}
-    <img src="{{ request.user.avatar.url }}" alt="Avatar">
-    {% endif %}
+    <h1 class="profile-title">Your Profile</h1>
     
-    <a href="#">Edit Profile</a>
-    <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Upload</button>
+    <div class="profile-box">
+        <p><strong>Username:</strong> {{ user.username }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Your Role:</strong> {{ user.role }}</p>
+        
+        {% if user.avatar %}
+            <img src="{{ request.user.avatar.url }}" alt="Avatar">
+        {% else %}
+            <p>No avatar uploaded.</p>
+        {% endif %}
+    </div>
+    
+    <h2 class="edit-section-title">Edit Profile</h2>
+    <form method="post" enctype="multipart/form-data" class="profile-form">
+        {% csrf_token %}
+
+        <label>Avatar</label>
+        {{ form.avatar }}
+
+        <label>Short Bio</label>
+        {{ form.bio }}
+
+        <label>Sustainability Interests</label>
+        {{ form.sustainability_interests }}
+
+        <button class="btn-primary" type="submit">Save Changes</button>
     </form>
 
 </div>
