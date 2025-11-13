@@ -8,16 +8,16 @@
         
         <p><strong>Username:</strong> {{ user.username }}</p>
         <p><strong>Email:</strong> {{ user.email }}</p>
-        
-        {% if user.avatar %}
-            <img src="{{ request.user.avatar.url }}" alt="Avatar">
-        {% else %}
-            <p>No avatar uploaded.</p>
-        {% endif %}
+        <p><strong>Your Role:</strong> {{ user.role }}</p>
+    
 
         <div id="display-section">
-            <p><strong>Your Role:</strong> {{ user.role }}</p>
-
+            {% if user.avatar %}
+                <img src="{{ request.user.avatar.url }}" alt="Avatar">
+            {% else %}
+                <p>No avatar uploaded.</p>
+            {% endif %}
+            
             <p id="bio-display"><strong>Bio:</strong> {{ user.bio }}</p>
 
             <p id="si-display">
@@ -25,23 +25,20 @@
             </p>
         </div>
 
+        <form id="edit-form" method="post" enctype="multipart/form-data" class="profile-form" style="display: none;">
+            {% csrf_token %}
+
+            <p><strong>Avatar:</strong> {{ form.avatar }}</p>
+
+            <p><strong>Bio:</strong> {{ form.bio }}</p>
+
+            <p><strong>Sustainability Interests:</strong> {{ form.sustainability_interests }}</p>
+        </form>
+
         <button id="edit-btn" class="community-btn" type="submit">Edit Profile</button>
     </div>
     
-    <form id="edit-form" method="post" enctype="multipart/form-data" class="profile-form" style="display: none;">
-        {% csrf_token %}
 
-        <h2 class="edit-section-title">Edit Profile</h2>
-
-        <label>Avatar</label>
-        {{ form.avatar }}
-
-        <label>Short Bio</label>
-        {{ form.bio }}
-
-        <label>Sustainability Interests</label>
-        {{ form.sustainability_interests }}
-    </form>
 
 </div>
 
