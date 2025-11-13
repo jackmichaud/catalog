@@ -266,3 +266,33 @@ nav a:hover {
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
+
+.profile-form input[type="file"] {
+    display: block;
+    margin-top: 8px;
+}
+
+.profile-form input[type="text"],
+.profile-form input[type="email"],
+.profile-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    margin-top: 5px;
+}
+
+.profile-form input[type="text"]:focus,
+.profile-form input[type="email"]:focus,
+.profile-form textarea:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.25); /* soft green glow */
+    outline: none;
+}
+
+.profile-form textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
