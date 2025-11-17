@@ -174,7 +174,10 @@ SOCIALACCOUNT_PROVIDERS = {
             "profile",
             "email",
         ],
-        "AUTH_PARAMS": {"access_type": "online"},
+        "AUTH_PARAMS": {
+            "access_type": "online",
+            "prompt": "select_account"  # Forces Google to show account picker
+        },
     }
 }
 
