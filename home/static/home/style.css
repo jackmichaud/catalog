@@ -73,6 +73,53 @@ nav a:hover {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
+.chat-user-list {
+    position: absolute;
+    top: 80px;
+    right: 20px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 15;
+    max-width: 300px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.chat-user-list h3 {
+    color: #2e7d32;
+    margin-top: 0;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+}
+
+.chat-user-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.chat-user-list li {
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.chat-user-list li:last-child {
+    border-bottom: none;
+}
+
+.chat-user-list a {
+    color: #2e7d32;
+    text-decoration: none;
+    margin-left: 10px;
+    font-size: 0.9rem;
+}
+
+.chat-user-list a:hover {
+    text-decoration: underline;
+}
+
 #map {
     z-index: 1;
     width: 100%;

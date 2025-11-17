@@ -8,6 +8,22 @@
 {% endblock %}
 
 {% block content %}
+{% if user.is_authenticated %}
+<div class="chat-user-list">
+    <h3>Start a Chat with a User:</h3>
+    <ul>
+        {% for other_user in all_users %}
+            <li>
+                {{ other_user.username }}
+                <a href="{% url 'create_conversation' user_id=other_user.id %}">(Start Chat)</a>
+            </li>
+        {% empty %}
+            <li>No other users to chat with.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
 <!-- Passing the mapbox token to JS -->
 <script>
     const MAPBOX_TOKEN = "{{ MAPBOX_TOKEN }}";

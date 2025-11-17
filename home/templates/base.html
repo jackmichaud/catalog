@@ -30,6 +30,7 @@
             {% endif %}
             {% if user.is_authenticated %}
                 <li><a href="{% url 'profile' %}">Profile</a></li>
+                <li><a href="{% url 'conversation_list' %}">Messages</a></li> 
             {% else %}
                 <li><a href="/accounts/login/">Login</a></li>
             {% endif %}

@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h3>
+        Chat with 
+        {% for user in conversation.participants.all %}
+            {% if user != request.user %}
+                {{ user.username }}
+            {% endif %}
+        {% endfor %}
+    </h3>
+
+    <div class="message-list" style="border: 1px solid #ccc; padding: 10px; height: 400px; overflow-y: scroll; margin-bottom: 20px;">
+        {% for message in messages %}
+            <div class="message {% if message.sender == request.user %}sent{% else %}received{% endif %}">
+                <strong>{{ message.sender.username }}</strong>
+                <p>{{ message.content }}</p>
+                {% if message.image_attachment %}
+                    <img src="{{ message.image_attachment.url }}" alt="Attachment" style="max-width: 200px; height: auto;">
+                {% endif %}
+                <small>{{ message.timestamp }}</small>
+            </div>
+            <hr>
+        {% endfor %}
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Send</button>
+    </form>
+</div>
+{% endblock %}
