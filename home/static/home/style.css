@@ -1142,3 +1142,26 @@ fieldset {
     margin: 0;
 }
 
+/* Toast Notification */
+.toast-notification {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background-color: #2e7d32;
+    color: white;
+    padding: 16px 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    font-weight: 600;
+    font-size: 1rem;
+    z-index: 1000;
+    opacity: 0;
+    transform: translateX(400px);
+    transition: all 0.3s ease;
+}
+
+.toast-notification.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
