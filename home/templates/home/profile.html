@@ -45,7 +45,34 @@
         <button id="edit-btn" class="community-btn" type="submit">Edit Profile</button>
         <button id="cancel-btn" class="community-btn" type="submit" style="display:none;">Cancel</button>
     </div>
-    
+
+    <div class="profile-box">
+        <h2 class="page-title">Account Settings</h2>
+        <div class="settings-links">
+            <a href="{% url 'account_email' %}" class="settings-link">
+                <span class="settings-icon">✉️</span>
+                <div>
+                    <div class="settings-title">Email Addresses</div>
+                    <div class="settings-description">Manage your email addresses</div>
+                </div>
+            </a>
+            <a href="{% url 'account_set_password' %}" class="settings-link">
+                <span class="settings-icon">🔒</span>
+                <div>
+                    <div class="settings-title">Password</div>
+                    <div class="settings-description">Set or change your password</div>
+                </div>
+            </a>
+            <a href="{% url 'socialaccount_connections' %}" class="settings-link">
+                <span class="settings-icon">🔗</span>
+                <div>
+                    <div class="settings-title">Connected Accounts</div>
+                    <div class="settings-description">Manage third-party account connections</div>
+                </div>
+            </a>
+        </div>
+    </div>
+
     <form action="/accounts/logout/" method="get" style="display:inline;">
         <button class="community-btn">Logout</button>
     </form>
