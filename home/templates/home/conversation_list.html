@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-container">
+    <h1 class="page-title">Your Conversations</h1>
+
+    {% if conversations %}
+        <div class="conversations-list">
+            {% for convo in conversations %}
+                <a href="{% url 'conversation_detail' pk=convo.pk %}" class="conversation-card">
+                    <div class="conversation-avatar">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="#2e7d32">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                    </div>
+                    <div class="conversation-info">
+                        <div class="conversation-name">
+                            {% for user in convo.participants.all %}
+                                {% if user != request.user %}
+                                    {{ user.nickname|default:user.username }}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="conversation-preview">Click to view conversation</div>
+                    </div>
+                    <div class="conversation-arrow">›</div>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-conversations">
+            <p>You have no conversations yet.</p>
+            <a href="{% url 'index' %}" class="community-btn">Find users to chat with</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -18,6 +18,33 @@ class CustomUser(AbstractUser):
     sustainability_interests = models.CharField(max_length=255, blank=True)
     nickname = models.CharField(max_length=100, blank=True)
 
+class Conversation(models.Model):
+    participants = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, related_name="conversations"
+    )
+    def __str__(self):
+        return ", ".join([user.username for user in self.participants.all()])
+
+class Message(models.Model):
+    conversation = models.ForeignKey(
+        Conversation, on_delete=models.CASCADE, related_name="messages"
+    )
+    sender = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="sent_messages"
+    )
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    image_attachment = models.ImageField(
+        upload_to='message_attachments/', storage=s3_storage, blank=True, null=True
+    )
+
+    class Meta:
+        ordering = ['timestamp'] 
+
+    def __str__(self):
+        return f"Message from {self.sender.username} at {self.timestamp.strftime('%Y-%m-%d %H:%M')}"
+
 class TreeSubmission(models.Model):
     STATUS_CHOICES = (
         ('pending', 'Pending'),
