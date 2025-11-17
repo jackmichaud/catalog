@@ -3,43 +3,47 @@
 {% block content %}
 <div class="page-container">
     <div class="account-settings-box">
+        <a href="{% url 'profile' %}" class="back-link">← Back to Profile</a>
         <h1 class="page-title">Email Addresses</h1>
         <p class="page-subtitle">The following email addresses are associated with your account</p>
 
         {% if emailaddresses %}
-            <div class="email-list">
-                <form method="post" action="{% url 'account_email' %}">
-                    {% csrf_token %}
-                    {% for emailaddress in emailaddresses %}
-                        <div class="email-item">
-                            <div class="email-info">
-                                <span class="email-address">{{ emailaddress.email }}</span>
-                                <div class="email-badges">
-                                    {% if emailaddress.verified %}
-                                        <span class="badge badge-verified">Verified</span>
-                                    {% else %}
-                                        <span class="badge badge-unverified">Unverified</span>
+            <form method="post" action="{% url 'account_email' %}">
+                {% csrf_token %}
+                <fieldset>
+                    <div class="email-list">
+                        {% for emailaddress in emailaddresses %}
+                            <div class="email-item">
+                                <div class="email-info">
+                                    <input type="radio" name="email" id="email_radio_{{ forloop.counter }}" value="{{ emailaddress.email }}" style="display: none;">
+                                    <span class="email-address">{{ emailaddress.email }}</span>
+                                    <div class="email-badges">
+                                        {% if emailaddress.verified %}
+                                            <span class="badge badge-verified">Verified</span>
+                                        {% else %}
+                                            <span class="badge badge-unverified">Unverified</span>
+                                        {% endif %}
+                                        {% if emailaddress.primary %}
+                                            <span class="badge badge-primary">Primary</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="email-actions">
+                                    {% if not emailaddress.primary %}
+                                        <button type="submit" name="action_primary" onclick="document.getElementById('email_radio_{{ forloop.counter }}').checked=true;" class="btn-small btn-primary-action">Make Primary</button>
                                     {% endif %}
-                                    {% if emailaddress.primary %}
-                                        <span class="badge badge-primary">Primary</span>
+                                    {% if not emailaddress.verified %}
+                                        <button type="submit" name="action_send" onclick="document.getElementById('email_radio_{{ forloop.counter }}').checked=true;" class="btn-small btn-resend">Re-send Verification</button>
+                                    {% endif %}
+                                    {% if not emailaddress.primary %}
+                                        <button type="submit" name="action_remove" onclick="document.getElementById('email_radio_{{ forloop.counter }}').checked=true;" class="btn-small btn-remove">Remove</button>
                                     {% endif %}
                                 </div>
                             </div>
-                            <div class="email-actions">
-                                {% if not emailaddress.primary %}
-                                    <button type="submit" name="action_primary" value="{{ emailaddress.email }}" class="btn-small btn-primary-action">Make Primary</button>
-                                {% endif %}
-                                {% if not emailaddress.verified %}
-                                    <button type="submit" name="action_send" value="{{ emailaddress.email }}" class="btn-small btn-resend">Re-send Verification</button>
-                                {% endif %}
-                                {% if not emailaddress.primary %}
-                                    <button type="submit" name="action_remove" value="{{ emailaddress.email }}" class="btn-small btn-remove">Remove</button>
-                                {% endif %}
-                            </div>
-                        </div>
-                    {% endfor %}
-                </form>
-            </div>
+                        {% endfor %}
+                    </div>
+                </fieldset>
+            </form>
         {% else %}
             <p class="no-items">No email addresses associated with your account.</p>
         {% endif %}

@@ -1109,3 +1109,36 @@ nav a:hover {
     font-size: 0.9rem;
 }
 
+/* Back Link */
+.back-link {
+    display: inline-block;
+    color: #2e7d32;
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 20px;
+    transition: color 0.2s ease;
+}
+
+.back-link:hover {
+    color: #1b5e20;
+    text-decoration: underline;
+}
+
+/* Success Messages */
+.success-message {
+    background-color: #c8e6c9;
+    color: #2e7d32;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid #2e7d32;
+    font-weight: 600;
+}
+
+/* Remove fieldset border */
+fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
