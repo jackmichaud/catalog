@@ -24,5 +24,24 @@
         <p>See who’s contributing the most to the global tree database!</p>
         <button class="community-btn">View Leaderboard</button>
     </section>
+
+    <section class="community-section">
+        <h2>Community Members</h2>
+        <div class="user-list">
+            {% for user in users %}
+                <div class="user-card">
+                    {% if user.avatar %}
+                        <img src="{{ user.avatar.url }}" alt="{{ user.username }}'s avatar" class="user-avatar" style="width: 50px; height: 50px; border-radius: 50%;">
+                    {% else %}
+                        <div class="user-avatar-placeholder" style="width: 50px; height: 50px; border-radius: 50%; background-color: #ccc;"></div>
+                    {% endif %}
+                    <span class="username">{{ user.username }}</span>
+                    <span class="user-role">({{ user.role }})</span>
+                </div>
+            {% empty %}
+                <p>No users found.</p>
+            {% endfor %}
+        </div>
+    </section>
 </div>
 {% endblock %}

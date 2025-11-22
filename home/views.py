@@ -37,5 +37,8 @@ def moderator(request):
 def about(request):
     return render(request, 'home/about.html')
 
+from .models import CustomUser
+
 def community(request):
-    return render(request, 'home/community.html')
+    users = CustomUser.objects.all()
+    return render(request, 'home/community.html', {'users': users})
