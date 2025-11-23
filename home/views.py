@@ -51,6 +51,10 @@ def profile(request):
     return render(request, 'home/profile.html', {'form': form})
 
 @login_required
+def account_settings(request):
+    return render(request, 'home/account_settings.html')
+
+@login_required
 def conversation_list(request):
     conversations = request.user.conversations.all()
     return render(request, 'home/conversation_list.html', {'conversations': conversations})
