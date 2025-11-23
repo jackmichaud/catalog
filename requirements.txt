@@ -5,6 +5,7 @@ certifi==2025.10.5
 cffi==2.0.0
 charset-normalizer==3.4.4
 cryptography==46.0.3
+dj-database-url==3.0.1
 Django==5.2.7
 django-allauth==65.12.1
 django-environ==0.12.0
@@ -14,6 +15,7 @@ idna==3.11
 jmespath==1.0.1
 packaging==25.0
 pillow==12.0.0
+psycopg2-binary==2.9.11
 pycparser==2.23
 PyJWT==2.10.1
 python-dateutil==2.9.0.post0
