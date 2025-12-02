@@ -11,10 +11,14 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 
-from os import environ
 from django.conf.global_settings import AUTH_USER_MODEL
 from django.conf.global_settings import LOGIN_REDIRECT_URL
 from pathlib import Path
+
+import environ
+
+env = environ.Env()
+environ.Env.read_env(".env")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,7 +31,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-c-d&xg4%8)u%mmk@#&b=8+9oesi(yc^=uf8+2f0%etobia$%x$'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env("DEBUG")
 
 ALLOWED_HOSTS = ['*']
 
@@ -101,6 +105,7 @@ DATABASES = {
 # }
 
 
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
@@ -160,10 +165,7 @@ AUTH_USER_MODEL = 'home.CustomUser'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # S3 config
-import environ
 
-env = environ.Env()
-environ.Env.read_env(".env")
 
 
 AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
