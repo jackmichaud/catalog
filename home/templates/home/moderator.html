@@ -148,9 +148,9 @@
     background: white;
     border-radius: 12px;
     padding: 30px;
-    max-width: 800px;
-    width: 90%;
-    max-height: 80vh;
+    max-width: 1000px;
+    width: 95%;
+    max-height: 85vh;
     overflow-y: auto;
     box-shadow: 0 10px 40px rgba(0,0,0,0.3);
     animation: slideIn 0.3s ease;
@@ -271,25 +271,6 @@
     <div class="mod-header">
         <h1>🛡️ Moderator Dashboard</h1>
         <p>Manage users, content, and monitor platform activity</p>
-    </div>
-
-    <div class="stats-overview">
-        <div class="stat-card">
-            <h3>Total Users</h3>
-            <p class="stat-number">{{ total_users }}</p>
-        </div>
-        <div class="stat-card">
-            <h3>Pending Trees</h3>
-            <p class="stat-number">{{ pending_trees }}</p>
-        </div>
-        <div class="stat-card">
-            <h3>Approved Trees</h3>
-            <p class="stat-number">{{ approved_trees }}</p>
-        </div>
-        <div class="stat-card">
-            <h3>Total Messages</h3>
-            <p class="stat-number">{{ total_messages }}</p>
-        </div>
     </div>
 
     <div class="mod-sections">
@@ -445,23 +426,107 @@ async function showManageRoles() {
 
     document.getElementById('modalTitle').textContent = 'Manage User Roles';
     document.getElementById('modalBody').innerHTML = `
-        <table class="user-table">
+        <style>
+            .manage-roles-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+            .manage-roles-table th {
+                background: #f8f9fa;
+                padding: 14px 12px;
+                text-align: left;
+                font-weight: 600;
+                color: #333;
+                border-bottom: 2px solid #dee2e6;
+            }
+            .manage-roles-table td {
+                padding: 14px 12px;
+                border-bottom: 1px solid #f0f0f0;
+            }
+            .manage-roles-table tr:hover {
+                background: #f8f9fa;
+            }
+            .action-btn-group {
+                display: flex;
+                gap: 8px;
+                flex-wrap: nowrap;
+            }
+            .btn-toggle-role,
+            .btn-suspend-user,
+            .btn-reinstate-user,
+            .btn-delete-user {
+                padding: 8px 12px;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-weight: 600;
+                font-size: 0.85em;
+                transition: background 0.3s ease;
+                min-width: 110px;
+                text-align: center;
+                white-space: nowrap;
+            }
+            .btn-toggle-role {
+                background: #228B22;
+            }
+            .btn-toggle-role:hover {
+                background: #1a6b1a;
+            }
+            .btn-suspend-user {
+                background: #ff9800;
+            }
+            .btn-suspend-user:hover {
+                background: #f57c00;
+            }
+            .btn-reinstate-user {
+                background: #2196F3;
+            }
+            .btn-reinstate-user:hover {
+                background: #1976D2;
+            }
+            .btn-delete-user {
+                background: #dc3545;
+            }
+            .btn-delete-user:hover {
+                background: #c82333;
+            }
+            .status-suspended {
+                color: #ff9800;
+                font-weight: 600;
+            }
+        </style>
+        <table class="manage-roles-table">
             <thead>
                 <tr>
                     <th>Username</th>
+                    <th>Email</th>
                     <th>Current Role</th>
-                    <th>Action</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 ${data.users.map(user => `
                     <tr>
-                        <td>${user.username}</td>
+                        <td>
+                            ${user.username}
+                            ${!user.is_active ? '<span class="status-suspended"> (Suspended)</span>' : ''}
+                        </td>
+                        <td>${user.email || 'N/A'}</td>
                         <td><span class="role-badge role-${user.role}">${user.role}</span></td>
                         <td>
-                            <button onclick="toggleRole(${user.id}, '${user.role}')" style="padding: 6px 12px; background: #228B22; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                                ${user.role === 'user' ? 'Make Moderator' : 'Make User'}
-                            </button>
+                            <div class="action-btn-group">
+                                <button onclick="toggleRole(${user.id}, '${user.role}')" class="btn-toggle-role">
+                                    ${user.role === 'user' ? 'Make Mod' : 'Make User'}
+                                </button>
+                                <button onclick="toggleSuspend(${user.id}, ${user.is_active}, '${user.username}')" class="${user.is_active ? 'btn-suspend-user' : 'btn-reinstate-user'}">
+                                    ${user.is_active ? 'Suspend' : 'Reinstate'}
+                                </button>
+                                <button onclick="deleteUser(${user.id}, '${user.username}')" class="btn-delete-user">
+                                    Delete Account
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `).join('')}
@@ -489,6 +554,60 @@ async function toggleRole(userId, currentRole) {
         showManageRoles(); // Refresh the list
     } else {
         alert('Error changing role');
+    }
+}
+
+async function toggleSuspend(userId, isActive, username) {
+    const action = isActive ? 'suspend' : 'reinstate';
+    const message = isActive
+        ? `Suspend "${username}"?\n\nThis will:\n- Prevent them from logging in\n- Keep their data intact\n- Can be reversed later`
+        : `Reinstate "${username}"?\n\nThis will restore their access to the platform.`;
+
+    if (!confirm(message)) return;
+
+    const response = await fetch('/moderator/api/users/suspend/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ user_id: userId, suspend: isActive })
+    });
+
+    if (response.ok) {
+        alert(`User ${action}d successfully!`);
+        showManageRoles(); // Refresh the list
+    } else {
+        const data = await response.json();
+        alert('Error: ' + (data.error || 'Unknown error'));
+    }
+}
+
+async function deleteUser(userId, username) {
+    if (!confirm(`Are you sure you want to permanently delete the account for "${username}"?\n\nThis will delete:\n- Their profile\n- All their tree submissions\n- All their messages\n- All associated data\n\nThis action CANNOT be undone!`)) {
+        return;
+    }
+
+    // Double confirmation for safety
+    if (!confirm(`FINAL CONFIRMATION: Delete "${username}" permanently?`)) {
+        return;
+    }
+
+    const response = await fetch('/moderator/api/users/delete/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ user_id: userId })
+    });
+
+    if (response.ok) {
+        alert('User account deleted successfully!');
+        showManageRoles(); // Refresh the list
+    } else {
+        const data = await response.json();
+        alert('Error deleting user: ' + (data.error || 'Unknown error'));
     }
 }
 
