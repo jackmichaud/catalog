@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-container">
+    <div class="profile-box">
+        <h1 class="page-title">Account Settings</h1>
+        <p class="page-subtitle">Manage your account preferences and security</p>
+
+        <div class="settings-links">
+            <a href="{% url 'account_email' %}" class="settings-link">
+                <span class="settings-icon">✉️</span>
+                <div>
+                    <div class="settings-title">Email Addresses</div>
+                    <div class="settings-description">Manage your email addresses</div>
+                </div>
+            </a>
+            <a href="{% url 'account_change_password' %}" class="settings-link">
+                <span class="settings-icon">🔒</span>
+                <div>
+                    <div class="settings-title">Password</div>
+                    <div class="settings-description">Change your password</div>
+                </div>
+            </a>
+            <a href="{% url 'socialaccount_connections' %}" class="settings-link">
+                <span class="settings-icon">🔗</span>
+                <div>
+                    <div class="settings-title">Connected Accounts</div>
+                    <div class="settings-description">Manage third-party account connections</div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

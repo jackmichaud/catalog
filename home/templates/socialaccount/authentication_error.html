@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-container">
+    <div class="auth-box">
+        <div class="error-message">
+            An account already exists with this email address.
+        </div>
+
+        <h1 class="page-title">Account Already Exists</h1>
+        <p class="page-subtitle">Please sign in to your existing account first, then you can connect your {{ provider.name }} account from your profile settings.</p>
+
+        <div style="margin-top: 30px; display: flex; flex-direction: column; gap: 15px;">
+            <a href="{% url 'account_login' %}" class="community-btn" style="display: block; text-align: center; text-decoration: none;">
+                Sign In to Existing Account
+            </a>
+            <a href="{% url 'index' %}" class="auth-links" style="display: block; text-align: center;">
+                Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -5,6 +5,7 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('moderator/', views.moderator, name='moderator'),
     path('profile/', views.profile, name='profile'),
+    path('account-settings/', views.account_settings, name='account_settings'),
     path('about/', views.about, name='about'),
     path('messages/', views.conversation_list, name='conversation_list'),
     path('messages/<int:pk>/', views.conversation_detail, name='conversation_detail'),
