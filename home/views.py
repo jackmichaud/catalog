@@ -27,11 +27,7 @@ def google_login_redirect(request):
 # Create your views here.
 def index(request):
     mapbox_token = os.getenv("MAPBOX_TOKEN")
-    all_users = []
-    if request.user.is_authenticated:
-        all_users = CustomUser.objects.exclude(id=request.user.id)
-
-    return render(request, 'home/index.html', {'all_users': all_users, "MAPBOX_TOKEN": mapbox_token})
+    return render(request, 'home/index.html', {"MAPBOX_TOKEN": mapbox_token})
 
 @user_passes_test(is_moderator)
 def moderator(request):
@@ -104,8 +100,14 @@ def about(request):
 from .models import CustomUser
 
 def community(request):
-    users = CustomUser.objects.all()
-    return render(request, 'home/community.html', {'users': users})
+    other_users = []
+    conversants = []
+    if request.user.is_authenticated:
+        other_users = CustomUser.objects.exclude(id=request.user.id)
+        conversants = CustomUser.objects.filter(conversations__participants=request.user).exclude(id=request.user.id).distinct()
+        for user in other_users:
+            user.conversant = user in conversants
+    return render(request, 'home/community.html', {'other_users': other_users, "conversants": conversants})
 
 @login_required
 @csrf_exempt 
