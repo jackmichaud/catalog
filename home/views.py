@@ -252,6 +252,7 @@ def mod_get_users(request):
             'email': user.email,
             'role': user.role,
             'date_joined': user.date_joined.isoformat(),
+            'is_active': user.is_active,
         }
         for user in users
     ]
@@ -292,6 +293,56 @@ def mod_change_role(request):
         user.role = new_role
         user.save()
         return JsonResponse({"success": True})
+    except CustomUser.DoesNotExist:
+        return JsonResponse({"error": "User not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+@user_passes_test(is_moderator)
+@csrf_exempt
+def mod_suspend_user(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        user_id = data.get('user_id')
+        suspend = data.get('suspend')  # True to suspend, False to reinstate
+
+        # Prevent moderators from suspending themselves
+        if user_id == request.user.id:
+            return JsonResponse({"error": "You cannot suspend your own account"}, status=400)
+
+        user = CustomUser.objects.get(id=user_id)
+        user.is_active = not suspend  # If suspend=True, set is_active=False
+        user.save()
+
+        action = "suspended" if suspend else "reinstated"
+        return JsonResponse({"success": True, "message": f"User {action} successfully"})
+    except CustomUser.DoesNotExist:
+        return JsonResponse({"error": "User not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+@user_passes_test(is_moderator)
+@csrf_exempt
+def mod_delete_user(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        user_id = data.get('user_id')
+
+        # Prevent moderators from deleting themselves
+        if user_id == request.user.id:
+            return JsonResponse({"error": "You cannot delete your own account"}, status=400)
+
+        user = CustomUser.objects.get(id=user_id)
+        username = user.username
+        user.delete()  # This will cascade delete related data (trees, messages, etc.)
+
+        return JsonResponse({"success": True, "message": f"User {username} deleted successfully"})
     except CustomUser.DoesNotExist:
         return JsonResponse({"error": "User not found"}, status=404)
     except Exception as e:
