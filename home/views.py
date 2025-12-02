@@ -28,14 +28,30 @@ def google_login_redirect(request):
 def index(request):
     mapbox_token = os.getenv("MAPBOX_TOKEN")
     all_users = []
+    is_mod = False
     if request.user.is_authenticated:
         all_users = CustomUser.objects.exclude(id=request.user.id)
+        is_mod = request.user.role == 'moderator'
 
-    return render(request, 'home/index.html', {'all_users': all_users, "MAPBOX_TOKEN": mapbox_token})
+    return render(request, 'home/index.html', {
+        'all_users': all_users,
+        "MAPBOX_TOKEN": mapbox_token,
+        'is_moderator': is_mod
+    })
 
 @user_passes_test(is_moderator)
 def moderator(request):
-    return render(request, 'home/moderator.html')
+    total_users = CustomUser.objects.count()
+    pending_trees = TreeSubmission.objects.filter(status='pending').count()
+    approved_trees = TreeSubmission.objects.filter(status='approved').count()
+    total_messages = Message.objects.count()
+
+    return render(request, 'home/moderator.html', {
+        'total_users': total_users,
+        'pending_trees': pending_trees,
+        'approved_trees': approved_trees,
+        'total_messages': total_messages,
+    })
 
 @login_required
 def profile(request):
@@ -179,3 +195,191 @@ def delete_account(request):
         user.delete()
         return redirect('index')
     return redirect('account_settings')
+
+@user_passes_test(is_moderator)
+@csrf_exempt
+def edit_tree(request, tree_id):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    try:
+        tree = TreeSubmission.objects.get(id=tree_id)
+        data = json.loads(request.body)
+
+        if 'species' in data:
+            tree.species = data['species']
+        if 'description' in data:
+            tree.description = data['description']
+
+        tree.save()
+        return JsonResponse({"success": True})
+    except TreeSubmission.DoesNotExist:
+        return JsonResponse({"error": "Tree not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+@user_passes_test(is_moderator)
+@csrf_exempt
+def delete_tree(request, tree_id):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    try:
+        tree = TreeSubmission.objects.get(id=tree_id)
+        tree.delete()
+        return JsonResponse({"success": True})
+    except TreeSubmission.DoesNotExist:
+        return JsonResponse({"error": "Tree not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+@user_passes_test(is_moderator)
+def mod_get_users(request):
+    users = CustomUser.objects.all()
+    users_data = [
+        {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'role': user.role,
+            'date_joined': user.date_joined.isoformat(),
+        }
+        for user in users
+    ]
+    return JsonResponse({'users': users_data})
+
+@user_passes_test(is_moderator)
+def mod_search_users(request):
+    query = request.GET.get('q', '')
+    users = CustomUser.objects.filter(
+        Q(username__icontains=query) | Q(email__icontains=query)
+    )
+    users_data = [
+        {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'role': user.role,
+        }
+        for user in users
+    ]
+    return JsonResponse({'users': users_data})
+
+@user_passes_test(is_moderator)
+@csrf_exempt
+def mod_change_role(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        user_id = data.get('user_id')
+        new_role = data.get('role')
+
+        if new_role not in ['user', 'moderator']:
+            return JsonResponse({"error": "Invalid role"}, status=400)
+
+        user = CustomUser.objects.get(id=user_id)
+        user.role = new_role
+        user.save()
+        return JsonResponse({"success": True})
+    except CustomUser.DoesNotExist:
+        return JsonResponse({"error": "User not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+@user_passes_test(is_moderator)
+def mod_analytics(request):
+    from datetime import timedelta
+    from django.utils import timezone
+
+    total_users = CustomUser.objects.count()
+    seven_days_ago = timezone.now() - timedelta(days=7)
+    active_users = CustomUser.objects.filter(last_login__gte=seven_days_ago).count()
+    total_trees = TreeSubmission.objects.count()
+    total_messages = Message.objects.count()
+
+    return JsonResponse({
+        'total_users': total_users,
+        'active_users': active_users,
+        'total_trees': total_trees,
+        'total_messages': total_messages,
+    })
+
+@user_passes_test(is_moderator)
+def mod_activity(request):
+    # Get recent tree submissions and messages
+    recent_trees = TreeSubmission.objects.all().order_by('-submitted_at')[:10]
+    recent_messages = Message.objects.all().order_by('-timestamp')[:10]
+
+    activities = []
+
+    for tree in recent_trees:
+        activities.append({
+            'user': tree.user.username,
+            'action': f'Submitted tree: {tree.species}',
+            'time': tree.submitted_at.strftime('%Y-%m-%d %H:%M'),
+        })
+
+    for msg in recent_messages:
+        activities.append({
+            'user': msg.sender.username,
+            'action': 'Sent a message',
+            'time': msg.timestamp.strftime('%Y-%m-%d %H:%M'),
+        })
+
+    # Sort by time (descending)
+    activities.sort(key=lambda x: x['time'], reverse=True)
+
+    return JsonResponse({'activities': activities[:15]})
+
+@user_passes_test(is_moderator)
+def mod_tree_stats(request):
+    from django.db.models import Count
+
+    pending = TreeSubmission.objects.filter(status='pending').count()
+    approved = TreeSubmission.objects.filter(status='approved').count()
+    rejected = TreeSubmission.objects.filter(status='rejected').count()
+
+    # Get species counts
+    species_counts = TreeSubmission.objects.filter(status='approved').values('species').annotate(count=Count('species')).order_by('-count')[:10]
+
+    species_data = [
+        {'name': item['species'], 'count': item['count']}
+        for item in species_counts
+    ]
+
+    return JsonResponse({
+        'pending': pending,
+        'approved': approved,
+        'rejected': rejected,
+        'species': species_data,
+    })
+
+@user_passes_test(is_moderator)
+def mod_recent_activity(request):
+    # Combine different types of activities
+    activities = []
+
+    # Recent tree submissions
+    recent_trees = TreeSubmission.objects.all().order_by('-submitted_at')[:5]
+    for tree in recent_trees:
+        activities.append({
+            'time': tree.submitted_at.strftime('%Y-%m-%d %H:%M'),
+            'user': tree.user.username,
+            'description': f'Submitted {tree.species} tree ({tree.status})',
+        })
+
+    # Recent user registrations
+    recent_users = CustomUser.objects.all().order_by('-date_joined')[:5]
+    for user in recent_users:
+        activities.append({
+            'time': user.date_joined.strftime('%Y-%m-%d %H:%M'),
+            'user': user.username,
+            'description': 'Registered new account',
+        })
+
+    # Sort by time
+    activities.sort(key=lambda x: x['time'], reverse=True)
+
+    return JsonResponse({'activities': activities[:15]})

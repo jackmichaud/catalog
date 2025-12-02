@@ -1,31 +1,659 @@
 {% extends "base.html" %}
 {% block title %}Moderator Dashboard{% endblock %}
 {% block content %}
-<div class="page-container">
-    <h1 class="page-title">Moderator Dashboard</h1>
-    <p class="page-subtitle">Manage user activity, content, and system performance.</p>
 
-    <div class="mod-controls">
-        <div class="control-section">
-            <h2>User Management</h2>
-            <button class="mod-btn">View All Users</button>
-            <button class="mod-btn">Search Users</button>
-            <button class="mod-btn">Manage Roles</button>
+<style>
+.mod-dashboard {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.mod-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid #228B22;
+}
+
+.mod-header h1 {
+    color: #2d5016;
+    font-size: 2.5em;
+    margin: 0 0 10px 0;
+}
+
+.mod-header p {
+    color: #666;
+    font-size: 1.1em;
+}
+
+.stats-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-left: 5px solid #228B22;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.stat-card h3 {
+    color: #666;
+    font-size: 0.9em;
+    margin: 0 0 10px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.stat-number {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #228B22;
+    margin: 0;
+}
+
+.mod-sections {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 30px;
+}
+
+.mod-section {
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.mod-section h2 {
+    color: #2d5016;
+    font-size: 1.5em;
+    margin: 0 0 20px 0;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.mod-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.mod-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 20px;
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.mod-action-btn:hover {
+    background: #228B22;
+    color: white;
+    border-color: #228B22;
+    transform: translateX(5px);
+}
+
+.mod-action-btn .icon {
+    font-size: 1.5em;
+}
+
+.hidden {
+    display: none;
+}
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-overlay.active {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 800px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.modal-header h2 {
+    margin: 0;
+    color: #2d5016;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    font-size: 2em;
+    cursor: pointer;
+    color: #999;
+    transition: color 0.3s ease;
+}
+
+.close-modal:hover {
+    color: #333;
+}
+
+.user-table, .activity-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.user-table th, .activity-table th {
+    background: #f8f9fa;
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #333;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.user-table td, .activity-table td {
+    padding: 12px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.user-table tr:hover, .activity-table tr:hover {
+    background: #f8f9fa;
+}
+
+.role-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+
+.role-user {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.role-moderator {
+    background: #fff3e0;
+    color: #f57c00;
+}
+
+.search-box {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 1em;
+    margin-bottom: 20px;
+}
+
+.search-box:focus {
+    outline: none;
+    border-color: #228B22;
+}
+
+.alert-item {
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border-left: 4px solid;
+}
+
+.alert-info {
+    background: #e3f2fd;
+    border-color: #1976d2;
+}
+
+.alert-warning {
+    background: #fff3e0;
+    border-color: #f57c00;
+}
+
+.alert-success {
+    background: #e8f5e9;
+    border-color: #4caf50;
+}
+</style>
+
+<div class="mod-dashboard">
+    <div class="mod-header">
+        <h1>🛡️ Moderator Dashboard</h1>
+        <p>Manage users, content, and monitor platform activity</p>
+    </div>
+
+    <div class="stats-overview">
+        <div class="stat-card">
+            <h3>Total Users</h3>
+            <p class="stat-number">{{ total_users }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Pending Trees</h3>
+            <p class="stat-number">{{ pending_trees }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Approved Trees</h3>
+            <p class="stat-number">{{ approved_trees }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Total Messages</h3>
+            <p class="stat-number">{{ total_messages }}</p>
+        </div>
+    </div>
+
+    <div class="mod-sections">
+        <div class="mod-section">
+            <h2>👥 User Management</h2>
+            <div class="mod-actions">
+                <button class="mod-action-btn" onclick="showAllUsers()">
+                    <span class="icon">👤</span>
+                    <span>View All Users</span>
+                </button>
+                <button class="mod-action-btn" onclick="showSearchUsers()">
+                    <span class="icon">🔍</span>
+                    <span>Search Users</span>
+                </button>
+                <button class="mod-action-btn" onclick="showManageRoles()">
+                    <span class="icon">⚙️</span>
+                    <span>Manage Roles</span>
+                </button>
+            </div>
         </div>
 
-        <div class="control-section">
-            <h2>Activity Monitoring</h2>
-            <button class="mod-btn">View Analytics</button>
-            <button class="mod-btn">Activity Reports</button>
-            <button class="mod-btn">Pickup Statistics</button>
+        <div class="mod-section">
+            <h2>📊 Activity Monitoring</h2>
+            <div class="mod-actions">
+                <button class="mod-action-btn" onclick="showAnalytics()">
+                    <span class="icon">📈</span>
+                    <span>View Analytics</span>
+                </button>
+                <button class="mod-action-btn" onclick="showActivityReports()">
+                    <span class="icon">📋</span>
+                    <span>Activity Reports</span>
+                </button>
+                <button class="mod-action-btn" onclick="showTreeStats()">
+                    <span class="icon">🌳</span>
+                    <span>Tree Statistics</span>
+                </button>
+            </div>
         </div>
 
-        <div class="control-section">
-            <h2>Content Management</h2>
-            <a href="{% url 'moderate_trees' %}" class="mod-btn">Review Uploads</a>
-            <button class="mod-btn">Edit Content</button>
-            <button class="mod-btn">System Alerts</button>
+        <div class="mod-section">
+            <h2>📝 Content Management</h2>
+            <div class="mod-actions">
+                <a href="{% url 'moderate_trees' %}" class="mod-action-btn">
+                    <span class="icon">✅</span>
+                    <span>Review Tree Uploads</span>
+                </a>
+                <button class="mod-action-btn" onclick="showRecentActivity()">
+                    <span class="icon">🕒</span>
+                    <span>Recent Activity</span>
+                </button>
+                <button class="mod-action-btn" onclick="showSystemAlerts()">
+                    <span class="icon">🔔</span>
+                    <span>System Alerts</span>
+                </button>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Modal for dynamic content -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle">Modal Title</h2>
+            <button class="close-modal" onclick="closeModal()">&times;</button>
+        </div>
+        <div id="modalBody">
+            <!-- Dynamic content will be inserted here -->
+        </div>
+    </div>
+</div>
+
+<script>
+function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('active');
+}
+
+async function showAllUsers() {
+    const response = await fetch('/moderator/api/users/');
+    const data = await response.json();
+
+    document.getElementById('modalTitle').textContent = 'All Users';
+    document.getElementById('modalBody').innerHTML = `
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Joined</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${data.users.map(user => `
+                    <tr>
+                        <td>${user.username}</td>
+                        <td>${user.email || 'N/A'}</td>
+                        <td><span class="role-badge role-${user.role}">${user.role}</span></td>
+                        <td>${new Date(user.date_joined).toLocaleDateString()}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+    document.getElementById('modalOverlay').classList.add('active');
+}
+
+async function showSearchUsers() {
+    document.getElementById('modalTitle').textContent = 'Search Users';
+    document.getElementById('modalBody').innerHTML = `
+        <input type="text" class="search-box" id="userSearchBox" placeholder="Search by username or email...">
+        <div id="searchResults"></div>
+    `;
+
+    document.getElementById('modalOverlay').classList.add('active');
+
+    document.getElementById('userSearchBox').addEventListener('input', async (e) => {
+        const query = e.target.value;
+        if (query.length < 2) {
+            document.getElementById('searchResults').innerHTML = '';
+            return;
+        }
+
+        const response = await fetch(`/moderator/api/users/search/?q=${query}`);
+        const data = await response.json();
+
+        document.getElementById('searchResults').innerHTML = `
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${data.users.map(user => `
+                        <tr>
+                            <td>${user.username}</td>
+                            <td>${user.email || 'N/A'}</td>
+                            <td><span class="role-badge role-${user.role}">${user.role}</span></td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    });
+}
+
+async function showManageRoles() {
+    const response = await fetch('/moderator/api/users/');
+    const data = await response.json();
+
+    document.getElementById('modalTitle').textContent = 'Manage User Roles';
+    document.getElementById('modalBody').innerHTML = `
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Current Role</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${data.users.map(user => `
+                    <tr>
+                        <td>${user.username}</td>
+                        <td><span class="role-badge role-${user.role}">${user.role}</span></td>
+                        <td>
+                            <button onclick="toggleRole(${user.id}, '${user.role}')" style="padding: 6px 12px; background: #228B22; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                ${user.role === 'user' ? 'Make Moderator' : 'Make User'}
+                            </button>
+                        </td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+    document.getElementById('modalOverlay').classList.add('active');
+}
+
+async function toggleRole(userId, currentRole) {
+    const newRole = currentRole === 'user' ? 'moderator' : 'user';
+    if (!confirm(`Change this user's role to ${newRole}?`)) return;
+
+    const response = await fetch('/moderator/api/users/change-role/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ user_id: userId, role: newRole })
+    });
+
+    if (response.ok) {
+        alert('Role changed successfully!');
+        showManageRoles(); // Refresh the list
+    } else {
+        alert('Error changing role');
+    }
+}
+
+async function showAnalytics() {
+    const response = await fetch('/moderator/api/analytics/');
+    const data = await response.json();
+
+    document.getElementById('modalTitle').textContent = 'Platform Analytics';
+    document.getElementById('modalBody').innerHTML = `
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+            <div class="stat-card">
+                <h3>Total Users</h3>
+                <p class="stat-number">${data.total_users}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Active Users (7d)</h3>
+                <p class="stat-number">${data.active_users}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Total Trees</h3>
+                <p class="stat-number">${data.total_trees}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Total Messages</h3>
+                <p class="stat-number">${data.total_messages}</p>
+            </div>
+        </div>
+    `;
+    document.getElementById('modalOverlay').classList.add('active');
+}
+
+async function showActivityReports() {
+    const response = await fetch('/moderator/api/activity/');
+    const data = await response.json();
+
+    document.getElementById('modalTitle').textContent = 'Recent Activity';
+    document.getElementById('modalBody').innerHTML = `
+        <table class="activity-table">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${data.activities.map(activity => `
+                    <tr>
+                        <td>${activity.user}</td>
+                        <td>${activity.action}</td>
+                        <td>${activity.time}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+    document.getElementById('modalOverlay').classList.add('active');
+}
+
+async function showTreeStats() {
+    const response = await fetch('/moderator/api/tree-stats/');
+    const data = await response.json();
+
+    document.getElementById('modalTitle').textContent = 'Tree Statistics';
+    document.getElementById('modalBody').innerHTML = `
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 20px;">
+            <div class="stat-card">
+                <h3>Pending</h3>
+                <p class="stat-number">${data.pending}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Approved</h3>
+                <p class="stat-number">${data.approved}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Rejected</h3>
+                <p class="stat-number">${data.rejected}</p>
+            </div>
+        </div>
+        <h3>Popular Species</h3>
+        <table class="activity-table">
+            <thead>
+                <tr>
+                    <th>Species</th>
+                    <th>Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${data.species.map(s => `
+                    <tr>
+                        <td>${s.name}</td>
+                        <td>${s.count}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+    document.getElementById('modalOverlay').classList.add('active');
+}
+
+async function showRecentActivity() {
+    const response = await fetch('/moderator/api/recent-activity/');
+    const data = await response.json();
+
+    document.getElementById('modalTitle').textContent = 'Recent Platform Activity';
+    document.getElementById('modalBody').innerHTML = `
+        <table class="activity-table">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>User</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${data.activities.map(activity => `
+                    <tr>
+                        <td>${activity.time}</td>
+                        <td>${activity.user}</td>
+                        <td>${activity.description}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+    document.getElementById('modalOverlay').classList.add('active');
+}
+
+async function showSystemAlerts() {
+    document.getElementById('modalTitle').textContent = 'System Alerts';
+    document.getElementById('modalBody').innerHTML = `
+        <div class="alert-item alert-success">
+            <strong>✅ System Status:</strong> All services running normally
+        </div>
+        <div class="alert-item alert-info">
+            <strong>ℹ️ Info:</strong> {{ pending_trees }} tree submissions awaiting review
+        </div>
+        <div class="alert-item alert-info">
+            <strong>📊 Statistics:</strong> {{ total_users }} registered users, {{ total_messages }} messages sent
+        </div>
+    `;
+    document.getElementById('modalOverlay').classList.add('active');
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Close modal when clicking outside
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeModal();
+    }
+});
+</script>
+
 {% endblock %}

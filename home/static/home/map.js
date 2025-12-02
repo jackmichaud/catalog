@@ -41,14 +41,31 @@ map.on('load', async () => {
         // Add a marker for each approved tree
         data.trees.forEach(tree => {
             console.log(`Adding marker for ${tree.species} at [${tree.longitude}, ${tree.latitude}]`);
+
+            // Build popup content
+            let popupContent = `
+                <div class="tree-popup">
+                    <h3>${tree.species}</h3>
+                    <p>${tree.description || 'No description'}</p>
+            `;
+
+            // Add moderator controls if user is a moderator
+            if (IS_MODERATOR) {
+                popupContent += `
+                    <div class="moderator-controls">
+                        <button class="edit-tree-btn" data-tree-id="${tree.id}">Edit</button>
+                        <button class="delete-tree-btn" data-tree-id="${tree.id}">Delete</button>
+                    </div>
+                `;
+            }
+
+            popupContent += `</div>`;
+
             const marker = new mapboxgl.Marker({ color: '#228B22' })
                 .setLngLat([tree.longitude, tree.latitude])
                 .setPopup(
                     new mapboxgl.Popup({ offset: 25 })
-                        .setHTML(`
-                            <h3>${tree.species}</h3>
-                            <p>${tree.description || 'No description'}</p>
-                        `)
+                        .setHTML(popupContent)
                 )
                 .addTo(map);
         });
@@ -162,3 +179,69 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+
+// Event delegation for edit/delete buttons in popups
+document.addEventListener('click', async function(e) {
+    // Handle edit button
+    if (e.target.classList.contains('edit-tree-btn')) {
+        const treeId = e.target.dataset.treeId;
+        const popup = e.target.closest('.tree-popup');
+        const currentSpecies = popup.querySelector('h3').textContent;
+        const currentDesc = popup.querySelector('p').textContent;
+
+        const newSpecies = prompt('Edit species:', currentSpecies);
+        if (newSpecies === null) return; // User cancelled
+
+        const newDesc = prompt('Edit description:', currentDesc === 'No description' ? '' : currentDesc);
+        if (newDesc === null) return; // User cancelled
+
+        try {
+            const response = await fetch(`/api/trees/${treeId}/edit/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({
+                    species: newSpecies,
+                    description: newDesc
+                }),
+            });
+
+            if (!response.ok) throw new Error('Failed to edit tree');
+
+            alert('Tree updated successfully! Refreshing page...');
+            location.reload();
+        } catch (error) {
+            console.error(error);
+            alert('Error updating tree. Please try again.');
+        }
+    }
+
+    // Handle delete button
+    if (e.target.classList.contains('delete-tree-btn')) {
+        const treeId = e.target.dataset.treeId;
+
+        if (!confirm('Are you sure you want to delete this tree? This action cannot be undone.')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/trees/${treeId}/delete/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+            });
+
+            if (!response.ok) throw new Error('Failed to delete tree');
+
+            alert('Tree deleted successfully! Refreshing page...');
+            location.reload();
+        } catch (error) {
+            console.error(error);
+            alert('Error deleting tree. Please try again.');
+        }
+    }
+});
