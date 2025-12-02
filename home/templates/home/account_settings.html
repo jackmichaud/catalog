@@ -28,7 +28,151 @@
                     <div class="settings-description">Manage third-party account connections</div>
                 </div>
             </a>
+            <a href="#" id="delete-account-link" class="settings-link settings-link-danger">
+                <span class="settings-icon">🗑️</span>
+                <div>
+                    <div class="settings-title">Delete Account</div>
+                    <div class="settings-description">Permanently delete your account and all data</div>
+                </div>
+            </a>
         </div>
     </div>
 </div>
+
+<div id="delete-confirm-modal" class="modal">
+    <div class="modal-content">
+        <h2>Delete Account</h2>
+        <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+        <p><strong>All your data will be permanently deleted, including:</strong></p>
+        <ul>
+            <li>Your profile information</li>
+            <li>Your tree submissions</li>
+            <li>Your messages and conversations</li>
+            <li>All associated data</li>
+        </ul>
+        <form method="POST" action="{% url 'delete_account' %}" id="delete-form">
+            {% csrf_token %}
+            <div class="modal-actions">
+                <button type="button" id="cancel-delete" class="cancel-btn">Cancel</button>
+                <button type="submit" class="confirm-delete-btn">Yes, Delete My Account</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.settings-link-danger {
+    border-left: 4px solid #dc3545;
+}
+
+.settings-link-danger:hover {
+    background-color: #fff5f5;
+    border-left-color: #c82333;
+}
+
+.settings-link-danger .settings-title {
+    color: #dc3545;
+}
+
+.settings-link-danger .settings-description {
+    color: #666;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 30px;
+    border-radius: 8px;
+    max-width: 500px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.modal-content h2 {
+    color: #dc3545;
+    margin-top: 0;
+}
+
+.modal-content ul {
+    margin: 15px 0;
+    padding-left: 25px;
+}
+
+.modal-content li {
+    margin: 5px 0;
+    color: #666;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+.cancel-btn {
+    flex: 1;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 1em;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.cancel-btn:hover {
+    background-color: #5a6268;
+}
+
+.confirm-delete-btn {
+    flex: 1;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 1em;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.confirm-delete-btn:hover {
+    background-color: #c82333;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteLink = document.getElementById('delete-account-link');
+    const modal = document.getElementById('delete-confirm-modal');
+    const cancelBtn = document.getElementById('cancel-delete');
+
+    deleteLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        modal.style.display = 'block';
+    });
+
+    cancelBtn.addEventListener('click', function() {
+        modal.style.display = 'none';
+    });
+
+    window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+});
+</script>
 {% endblock %}

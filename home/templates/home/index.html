@@ -37,6 +37,7 @@
 <!-- Passing the mapbox token to JS -->
 <script>
     const MAPBOX_TOKEN = "{{ MAPBOX_TOKEN }}";
+    const IS_MODERATOR = {{ is_moderator|lower }};
 </script>
 
 <!-- Mapbox map -->
@@ -68,6 +69,61 @@
 {% endblock %}
 
 {% block scripts %}
+<style>
+.tree-popup h3 {
+    margin: 0 0 8px 0;
+    color: #228B22;
+    font-size: 1.1em;
+}
+
+.tree-popup p {
+    margin: 0 0 12px 0;
+    color: #666;
+}
+
+.moderator-controls {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #ddd;
+}
+
+.edit-tree-btn,
+.delete-tree-btn {
+    flex: 1;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9em;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.edit-tree-btn {
+    background-color: #007bff;
+    color: white;
+}
+
+.edit-tree-btn:hover {
+    background-color: #0056b3;
+}
+
+.delete-tree-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.delete-tree-btn:hover {
+    background-color: #c82333;
+}
+
+.mapboxgl-popup-content {
+    padding: 15px;
+    min-width: 200px;
+}
+</style>
 <script src="{% static 'home/map.js' %}"></script>
 <script>
 // Chat popup toggle functionality

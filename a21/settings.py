@@ -201,3 +201,6 @@ ACCOUNT_SIGNUP_FIELDS = [
 
 # Disable username/password login
 SOCIALACCOUNT_LOGIN_ON_GET = True
+
+# Email configuration for development
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

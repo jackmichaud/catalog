@@ -14,5 +14,17 @@ urlpatterns = [
     # path('submit-tree/', views.submit_tree, name='submit_tree'),
     path('moderate/', views.moderate_trees, name='moderate_trees'),
     # path('submission-success/', views.feedback_success, name='submission_success'),
-    path("api/trees/add/", views.add_tree, name="add_tree")
+    path("api/trees/add/", views.add_tree, name="add_tree"),
+    path("api/trees/", views.get_trees, name="get_trees"),
+    path("api/trees/<int:tree_id>/edit/", views.edit_tree, name="edit_tree"),
+    path("api/trees/<int:tree_id>/delete/", views.delete_tree, name="delete_tree"),
+    path('delete-account/', views.delete_account, name='delete_account'),
+    # Moderator API endpoints
+    path('moderator/api/users/', views.mod_get_users, name='mod_get_users'),
+    path('moderator/api/users/search/', views.mod_search_users, name='mod_search_users'),
+    path('moderator/api/users/change-role/', views.mod_change_role, name='mod_change_role'),
+    path('moderator/api/analytics/', views.mod_analytics, name='mod_analytics'),
+    path('moderator/api/activity/', views.mod_activity, name='mod_activity'),
+    path('moderator/api/tree-stats/', views.mod_tree_stats, name='mod_tree_stats'),
+    path('moderator/api/recent-activity/', views.mod_recent_activity, name='mod_recent_activity'),
 ]
