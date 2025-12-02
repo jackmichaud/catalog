@@ -4,25 +4,35 @@
 <div class="page-container">
     <h1 class="page-title">Community</h1>
     <p class="page-text">
-        Join the growing CataLog community! Connect with other users, share your findings, and participate in local projects.
+        Join the growing CataLog community! Connect with other users and share your findings.
     </p>
 
     <section class="community-section">
-        <h2>Discussion Boards</h2>
-        <p>Talk about tree species, mapping challenges, or share your favorite discoveries.</p>
-        <button class="community-btn">Go to Forums</button>
-    </section>
-
-    <section class="community-section">
-        <h2>Volunteer Projects</h2>
-        <p>Collaborate on local environmental efforts and community logging events.</p>
-        <button class="community-btn">View Projects</button>
-    </section>
-
-    <section class="community-section">
-        <h2>Leaderboard</h2>
-        <p>See who’s contributing the most to the global tree database!</p>
-        <button class="community-btn">View Leaderboard</button>
+        <h2>Community Members</h2>
+        
+        <div class="conversations-list">
+            {% for other_user in other_users %}
+            <div class="conversation-card">
+                {% if other_user.avatar %}
+                <img src="{{ other_user.avatar.url }}" alt="{{ other_user.username }}'s avatar"
+                    style="width: 50px; height: 50px; border-radius: 50%;">
+                {% else %}
+                <div style="width: 50px; height: 50px; border-radius: 50%; background-color: #ccc;"></div>
+                {% endif %}
+                <div class="conversation-name">
+                                    {{ other_user.nickname|default:other_user.username }}
+                        </div>
+                <span class="user-role">({{ user.role }})</span>
+                {% if user.is_authenticated %}
+                <a href="{% url 'create_conversation' user_id=other_user.id %}" class="community-btn">{{ other_user.conversant|yesno:"View conversation,Start chat" }}</a>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="no-users">Log in to see community members!</div>
+            {% endfor %}
+        </div>
+                
+        
     </section>
 </div>
 {% endblock %}
