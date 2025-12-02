@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Account Suspended | CataLog{% endblock %}
+
+{% block content %}
+<style>
+.inactive-container {
+    max-width: 700px;
+    margin: 80px auto;
+    padding: 40px;
+    text-align: center;
+}
+
+.inactive-card {
+    background: white;
+    border-radius: 16px;
+    padding: 50px 40px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    border-top: 6px solid #ff9800;
+}
+
+.inactive-icon {
+    font-size: 5em;
+    margin-bottom: 20px;
+}
+
+.inactive-title {
+    color: #ff9800;
+    font-size: 2.5em;
+    margin: 0 0 15px 0;
+    font-weight: 700;
+}
+
+.inactive-subtitle {
+    color: #666;
+    font-size: 1.2em;
+    margin: 0 0 30px 0;
+    line-height: 1.6;
+}
+
+.inactive-info {
+    background: #fff3e0;
+    border-left: 4px solid #ff9800;
+    padding: 20px;
+    margin: 30px 0;
+    text-align: left;
+    border-radius: 8px;
+}
+
+.inactive-info h3 {
+    color: #f57c00;
+    margin: 0 0 15px 0;
+    font-size: 1.2em;
+}
+
+.inactive-info ul {
+    margin: 0;
+    padding-left: 25px;
+    color: #666;
+}
+
+.inactive-info li {
+    margin: 8px 0;
+    line-height: 1.6;
+}
+
+.inactive-actions {
+    margin-top: 40px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-inactive {
+    padding: 14px 32px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1em;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-contact {
+    background: #228B22;
+    color: white;
+}
+
+.btn-contact:hover {
+    background: #1a6b1a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(34, 139, 34, 0.3);
+}
+
+.btn-logout {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-logout:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+.inactive-footer {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 2px solid #f0f0f0;
+    color: #999;
+    font-size: 0.9em;
+}
+
+.contact-info {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 30px;
+}
+
+.contact-info h4 {
+    color: #333;
+    margin: 0 0 10px 0;
+}
+
+.contact-info p {
+    color: #666;
+    margin: 5px 0;
+}
+</style>
+
+<div class="inactive-container">
+    <div class="inactive-card">
+        <div class="inactive-icon">⚠️</div>
+
+        <h1 class="inactive-title">Account Suspended</h1>
+        <p class="inactive-subtitle">
+            Your account has been temporarily suspended and cannot be accessed at this time.
+        </p>
+
+        <div class="inactive-info">
+            <h3>What does this mean?</h3>
+            <ul>
+                <li>You cannot log in to your account</li>
+                <li>Your profile and content are currently hidden</li>
+                <li>Your data is preserved and will be restored if your account is reinstated</li>
+                <li>This action was taken by a moderator</li>
+            </ul>
+        </div>
+
+        <div class="inactive-info">
+            <h3>What can you do?</h3>
+            <ul>
+                <li>Contact the moderation team to understand why your account was suspended</li>
+                <li>Review the community guidelines and terms of service</li>
+                <li>Submit an appeal if you believe this was done in error</li>
+            </ul>
+        </div>
+
+        <div class="contact-info">
+            <h4>📧 Contact Support</h4>
+            <p>If you have questions or would like to appeal this decision, please reach out to our moderation team.</p>
+        </div>
+
+        <div class="inactive-actions">
+            <a href="{% url 'about' %}" class="btn-inactive btn-contact">
+                Learn More
+            </a>
+            <a href="{% url 'account_logout' %}" class="btn-inactive btn-logout">
+                Logout
+            </a>
+        </div>
+
+        <div class="inactive-footer">
+            <p>Account suspensions are reviewed regularly. Please allow time for the moderation team to process your inquiry.</p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
