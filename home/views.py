@@ -58,9 +58,7 @@ def profile(request):
     if request.method == 'POST':
         form = ProfileForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
-            print("req.f", request.FILES)
-            print(form.cleaned_data['avatar'])
-            form.save()
+            form.save(user=request.user)
             return redirect("profile")
     else:
         form = ProfileForm(instance=request.user)

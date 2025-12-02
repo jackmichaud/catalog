@@ -7,13 +7,30 @@ from storages.backends.s3boto3 import S3Boto3Storage
 s3_storage = S3Boto3Storage()
 
 # Create your models here.
+
+def custom_image_path(instance, filename):
+    return f"{instance.category}/{filename}"
+
+class CustomImage(models.Model):
+    CATEGORY_CHOICES = [
+        ("avatars", "Avatar"),
+        ("message_attachments", "Attachment"),
+        ("trees", "Tree")
+    ]
+
+    image = models.ImageField(upload_to=custom_image_path, storage=s3_storage, null=False, blank=False)
+    category = models.CharField(max_length=30, choices=CATEGORY_CHOICES)
+    private = models.BooleanField(default=False)
+    flaged = models.BooleanField(default=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+
 class CustomUser(AbstractUser):
     ROLE_CHOICES = (
         ('user', 'User'),
         ('moderator', 'Moderator'),
     )
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')
-    avatar = models.ImageField(upload_to='avatars/', storage=s3_storage, null=True, blank=True)
+    avatar = models.ForeignKey(CustomImage, on_delete=models.SET_NULL, null=True, blank=True, default=None)
     bio = models.TextField(blank=True)
     sustainability_interests = models.CharField(max_length=255, blank=True)
     nickname = models.CharField(max_length=100, blank=True)
