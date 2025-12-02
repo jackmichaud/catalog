@@ -152,7 +152,30 @@ def moderate_trees(request):
             submission.status = 'rejected'
         submission.save()
 
-    return render(request, 'moderate_trees.html', {'submissions': submissions})
+    return render(request, 'archive/moderate_trees.html', {'submissions': submissions})
+
+def get_trees(request):
+    """API endpoint to fetch all approved trees for map display"""
+    approved_trees = TreeSubmission.objects.filter(status='approved')
+    trees_data = [
+        {
+            'id': tree.id,
+            'species': tree.species,
+            'latitude': tree.latitude,
+            'longitude': tree.longitude,
+            'description': tree.description,
+        }
+        for tree in approved_trees
+    ]
+    return JsonResponse({'trees': trees_data})
 
 def feedback_success(request):
     return render(request, 'home/submission_success.html')
+
+@login_required
+def delete_account(request):
+    if request.method == 'POST':
+        user = request.user
+        user.delete()
+        return redirect('index')
+    return redirect('account_settings')

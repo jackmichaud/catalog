@@ -1,21 +1,198 @@
-<h1>Pending Tree Submissions</h1>
+{% extends "base.html" %}
+{% block title %}Moderate Trees{% endblock %}
+{% block content %}
 
-{% if submissions %}
-    <ul>
-    {% for submission in submissions %}
-        <li>
-            <strong>{{ submission.tree_name }}</strong> – {{ submission.location }} <br>
-            {{ submission.description }} <br>
-            Submitted by: {{ submission.user.username }} <br>
-            <form method="POST">
-                {% csrf_token %}
-                <input type="hidden" name="submission_id" value="{{ submission.id }}">
-                <button name="action" value="approve">Approve</button>
-                <button name="action" value="reject">Reject</button>
-            </form>
-        </li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No pending submissions.</p>
-{% endif %}
+<style>
+.moderate-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.moderate-header {
+    margin-bottom: 30px;
+    border-bottom: 3px solid #228B22;
+    padding-bottom: 15px;
+}
+
+.moderate-header h1 {
+    color: #2d5016;
+    font-size: 2em;
+    margin: 0 0 10px 0;
+}
+
+.moderate-header p {
+    color: #666;
+    margin: 0;
+}
+
+.submissions-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.submission-card {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.submission-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.submission-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 15px;
+}
+
+.submission-title {
+    font-size: 1.3em;
+    color: #228B22;
+    margin: 0 0 5px 0;
+}
+
+.submission-location {
+    color: #666;
+    font-size: 0.9em;
+    font-family: monospace;
+}
+
+.submission-meta {
+    text-align: right;
+    font-size: 0.85em;
+    color: #888;
+}
+
+.submission-description {
+    background: #f9f9f9;
+    padding: 12px;
+    border-left: 3px solid #228B22;
+    margin: 15px 0;
+    color: #444;
+}
+
+.submission-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+.approve-btn {
+    background-color: #228B22;
+    color: white;
+}
+
+.approve-btn:hover {
+    background-color: #1a6b1a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(34, 139, 34, 0.3);
+}
+
+.reject-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.reject-btn:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+.no-submissions {
+    text-align: center;
+    padding: 60px 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    color: #666;
+}
+
+.no-submissions-icon {
+    font-size: 4em;
+    margin-bottom: 20px;
+}
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #228B22;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+</style>
+
+<div class="moderate-container">
+    <a href="{% url 'moderator' %}" class="back-link">← Back to Moderator Dashboard</a>
+
+    <div class="moderate-header">
+        <h1>Tree Submissions Review</h1>
+        <p>Review and approve tree submissions to display them on the interactive map</p>
+    </div>
+
+    {% if submissions %}
+        <ul class="submissions-list">
+        {% for submission in submissions %}
+            <li class="submission-card">
+                <div class="submission-header">
+                    <div>
+                        <h3 class="submission-title">🌳 {{ submission.species }}</h3>
+                        <div class="submission-location">
+                            📍 Lat: {{ submission.latitude|floatformat:6 }}, Long: {{ submission.longitude|floatformat:6 }}
+                        </div>
+                    </div>
+                    <div class="submission-meta">
+                        Submitted by: <strong>{{ submission.user.username }}</strong><br>
+                        {{ submission.submitted_at|date:"M d, Y H:i" }}
+                    </div>
+                </div>
+
+                {% if submission.description %}
+                <div class="submission-description">
+                    <strong>Description:</strong> {{ submission.description }}
+                </div>
+                {% endif %}
+
+                <form method="POST" style="margin: 0;">
+                    {% csrf_token %}
+                    <input type="hidden" name="submission_id" value="{{ submission.id }}">
+                    <div class="submission-actions">
+                        <button name="action" value="approve" class="action-btn approve-btn">✓ Approve</button>
+                        <button name="action" value="reject" class="action-btn reject-btn">✗ Reject</button>
+                    </div>
+                </form>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <div class="no-submissions">
+            <div class="no-submissions-icon">✅</div>
+            <h2>All caught up!</h2>
+            <p>There are no pending tree submissions to review.</p>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

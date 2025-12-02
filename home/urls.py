@@ -14,5 +14,7 @@ urlpatterns = [
     # path('submit-tree/', views.submit_tree, name='submit_tree'),
     path('moderate/', views.moderate_trees, name='moderate_trees'),
     # path('submission-success/', views.feedback_success, name='submission_success'),
-    path("api/trees/add/", views.add_tree, name="add_tree")
+    path("api/trees/add/", views.add_tree, name="add_tree"),
+    path("api/trees/", views.get_trees, name="get_trees"),
+    path('delete-account/', views.delete_account, name='delete_account'),
 ]

@@ -1,9 +1,61 @@
-mapboxgl.accessToken = MAPBOX_TOKEN;  // defined in template
-const map = new mapboxgl.Map({
-    container: 'map',
-    style: 'mapbox://styles/mapbox/light-v11',
-    center: [-78.4767, 38.0293],
-    zoom: 13
+console.log('map.js loaded - starting initialization');
+console.log('MAPBOX_TOKEN available?', typeof MAPBOX_TOKEN !== 'undefined');
+console.log('mapboxgl available?', typeof mapboxgl !== 'undefined');
+
+if (typeof mapboxgl === 'undefined') {
+    console.error('ERROR: mapboxgl library not loaded!');
+}
+
+if (typeof MAPBOX_TOKEN === 'undefined') {
+    console.error('ERROR: MAPBOX_TOKEN not defined!');
+}
+
+let map;
+try {
+    mapboxgl.accessToken = MAPBOX_TOKEN;  // defined in template
+    map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/light-v11',
+        center: [-78.4767, 38.0293],
+        zoom: 13
+    });
+    console.log('Map object created successfully');
+} catch (error) {
+    console.error('ERROR creating map:', error);
+    throw error;
+}
+
+// Load and display approved trees when map loads
+map.on('load', async () => {
+    console.log('Map loaded, fetching trees...');
+    try {
+        const response = await fetch('/api/trees/');
+        console.log('Response status:', response.status);
+
+        if (!response.ok) throw new Error('Failed to fetch trees');
+
+        const data = await response.json();
+        console.log('Received trees data:', data);
+        console.log('Number of approved trees:', data.trees.length);
+
+        // Add a marker for each approved tree
+        data.trees.forEach(tree => {
+            console.log(`Adding marker for ${tree.species} at [${tree.longitude}, ${tree.latitude}]`);
+            const marker = new mapboxgl.Marker({ color: '#228B22' })
+                .setLngLat([tree.longitude, tree.latitude])
+                .setPopup(
+                    new mapboxgl.Popup({ offset: 25 })
+                        .setHTML(`
+                            <h3>${tree.species}</h3>
+                            <p>${tree.description || 'No description'}</p>
+                        `)
+                )
+                .addTo(map);
+        });
+        console.log('All markers added successfully');
+    } catch (error) {
+        console.error('Error loading trees:', error);
+    }
 });
 
 let addMode = false;
@@ -80,8 +132,8 @@ treeForm?.addEventListener('submit', async (e) => {
         if (!response.ok) throw new Error('Failed to submit tree');
 
         const result = await response.json();
-        alert('🌳 Tree submitted successfully!');
-        
+        alert('🌳 Tree submitted successfully! It will appear on the map after moderator approval.');
+
         // Reset UI
         treeForm.reset();
         sidebar?.classList.remove('open');
