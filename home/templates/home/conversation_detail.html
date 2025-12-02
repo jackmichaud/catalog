@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-container">
+    <div class="chat-container">
+        <div class="chat-header">
+            <a href="{% url 'conversation_list' %}" class="back-btn">← Back</a>
+            <h3>
+                Chat with
+                {% for user in conversation.participants.all %}
+                    {% if user != request.user %}
+                        {{ user.nickname|default:user.username }}
+                    {% endif %}
+                {% endfor %}
+            </h3>
+        </div>
+
+        <div class="message-list" id="message-list">
+            {% for message in messages %}
+                <div class="message-wrapper {% if message.sender == request.user %}sent{% else %}received{% endif %}">
+                    <div class="message-bubble">
+                        <div class="message-sender">{{ message.sender.nickname|default:message.sender.username }}</div>
+                        <div class="message-content">{{ message.content }}</div>
+                        {% if message.image_attachment %}
+                            <img src="{{ message.image_attachment.url }}" alt="Attachment" class="message-image">
+                        {% endif %}
+                        <div class="message-timestamp">{{ message.timestamp|date:"M d, g:i A" }}</div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="no-messages">No messages yet. Start the conversation!</div>
+            {% endfor %}
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="message-form">
+            {% csrf_token %}
+            <div class="form-input-group">
+                {{ form.content }}
+                {{ form.image_attachment }}
+            </div>
+            <button type="submit" class="send-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white">
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                </svg>
+                Send
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+// Auto-scroll to bottom of messages
+document.addEventListener('DOMContentLoaded', function() {
+    const messageList = document.getElementById('message-list');
+    if (messageList) {
+        messageList.scrollTop = messageList.scrollHeight;
+    }
+});
+</script>
+{% endblock %}

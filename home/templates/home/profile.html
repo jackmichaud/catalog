@@ -1,21 +1,92 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container">
-    <h1>User Profile</h1>
-    <p><strong>Username:</strong> {{ user.username }}</p>
-    <p><strong>Email:</strong> {{ user.email }}</p>
-    <p><strong>Your Role:</strong> {{ user.role }}</p>
-    {% if user.avatar %}
-    <img src="{{ request.user.avatar.url }}" alt="Avatar">
-    {% endif %}
+<div class="page-container">
+    <h1 class="page-title">Your Profile</h1>
     
-    <a href="#">Edit Profile</a>
-    <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Upload</button>
-    </form>
+    <div class="profile-box">
+        
+        <p><strong>Username:</strong> {{ user.username }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Your Role:</strong> {{ user.role }}</p>
+    
 
+        <div id="display-section">
+            {% if user.nickname %}
+                <p><strong>Nickname:</strong> {{ user.nickname }}</p>
+            {% else %}
+                <p>No nickname set.</p>
+            {% endif %}
+            
+            {% if user.avatar %}
+                <img src="{{ request.user.avatar.url }}" alt="Avatar">
+            {% else %}
+                <p>No avatar uploaded.</p>
+            {% endif %}
+            
+            <p id="bio-display"><strong>Bio:</strong> {{ user.bio }}</p>
+
+            <p id="si-display">
+                <strong>Sustainability Interests:</strong> {{ user.sustainability_interests }}
+            </p>
+        </div>
+
+        <form id="edit-form" method="post" enctype="multipart/form-data" class="profile-form" style="display: none;">
+            {% csrf_token %}
+            <p><strong>Nickname:</strong> {{ form.nickname }}</p>
+
+            <p><strong>Avatar:</strong> {{ form.avatar }}</p>
+
+            <p><strong>Bio:</strong> {{ form.bio }}</p>
+
+            <p><strong>Sustainability Interests:</strong> {{ form.sustainability_interests }}</p>
+        </form>
+
+        <button id="edit-btn" class="community-btn" type="submit">Edit Profile</button>
+        <button id="cancel-btn" class="community-btn" type="submit" style="display:none;">Cancel</button>
+    </div>
+    
+    <form action="/accounts/logout/" method="get" style="display:inline;">
+        <button class="community-btn">Logout</button>
+    </form>
 </div>
+
+<script>
+    const editBtn = document.getElementById("edit-btn");
+    const cancelBtn = document.getElementById("cancel-btn");
+    const editForm = document.getElementById("edit-form");
+    const displaySection = document.getElementById("display-section");
+
+    editBtn.addEventListener("click", function () {
+        // Switch to edit mode
+        displaySection.style.display = "none";
+        editForm.style.display = "block";
+
+        editBtn.textContent = "Save Changes";
+        editBtn.type = "submit";  // now submits the form
+        cancelBtn.style.display = "inline-block";  // show cancel button
+
+        // Make Save submit the form
+        editBtn.onclick = () => editForm.submit();
+    });
+
+    
+    // AI Use: Generated with ChatGPT on 2025-11-13
+    //  Prompt: "Please add cancel button functionality to the profile page"
+    cancelBtn.addEventListener("click", function () {
+        // Switch back to display mode
+        displaySection.style.display = "block";
+        editForm.style.display = "none";
+
+        // Reset the Edit button
+        editBtn.textContent = "Edit Profile";
+        editBtn.type = "button";
+
+        // Hide Cancel
+        cancelBtn.style.display = "none";
+
+        // Remove the submit handler so Edit works again
+        editBtn.onclick = null;
+    });
+</script>
 {% endblock %}
