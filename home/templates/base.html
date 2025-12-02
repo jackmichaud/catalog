@@ -31,7 +31,7 @@
             {% if user.is_authenticated %}
                 <li><a href="{% url 'conversation_list' %}">Messages</a></li>
                 <li class="profile-dropdown">
-                    <!-- <a href="#" class="profile-toggle">Profile</a> -->
+                    <a href="#" class="profile-toggle">Profile</a>
                     <div class="dropdown-menu">
                         <a href="{% url 'profile' %}">Your Profile</a>
                         <a href="{% url 'account_settings' %}">Account Settings</a>
