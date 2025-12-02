@@ -121,8 +121,17 @@ def create_conversation(request, user_id):
 def about(request):
     return render(request, 'home/about.html')
 
+from .models import CustomUser
+
 def community(request):
-    return render(request, 'home/community.html')
+    other_users = []
+    conversants = []
+    if request.user.is_authenticated:
+        other_users = CustomUser.objects.exclude(id=request.user.id)
+        conversants = CustomUser.objects.filter(conversations__participants=request.user).exclude(id=request.user.id).distinct()
+        for user in other_users:
+            user.conversant = user in conversants
+    return render(request, 'home/community.html', {'other_users': other_users, "conversants": conversants})
 
 @login_required
 @csrf_exempt 
