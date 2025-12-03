@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, redirect, get_object_or_404
 from django.http import HttpResponse
-from .forms import ProfileForm, MessageForm
+from .forms import ProfileForm, MessageForm, GroupConversationForm
 import os
 from django.contrib.auth.decorators import user_passes_test, login_required
 from .models import TreeSubmission, Conversation, Message, CustomUser
@@ -116,7 +116,25 @@ def create_conversation(request, user_id):
         new_conversation = Conversation.objects.create()
         new_conversation.participants.add(request.user, other_user)
         return redirect('conversation_detail', pk=new_conversation.pk)
-
+@login_required
+def create_group_conversation(request):
+    if request.method == 'POST':
+        form = GroupConversationForm(request.POST, user=request.user)
+        if form.is_valid():
+            conversation = form.save(commit=False)
+            conversation.is_group = True
+            conversation.admin = request.user
+            conversation.save()
+            
+            # Add participants
+            conversation.participants.set(form.cleaned_data['participants'])
+            conversation.participants.add(request.user) # Add creator to participants
+            
+            return redirect('conversation_detail', pk=conversation.pk)
+    else:
+        form = GroupConversationForm(user=request.user)
+    
+    return render(request, 'home/create_group.html', {'form': form})
 
 def about(request):
     return render(request, 'home/about.html')
