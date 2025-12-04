@@ -39,7 +39,7 @@
                     {% endif %}
                     <div class="message-timestamp">{{ message.timestamp|date:"M d, g:i A" }}</div>
                     {% if message.sender == request.user %}
-                    <div class="message-read-status" style="font-size: 0.75em; color: #666; margin-top: 2px;">
+                    <div class="message-read-status" style="font-size: 0.75em; color: white; margin-top: 2px;">
                         {% with read_count=message.read_by.count %}
                         {% if read_count > 1 %}
                         Read
