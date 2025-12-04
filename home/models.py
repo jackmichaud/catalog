@@ -46,6 +46,10 @@ class Message(models.Model):
     image_attachment = models.ImageField(
         upload_to='message_attachments/', storage=s3_storage, blank=True, null=True
     )
+    
+    read_by = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, related_name="read_messages", blank=True
+    )
 
     class Meta:
         ordering = ['timestamp'] 

@@ -94,6 +94,11 @@ def conversation_detail(request, pk):
         form = MessageForm()
 
     messages = conversation.messages.all()
+    
+    # Mark all messages in this conversation as read by current user
+    for message in messages:
+        if request.user not in message.read_by.all():
+            message.read_by.add(request.user)
     return render(request, 'home/conversation_detail.html', {
         'conversation': conversation,
         'messages': messages,
