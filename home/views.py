@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, redirect, get_object_or_404
 from django.http import HttpResponse
-from .forms import ProfileForm, MessageForm
+from .forms import ProfileForm, MessageForm, GroupConversationForm
 import os
 from django.contrib.auth.decorators import user_passes_test, login_required
 from .models import TreeSubmission, Conversation, Message, CustomUser
@@ -116,6 +116,48 @@ def create_conversation(request, user_id):
         new_conversation = Conversation.objects.create()
         new_conversation.participants.add(request.user, other_user)
         return redirect('conversation_detail', pk=new_conversation.pk)
+@login_required
+def create_group_conversation(request):
+    if request.method == 'POST':
+        form = GroupConversationForm(request.POST, user=request.user)
+        if form.is_valid():
+            conversation = form.save(commit=False)
+            conversation.is_group = True
+            conversation.admin = request.user
+            conversation.save()
+            
+            # Add participants
+            conversation.participants.set(form.cleaned_data['participants'])
+            conversation.participants.add(request.user) # Add creator to participants
+            
+            return redirect('conversation_detail', pk=conversation.pk)
+    else:
+        form = GroupConversationForm(user=request.user)
+    
+    return render(request, 'home/create_group.html', {'form': form})
+
+@login_required
+def leave_group(request, pk):
+    conversation = get_object_or_404(Conversation, pk=pk)
+    
+    # Check if it's a group and user is a participant
+    if not conversation.is_group:
+        return HttpResponse("This is not a group conversation.", status=400)
+    
+    if request.user not in conversation.participants.all():
+        return HttpResponse("You are not a participant in this conversation.", status=403)
+    
+    # If user is admin, transfer admin to another participant
+    if conversation.admin == request.user:
+        remaining_participants = conversation.participants.exclude(id=request.user.id)
+        if remaining_participants.exists():
+            conversation.admin = remaining_participants.first()
+            conversation.save()
+    
+    # Remove user from participants
+    conversation.participants.remove(request.user)
+    
+    return redirect('conversation_list')
 
 
 def about(request):
