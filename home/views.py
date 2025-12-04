@@ -136,6 +136,30 @@ def create_group_conversation(request):
     
     return render(request, 'home/create_group.html', {'form': form})
 
+@login_required
+def leave_group(request, pk):
+    conversation = get_object_or_404(Conversation, pk=pk)
+    
+    # Check if it's a group and user is a participant
+    if not conversation.is_group:
+        return HttpResponse("This is not a group conversation.", status=400)
+    
+    if request.user not in conversation.participants.all():
+        return HttpResponse("You are not a participant in this conversation.", status=403)
+    
+    # If user is admin, transfer admin to another participant
+    if conversation.admin == request.user:
+        remaining_participants = conversation.participants.exclude(id=request.user.id)
+        if remaining_participants.exists():
+            conversation.admin = remaining_participants.first()
+            conversation.save()
+    
+    # Remove user from participants
+    conversation.participants.remove(request.user)
+    
+    return redirect('conversation_list')
+
+
 def about(request):
     return render(request, 'home/about.html')
 

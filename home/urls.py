@@ -12,6 +12,7 @@ urlpatterns = [
     path('messages/new/<int:user_id>/', views.create_conversation, name='create_conversation'),
     path('community/', views.community, name='community'),
     path('create_group/', views.create_group_conversation, name='create_group_conversation'),
+    path('messages/<int:pk>/leave/', views.leave_group, name='leave_group'),
     # path('submit-tree/', views.submit_tree, name='submit_tree'),
     path('moderate/', views.moderate_trees, name='moderate_trees'),
     # path('submission-success/', views.feedback_success, name='submission_success'),
