@@ -21,6 +21,7 @@ urlpatterns = [
     path("api/trees/<int:tree_id>/edit/", views.edit_tree, name="edit_tree"),
     path("api/trees/<int:tree_id>/delete/", views.delete_tree, name="delete_tree"),
     path('delete-account/', views.delete_account, name='delete_account'),
+    path('learn/', views.learn, name='learn'),
     # Moderator API endpoints
     path('moderator/api/users/', views.mod_get_users, name='mod_get_users'),
     path('moderator/api/users/search/', views.mod_search_users, name='mod_search_users'),

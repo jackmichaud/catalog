@@ -485,3 +485,7 @@ def mod_recent_activity(request):
     activities.sort(key=lambda x: x['time'], reverse=True)
 
     return JsonResponse({'activities': activities[:15]})
+
+def learn(request):
+    """Renders the static Learn page with educational resources."""
+    return render(request, 'home/learn.html')
