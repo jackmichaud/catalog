@@ -70,10 +70,32 @@ def profile(request):
 def account_settings(request):
     return render(request, 'home/account_settings.html')
 
-@login_required
 def conversation_list(request):
     conversations = request.user.conversations.all()
-    return render(request, 'home/conversation_list.html', {'conversations': conversations})
+    
+    # Calculate unread counts for each conversation
+    conversations_with_unread = []
+    total_unread = 0
+    
+    for conversation in conversations:
+        # Count unread messages in this conversation
+        # Messages where user is NOT the sender AND user is NOT in read_by
+        unread_count = conversation.messages.exclude(
+            sender=request.user
+        ).exclude(
+            read_by=request.user
+        ).count()
+        
+        total_unread += unread_count
+        
+        # Add unread_count as an attribute to the conversation object
+        conversation.unread_count = unread_count
+        conversations_with_unread.append(conversation)
+    
+    return render(request, 'home/conversation_list.html', {
+        'conversations': conversations_with_unread,
+        'total_unread': total_unread
+    })
 
 @login_required
 def conversation_detail(request, pk):
@@ -94,6 +116,11 @@ def conversation_detail(request, pk):
         form = MessageForm()
 
     messages = conversation.messages.all()
+    
+    # Mark all messages in this conversation as read by current user
+    for message in messages:
+        if request.user not in message.read_by.all():
+            message.read_by.add(request.user)
     return render(request, 'home/conversation_detail.html', {
         'conversation': conversation,
         'messages': messages,
