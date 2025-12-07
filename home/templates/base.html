@@ -31,7 +31,8 @@
             <li><a href="{% url 'moderator' %}">Moderation</a></li>
             {% endif %}
             {% if user.is_authenticated %}
-                <li><a href="{% url 'conversation_list' %}">Messages{% if unread_message_count > 0 %} <span class="badge">{{ unread_message_count }}</span>{% endif %}</a></li>
+            <li><a href="{% url 'conversation_list' %}">Messages{% if unread_message_count > 0 %} <span class="badge">{{
+                        unread_message_count }}</span>{% endif %}</a></li>
             <li class="profile-dropdown">
                 <a href="#" class="profile-toggle">Profile</a>
                 <div class="dropdown-menu">
@@ -71,6 +72,10 @@
                     }
                 });
             }
+
+            // Load saved theme on all pages
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
         });
     </script>
 </body>
