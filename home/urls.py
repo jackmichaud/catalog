@@ -15,6 +15,7 @@ urlpatterns = [
     path('messages/<int:pk>/leave/', views.leave_group, name='leave_group'),
     # path('submit-tree/', views.submit_tree, name='submit_tree'),
     path('moderate/', views.moderate_trees, name='moderate_trees'),
+    path("api/trees/export/", views.export_trees_csv, name="export_trees_csv"),
     # path('submission-success/', views.feedback_success, name='submission_success'),
     path("api/trees/add/", views.add_tree, name="add_tree"),
     path("api/trees/", views.get_trees, name="get_trees"),

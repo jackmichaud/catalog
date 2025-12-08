@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, redirect, get_object_or_404
+import csv
 from django.http import HttpResponse
 from .forms import ProfileForm, MessageForm, GroupConversationForm
 import os
@@ -516,3 +517,29 @@ def mod_recent_activity(request):
 def learn(request):
     """Renders the static Learn page with educational resources."""
     return render(request, 'home/learn.html')
+
+@login_required
+def export_trees_csv(request):
+    response = HttpResponse(
+        content_type="text/csv",
+        headers={"Content-Disposition": 'attachment; filename="charlottesville_trees.csv"'},
+    )
+
+    writer = csv.writer(response)
+    writer.writerow(["ID", "Species", "Description", "Latitude", "Longitude", "Submitted By", "Date"])
+
+    # Query only approved trees
+    trees = TreeSubmission.objects.filter(status='approved')
+
+    for tree in trees:
+        writer.writerow([
+            tree.id,
+            tree.species,
+            tree.description,
+            tree.latitude,
+            tree.longitude,
+            tree.user.username,
+            tree.submitted_at.strftime("%Y-%m-%d %H:%M:%S"),
+        ])
+
+    return response
