@@ -8,8 +8,10 @@
             <h3>
                 {% if conversation.is_group %}
                 {{ conversation.name }}
-                <span style="font-size: 0.8em; color: #666; font-weight: normal;">
-                    ({% for user in conversation.participants.all %}{{ user.username }}{% if not forloop.last %}, {% endif %}{% endfor %})
+                <span style="font-size: 0.8em; color: white; font-weight: normal;">
+                    ({% for user in conversation.participants.all %}{{ user.nickname|default:user.username }}
+                    {% if not forloop.last %},
+                    {% endif %}{% endfor %})
                 </span>
                 {% else %}
                 Chat with

@@ -61,8 +61,10 @@ def profile(request):
         if form.is_valid():
             print("req.f", request.FILES)
             print(form.cleaned_data['avatar'])
-            form.save()
-            return redirect("profile")
+            user = form.save(commit=False)
+            user.profile_completed = True
+            user.save()
+            return redirect("index")  # Redirect to home after profile setup
     else:
         form = ProfileForm(instance=request.user)
     return render(request, 'home/profile.html', {'form': form})
