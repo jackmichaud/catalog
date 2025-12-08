@@ -17,6 +17,7 @@ class CustomUser(AbstractUser):
     bio = models.TextField(blank=True)
     sustainability_interests = models.CharField(max_length=255, blank=True)
     nickname = models.CharField(max_length=100, blank=True)
+    profile_completed = models.BooleanField(default=False)
 
 class Conversation(models.Model):
     participants = models.ManyToManyField(
