@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Learn | CataLog{% endblock %}
+
+{% block content %}
+<div class="container learn-container">
+    <div class="header-section">
+        <h1>Guide to Charlottesville Flora 🌿</h1>
+        <p class="subtitle">Learn about the native plants and trees that make our community green.</p>
+    </div>
+    
+    <hr>
+
+    <div class="content-section">
+        <h2>🌳 Why Native Plants Matter</h2>
+        <p>
+            Native plants, such as the <strong>Flowering Dogwood</strong> (Virginia's state tree and flower), 
+            have evolved in this region for thousands of years. They provide essential food and shelter 
+            for local birds, insects, and wildlife that non-native plants cannot support.
+        </p>
+    </div>
+
+    <div class="content-section">
+        <h2>⚠️ Safety Information</h2>
+        <p>While exploring, please be aware of these common hazardous plants:</p>
+        
+        <div class="warning-box" style="background-color: #fff3cd; padding: 15px; border-left: 5px solid #ffc107; margin: 10px 0;">
+            <h3>🚫 Poison Ivy (Toxicodendron radicans)</h3>
+            <p><strong>"Leaves of three, let it be."</strong></p>
+            <p>Look for clusters of three leaflets with a glossy surface. All parts of the plant contain urushiol, which causes an itchy rash.</p>
+        </div>
+
+        <div class="warning-box" style="background-color: #fff3cd; padding: 15px; border-left: 5px solid #ffc107; margin: 10px 0;">
+            <h3>🚫 English Ivy (Invasive)</h3>
+            <p>While not poisonous to touch, this invasive vine climbs trees and blocks sunlight, eventually killing the tree. It is a major threat to Charlottesville's canopy.</p>
+        </div>
+    </div>
+
+    <div class="content-section">
+        <h2>📍 Resources</h2>
+        <ul>
+            <li><a href="https://www.charlottesville.gov/removetrees" target="_blank">Charlottesville Tree Commission</a></li>
+            <li><a href="https://vnps.org/" target="_blank">Virginia Native Plant Society</a></li>
+        </ul>
+    </div>
+</div>
+
+<style>
+    /* You can put this in style.css later, but this works for now */
+    .learn-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 20px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .header-section { text-align: center; margin-bottom: 30px; }
+    .subtitle { color: #666; font-size: 1.1em; }
+    .content-section { margin-bottom: 40px; }
+    h2 { color: #2e7d32; margin-bottom: 15px; }
+</style>
+{% endblock %}
