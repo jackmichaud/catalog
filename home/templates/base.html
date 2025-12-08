@@ -26,6 +26,7 @@
         <ul>
             <li><a href="{% url 'index' %}">Home</a></li>
             <li><a href="{% url 'about' %}">About</a></li>
+            <li><a href="{% url 'learn' %}">Learn More</a></li>
             <li><a href="{% url 'community' %}">Community</a></li>
             {% if user.role == 'moderator' %}
             <li><a href="{% url 'moderator' %}">Moderation</a></li>
