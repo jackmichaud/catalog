@@ -20,5 +20,14 @@
     <p class="page-text">
         Whether you’re a student, environmentalist, or hobbyist, CataLog empowers you to explore your local ecosystem one tree at a time.
     </p>
+
+    <h2>Data</h2>
+    <p class="page-text">
+        CataLog provides free and open source tree data to everyone. Click the button below to download out data!
+    </p>
+    <a href="{% url 'export_trees_csv' %}" style="display: inline-block; padding: 10px 20px; background-color: #2e7d32; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+        Download CSV Data
+    </a>
 </div>
+
 {% endblock %}
