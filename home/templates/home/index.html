@@ -9,31 +9,6 @@
 
 {% block content %}
 
-<!-- chat popup -->
-<!-- {% if user.is_authenticated %}
-<button id="chat-toggle-btn" class="chat-toggle-btn">
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white">
-        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-    </svg>
-</button>
-<div id="chat-user-popup" class="chat-user-popup">
-    <div class="chat-popup-header">
-        <h3>Start a Chat</h3>
-        <button type="button" id="close-chat-popup" class="close-chat-btn">&times;</button>
-    </div>
-    <ul>
-        {% for other_user in all_users %}
-            <li>
-                <span class="username">{{ other_user.username }}</span>
-                <a href="{% url 'create_conversation' user_id=other_user.id %}" class="chat-link">Chat</a>
-            </li>
-        {% empty %}
-            <li class="no-users">No other users available</li>
-        {% endfor %}
-    </ul>
-</div>
-{% endif %} -->
-
 <!-- Passing the mapbox token to JS -->
 <script>
     const MAPBOX_TOKEN = "{{ MAPBOX_TOKEN }}";
@@ -59,19 +34,19 @@
             <button type="button" id="cancel-sidebar-btn" class="cancel-btn">&times;</button>
         </div>
         <label>Latitude</label>
-        <input type="text" name="latitude" readonly />
+        <input type="text" name="latitude" readonly required />
 
         <label>Longitude</label>
-        <input type="text" name="longitude" readonly />
+        <input type="text" name="longitude" readonly required />
 
-        <label>Species</label>
-        <input type="text" name="species" placeholder="e.g. Oak" required />
+        <label for="species">Species</label>
+        <input type="text" name="species" placeholder="e.g. Oak" required>
 
         <label>Height (ft)</label>
-        <input type="text" name="height" placeholder="e.g. 10" required />
+        <input type="number" name="height" min="0" placeholder="e.g. 10" required />
 
         <label>Diameter (in)</label>
-        <input type="text" name="diameter" placeholder="e.g. 10" required />
+        <input type="number" name="diameter" min="0" placeholder="e.g. 10" required />
 
         <label>Image</label>
         <input type="file" accept=".jpg, .jpeg, .png, .svg" name="image" />
