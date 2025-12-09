@@ -47,6 +47,7 @@ class ProfileForm(forms.ModelForm):
 
         if commit:
             instance.save()
+        return instance
 
 class MessageForm(forms.ModelForm):
     class Meta:
