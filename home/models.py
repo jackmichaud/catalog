@@ -18,12 +18,16 @@ class CustomUser(AbstractUser):
     sustainability_interests = models.CharField(max_length=255, blank=True)
     nickname = models.CharField(max_length=100, blank=True)
 
+    def get_display_name(self):
+        """Return nickname if set, otherwise username"""
+        return self.nickname if self.nickname else self.username
+
 class Conversation(models.Model):
     participants = models.ManyToManyField(
         settings.AUTH_USER_MODEL, related_name="conversations"
     )
     def __str__(self):
-        return ", ".join([user.username for user in self.participants.all()])
+        return ", ".join([user.get_display_name() for user in self.participants.all()])
 
 class Message(models.Model):
     conversation = models.ForeignKey(
@@ -43,7 +47,7 @@ class Message(models.Model):
         ordering = ['timestamp'] 
 
     def __str__(self):
-        return f"Message from {self.sender.username} at {self.timestamp.strftime('%Y-%m-%d %H:%M')}"
+        return f"Message from {self.sender.get_display_name()} at {self.timestamp.strftime('%Y-%m-%d %H:%M')}"
 
 class TreeSubmission(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

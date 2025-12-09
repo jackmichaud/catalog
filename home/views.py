@@ -179,7 +179,7 @@ def get_trees(request):
             'longitude': tree.longitude,
             'description': tree.description,
             'is_flagged': tree.is_flagged,
-            'submitted_by': tree.user.username,
+            'submitted_by': tree.user.get_display_name(),
         }
         for tree in trees
     ]
@@ -293,7 +293,7 @@ def mod_get_users(request):
     users_data = [
         {
             'id': user.id,
-            'username': user.username,
+            'username': user.get_display_name(),
             'email': user.email,
             'role': user.role,
             'date_joined': user.date_joined.isoformat(),
@@ -307,12 +307,12 @@ def mod_get_users(request):
 def mod_search_users(request):
     query = request.GET.get('q', '')
     users = CustomUser.objects.filter(
-        Q(username__icontains=query) | Q(email__icontains=query)
+        Q(username__icontains=query) | Q(email__icontains=query) | Q(nickname__icontains=query)
     )
     users_data = [
         {
             'id': user.id,
-            'username': user.username,
+            'username': user.get_display_name(),
             'email': user.email,
             'role': user.role,
         }
@@ -384,10 +384,10 @@ def mod_delete_user(request):
             return JsonResponse({"error": "You cannot delete your own account"}, status=400)
 
         user = CustomUser.objects.get(id=user_id)
-        username = user.username
+        display_name = user.get_display_name()
         user.delete()  # This will cascade delete related data (trees, messages, etc.)
 
-        return JsonResponse({"success": True, "message": f"User {username} deleted successfully"})
+        return JsonResponse({"success": True, "message": f"User {display_name} deleted successfully"})
     except CustomUser.DoesNotExist:
         return JsonResponse({"error": "User not found"}, status=404)
     except Exception as e:
@@ -421,14 +421,14 @@ def mod_activity(request):
 
     for tree in recent_trees:
         activities.append({
-            'user': tree.user.username,
+            'user': tree.user.get_display_name(),
             'action': f'Submitted tree: {tree.species}',
             'time': tree.submitted_at.strftime('%Y-%m-%d %H:%M'),
         })
 
     for msg in recent_messages:
         activities.append({
-            'user': msg.sender.username,
+            'user': msg.sender.get_display_name(),
             'action': 'Sent a message',
             'time': msg.timestamp.strftime('%Y-%m-%d %H:%M'),
         })
@@ -449,8 +449,8 @@ def mod_flagged_trees(request):
             'latitude': tree.latitude,
             'longitude': tree.longitude,
             'description': tree.description,
-            'submitted_by': tree.user.username,
-            'flagged_by': tree.flagged_by.username if tree.flagged_by else 'Unknown',
+            'submitted_by': tree.user.get_display_name(),
+            'flagged_by': tree.flagged_by.get_display_name() if tree.flagged_by else 'Unknown',
             'flagged_at': tree.flagged_at.strftime('%Y-%m-%d %H:%M') if tree.flagged_at else '',
             'flag_reason': tree.flag_reason,
         }
@@ -492,7 +492,7 @@ def mod_recent_activity(request):
         status_text = 'flagged' if tree.is_flagged else 'active'
         activities.append({
             'time': tree.submitted_at.strftime('%Y-%m-%d %H:%M'),
-            'user': tree.user.username,
+            'user': tree.user.get_display_name(),
             'description': f'Submitted {tree.species} tree ({status_text})',
         })
 
@@ -501,7 +501,7 @@ def mod_recent_activity(request):
     for user in recent_users:
         activities.append({
             'time': user.date_joined.strftime('%Y-%m-%d %H:%M'),
-            'user': user.username,
+            'user': user.get_display_name(),
             'description': 'Registered new account',
         })
 
