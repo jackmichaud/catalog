@@ -75,7 +75,7 @@ def first_time_setup(request):
         interests_str = ', '.join(interests) if interests else ''
 
         if form.is_valid():
-            user = form.save(commit=False)
+            user = form.save(commit=False, user=request.user)
             # Save interests to the sustainability_interests field
             user.sustainability_interests = interests_str
             # Mark profile as completed
@@ -92,7 +92,7 @@ def profile(request):
     if request.method == 'POST':
         form = ProfileForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
-            user = form.save(commit=False)
+            user = form.save(commit=False, user=request.user)
             user.profile_completed = True
             user.save()
             return redirect("index")  # Redirect to home after profile setup
@@ -237,7 +237,7 @@ def community(request):
     return render(request, 'home/community.html', {'other_users': other_users, "conversants": conversants})
 
 @login_required
-@csrf_exempt 
+@csrf_exempt
 def add_tree(request):
     if request.method != "POST":
         return JsonResponse({"error": "POST required"}, status=405)

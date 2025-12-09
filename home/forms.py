@@ -61,6 +61,23 @@ class MessageForm(forms.ModelForm):
             'content': '',
             'image_attachment': 'Attach Image'
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make content not required since user can send just an image
+        self.fields['content'].required = False
+
+    def clean(self):
+        cleaned_data = super().clean()
+        content = cleaned_data.get('content')
+        image_upload = cleaned_data.get('image_upload')
+
+        # Require at least content or image
+        if not content and not image_upload:
+            raise forms.ValidationError('Please provide either a message or an image.')
+
+        return cleaned_data
+
     def save(self, commit=True, user=None):
         instance = super().save(commit=False)
         image_file = self.cleaned_data.get("image_upload")

@@ -4,31 +4,52 @@
 {% block title %} Manage Images {% endblock %}
 
 {% block content %}
+<div class="page-container">
+    <h1 class="page-title">Manage Your Images</h1>
 
-<form method="post">
-    {% csrf_token %}
-    {{ formset.management_form }}
+    <div class="profile-box">
+        {% if formset %}
+            <form method="post">
+                {% csrf_token %}
+                {{ formset.management_form }}
 
-    <table>
-        {% for form in formset %}
-            <tr>
-                <td>
-                    {% if form.instance.image %}
-                        <img src="{{ form.instance.image.url }}" style="max-width:150px;">
-                    {% endif %}
-                </td>
-                <td>
-                    {{ form.private }} Private
-                </td>
-                <td>
-                    {{ form.DELETE }} Delete
-                </td>
-            </tr>
-            {{ form.id }}
-        {% endfor %}
-    </table>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left; padding: 10px;">Image</th>
+                            <th style="text-align: left; padding: 10px;">Category</th>
+                            <th style="text-align: center; padding: 10px;">Private</th>
+                            <th style="text-align: center; padding: 10px;">Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for form in formset %}
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;">
+                                    {% if form.instance.image %}
+                                        <img src="{{ form.instance.image.url }}" style="max-width: 150px; max-height: 150px; object-fit: cover; border-radius: 4px;">
+                                    {% endif %}
+                                </td>
+                                <td style="padding: 10px;">
+                                    {{ form.instance.get_category_display }}
+                                </td>
+                                <td style="padding: 10px; text-align: center;">
+                                    <input type="checkbox" name="{{ form.private.html_name }}" id="{{ form.private.id_for_label }}" {% if form.instance.private %}checked{% endif %} style="width: 20px; height: 20px; cursor: pointer;">
+                                </td>
+                                <td style="padding: 10px; text-align: center;">
+                                    <input type="checkbox" name="{{ form.DELETE.html_name }}" id="{{ form.DELETE.id_for_label }}" style="width: 20px; height: 20px; cursor: pointer;">
+                                </td>
+                            </tr>
+                            {{ form.id }}
+                        {% endfor %}
+                    </tbody>
+                </table>
 
-    <button type="submit">Save Changes</button>
-</form>
-
+                <button type="submit" class="community-btn" style="margin-top: 20px;">Save Changes</button>
+            </form>
+        {% else %}
+            <p>You haven't uploaded any images yet.</p>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}
