@@ -22,37 +22,44 @@
 <button id="add-tree-btn" class="add-tree-btn">Add Tree</button>
 
 <div id="sidebar" class="sidebar">
-    <div style="padding: 15px; border-bottom: 1px solid #ddd; text-align: center; margin-bottom: 15px;">
+    <!-- <div style="padding: 15px; border-bottom: 1px solid #ddd; text-align: center; margin-bottom: 15px;">
         <h3 style="margin-top: 0;">Data Tools</h3>
         <a href="{% url 'export_trees_csv' %}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
             Download CSV Data
         </a>
-    </div>
+    </div> -->
     <form id="tree-form">
         <div class="sidebar-header">
             <h2>Add Tree</h2>
             <button type="button" id="cancel-sidebar-btn" class="cancel-btn">&times;</button>
         </div>
-        <label>Latitude</label>
-        <input type="text" name="latitude" readonly required />
+        <label for="latitude">Latitude</label>
+        <input id="latitude" type="text" name="latitude" readonly required />
 
-        <label>Longitude</label>
-        <input type="text" name="longitude" readonly required />
+        <label for="longitude">Longitude</label>
+        <input id="longitude" type="text" name="longitude" readonly required />
 
         <label for="species">Species</label>
-        <input type="text" name="species" placeholder="e.g. Oak" required>
+        <select id="species" name="species" required>
+            <option value="" disabled selected>Please select an option</option>
+            {% for value, label in species_choices %}
+                {% if value %}
+                    <option value="{{ label|escape }}">{{ label }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
 
-        <label>Height (ft)</label>
-        <input type="number" name="height" min="0" placeholder="e.g. 10" required />
+        <label for="height">Height (ft)</label>
+        <input id="height" type="number" name="height" min="0" placeholder="e.g. 10" required />
 
-        <label>Diameter (in)</label>
-        <input type="number" name="diameter" min="0" placeholder="e.g. 10" required />
+        <label for="diameter">Diameter (in)</label>
+        <input id="diameter" type="number" name="diameter" min="0" placeholder="e.g. 10" required />
 
-        <label>Image</label>
-        <input type="file" accept=".jpg, .jpeg, .png, .svg" name="image" />
+        <label for="image">Image</label>
+        <input id="image" type="file" accept=".jpg, .jpeg, .png, .svg" name="image" />
 
-        <label>Description</label>
-        <textarea name="description" placeholder="Optional notes..."></textarea>
+        <label for="description">Description</label>
+        <textarea id="description" name="description" placeholder="Optional notes..."></textarea>
 
         <button type="submit">Submit</button>
     </form>
@@ -61,7 +68,48 @@
 {% endblock %}
 
 {% block scripts %}
+
+<script src="{% static 'home/species-choices.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+
 <style>
+
+.choices {
+    width: 100%;
+    margin: 0px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    height: 34.5px;
+}
+
+.choices__item {
+    font-size: 0.9rem;
+}
+
+.choices__inner {
+    padding: 0.5rem 0.75rem;
+    margin: 0px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    height: 34.5px;
+    width: 325px;
+}
+
+.choices__list {
+    border-radius: 4px;
+    width: 352px;
+}
+
+.choices__list--dropdown {
+    border-radius: 4px;
+    width: 352px;
+}
+
+.choices__inner {
+    padding: 0.5rem 0.75rem;
+}
+
 .tree-popup h3 {
     margin: 0 0 8px 0;
     color: #228B22;

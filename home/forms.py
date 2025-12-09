@@ -43,3 +43,24 @@ class MessageForm(forms.ModelForm):
             'content': '',
             'image_attachment': 'Attach Image'
         }
+
+SPECIES_CHOICES = [
+    ("", "Please select an option"),
+    ("oak", "Oak"),
+    ("red_oak", "Red Oak"),
+    ("white_oak", "White Oak"),
+    ("maple", "Maple"),
+    ("sugar_maple", "Sugar Maple"),
+    ("pine", "Pine"),
+    ("spruce", "Spruce"),
+    ("birch", "Birch"),
+    ("cherry", "Cherry"),
+    ("dogwood", "Dogwood"),
+    ("elm", "Elm"),
+    ("hickory", "Hickory"),
+    ("linden", "Linden"),
+    ("poplar", "Poplar"),
+    ("sycamore", "Sycamore"),
+    ("willow", "Willow"),
+    # ... add more
+]
