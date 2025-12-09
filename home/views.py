@@ -55,6 +55,37 @@ def moderator(request):
     })
 
 @login_required
+def first_time_setup(request):
+    """Handle first-time user setup with norms and interests"""
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=request.user)
+
+        # Check if user accepted norms
+        if 'accept_norms' not in request.POST:
+            # Return form with error if norms not accepted
+            return render(request, 'home/first_time_setup.html', {
+                'form': form,
+                'error': 'You must accept the community norms to continue.'
+            })
+
+        # Get selected interests
+        interests = request.POST.getlist('interests')
+        interests_str = ', '.join(interests) if interests else ''
+
+        if form.is_valid():
+            user = form.save(commit=False)
+            # Save interests to the sustainability_interests field
+            user.sustainability_interests = interests_str
+            # Mark profile as completed
+            user.profile_completed = True
+            user.save()
+            return redirect("index")  # Redirect to home after setup
+    else:
+        form = ProfileForm(instance=request.user)
+
+    return render(request, 'home/first_time_setup.html', {'form': form})
+
+@login_required
 def profile(request):
     if request.method == 'POST':
         form = ProfileForm(request.POST, request.FILES, instance=request.user)
@@ -596,8 +627,8 @@ def export_trees_csv(request):
     writer = csv.writer(response)
     writer.writerow(["ID", "Species", "Description", "Latitude", "Longitude", "Submitted By", "Date"])
 
-    # Query only approved trees
-    trees = TreeSubmission.objects.filter(status='approved')
+    # Query only active (non-deleted) trees
+    trees = TreeSubmission.objects.filter(is_deleted=False)
 
     for tree in trees:
         writer.writerow([
@@ -606,7 +637,7 @@ def export_trees_csv(request):
             tree.description,
             tree.latitude,
             tree.longitude,
-            tree.user.username,
+            tree.user.get_display_name(),
             tree.submitted_at.strftime("%Y-%m-%d %H:%M:%S"),
         ])
 
