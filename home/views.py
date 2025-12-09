@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from .forms import ProfileForm, MessageForm, GroupConversationForm
 import os
 from django.contrib.auth.decorators import user_passes_test, login_required
-from .models import TreeSubmission, Conversation, Message, CustomUser
+from .models import TreeSubmission, Conversation, Message, CustomUser, Notification
 from django import forms
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
@@ -53,6 +53,37 @@ def moderator(request):
         'approved_trees': total_trees,   # Now shows total active trees
         'total_messages': total_messages,
     })
+
+@login_required
+def first_time_setup(request):
+    """Handle first-time user setup with norms and interests"""
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=request.user)
+
+        # Check if user accepted norms
+        if 'accept_norms' not in request.POST:
+            # Return form with error if norms not accepted
+            return render(request, 'home/first_time_setup.html', {
+                'form': form,
+                'error': 'You must accept the community norms to continue.'
+            })
+
+        # Get selected interests
+        interests = request.POST.getlist('interests')
+        interests_str = ', '.join(interests) if interests else ''
+
+        if form.is_valid():
+            user = form.save(commit=False)
+            # Save interests to the sustainability_interests field
+            user.sustainability_interests = interests_str
+            # Mark profile as completed
+            user.profile_completed = True
+            user.save()
+            return redirect("index")  # Redirect to home after setup
+    else:
+        form = ProfileForm(instance=request.user)
+
+    return render(request, 'home/first_time_setup.html', {'form': form})
 
 @login_required
 def profile(request):
@@ -300,6 +331,16 @@ def delete_tree(request, tree_id):
         tree = TreeSubmission.objects.get(id=tree_id)
         tree.is_deleted = True  # Soft delete
         tree.save()
+
+        # Create notification for tree owner
+        Notification.objects.create(
+            recipient=tree.user,
+            sender=request.user,
+            notification_type='tree_deleted',
+            tree_submission=tree,
+            message=f"Your {tree.species} tree submission has been removed by a moderator."
+        )
+
         return JsonResponse({"success": True})
     except TreeSubmission.DoesNotExist:
         return JsonResponse({"error": "Tree not found"}, status=404)
@@ -333,6 +374,15 @@ def flag_tree(request, tree_id):
         tree.flag_reason = reason
         tree.save()
 
+        # Create notification for tree owner
+        Notification.objects.create(
+            recipient=tree.user,
+            sender=request.user,
+            notification_type='tree_flagged',
+            tree_submission=tree,
+            message=f"Your {tree.species} tree submission has been flagged for review. Reason: {reason}"
+        )
+
         return JsonResponse({"success": True, "message": "Tree flagged for moderator review"})
     except TreeSubmission.DoesNotExist:
         return JsonResponse({"error": "Tree not found"}, status=404)
@@ -353,6 +403,16 @@ def unflag_tree(request, tree_id):
         tree.flagged_at = None
         tree.flag_reason = ''
         tree.save()
+
+        # Create notification for tree owner
+        Notification.objects.create(
+            recipient=tree.user,
+            sender=request.user,
+            notification_type='tree_unflagged',
+            tree_submission=tree,
+            message=f"Good news! Your {tree.species} tree submission has been reviewed and approved by a moderator."
+        )
+
         return JsonResponse({"success": True, "message": "Tree approved and unflagged"})
     except TreeSubmission.DoesNotExist:
         return JsonResponse({"error": "Tree not found"}, status=404)
@@ -596,8 +656,8 @@ def export_trees_csv(request):
     writer = csv.writer(response)
     writer.writerow(["ID", "Species", "Description", "Latitude", "Longitude", "Submitted By", "Date"])
 
-    # Query only approved trees
-    trees = TreeSubmission.objects.filter(status='approved')
+    # Query only active (non-deleted) trees
+    trees = TreeSubmission.objects.filter(is_deleted=False)
 
     for tree in trees:
         writer.writerow([
@@ -606,8 +666,92 @@ def export_trees_csv(request):
             tree.description,
             tree.latitude,
             tree.longitude,
-            tree.user.username,
+            tree.user.get_display_name(),
             tree.submitted_at.strftime("%Y-%m-%d %H:%M:%S"),
         ])
 
     return response
+
+@login_required
+def notifications(request):
+    """Display user's notifications"""
+    user_notifications = Notification.objects.filter(recipient=request.user)
+    return render(request, 'home/notifications.html', {
+        'notifications': user_notifications
+    })
+
+@login_required
+@csrf_exempt
+def mark_notification_read(request, notification_id):
+    """Mark a single notification as read"""
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    try:
+        notification = Notification.objects.get(id=notification_id, recipient=request.user)
+        notification.is_read = True
+        notification.save()
+        return JsonResponse({"success": True})
+    except Notification.DoesNotExist:
+        return JsonResponse({"error": "Notification not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+@login_required
+@csrf_exempt
+def mark_all_notifications_read(request):
+    """Mark all notifications as read for the current user"""
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    try:
+        Notification.objects.filter(recipient=request.user, is_read=False).update(is_read=True)
+        return JsonResponse({"success": True})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+@login_required
+@csrf_exempt
+def delete_notifications(request):
+    """Delete selected notifications for the current user"""
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        notification_ids = data.get('notification_ids', [])
+
+        if not notification_ids:
+            return JsonResponse({"error": "No notifications selected"}, status=400)
+
+        # Delete notifications that belong to the current user
+        deleted_count = Notification.objects.filter(
+            id__in=notification_ids,
+            recipient=request.user
+        ).delete()[0]
+
+        return JsonResponse({
+            "success": True,
+            "deleted_count": deleted_count
+        })
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+def get_notifications(request):
+    """API endpoint to get user's notifications"""
+    if not request.user.is_authenticated:
+        return JsonResponse({'notifications': []})
+
+    notifications = Notification.objects.filter(recipient=request.user)
+    notifications_data = [
+        {
+            'id': notif.id,
+            'type': notif.notification_type,
+            'message': notif.message,
+            'is_read': notif.is_read,
+            'created_at': notif.created_at.strftime('%Y-%m-%d %H:%M'),
+            'sender': notif.sender.get_display_name() if notif.sender else 'System',
+        }
+        for notif in notifications
+    ]
+    return JsonResponse({'notifications': notifications_data})

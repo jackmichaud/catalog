@@ -4,6 +4,7 @@ from . import views
 urlpatterns = [
     path('', views.index, name='index'),
     path('moderator/', views.moderator, name='moderator'),
+    path('setup/', views.first_time_setup, name='first_time_setup'),
     path('profile/', views.profile, name='profile'),
     path('account-settings/', views.account_settings, name='account_settings'),
     path('about/', views.about, name='about'),
@@ -36,4 +37,10 @@ urlpatterns = [
     path('moderator/api/tree-stats/', views.mod_tree_stats, name='mod_tree_stats'),
     path('moderator/api/recent-activity/', views.mod_recent_activity, name='mod_recent_activity'),
     path('moderator/api/flagged-trees/', views.mod_flagged_trees, name='mod_flagged_trees'),
+    # Notification endpoints
+    path('notifications/', views.notifications, name='notifications'),
+    path('api/notifications/', views.get_notifications, name='get_notifications'),
+    path('api/notifications/<int:notification_id>/read/', views.mark_notification_read, name='mark_notification_read'),
+    path('api/notifications/mark-all-read/', views.mark_all_notifications_read, name='mark_all_notifications_read'),
+    path('api/notifications/delete/', views.delete_notifications, name='delete_notifications'),
 ]

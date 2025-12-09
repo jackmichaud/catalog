@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-container">
+    <h1 class="page-title">Welcome to CataLog!</h1>
+
+    <div class="profile-box">
+        <h2>Let's Get You Started</h2>
+        <p>Before you begin exploring CataLog, please take a moment to review our community norms and select your interests.</p>
+
+        {% if error %}
+        <div class="error-message" style="background-color: #f8d7da; color: #721c24; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" class="setup-form">
+            {% csrf_token %}
+
+            <!-- Community Norms Section -->
+            <div class="setup-section">
+                <h3>Community Norms</h3>
+                <div class="norms-content">
+                    <ul>
+                        <li><strong>Respect:</strong> Treat all community members with kindness and respect</li>
+                        <li><strong>Accuracy:</strong> Ensure tree submissions are accurate and truthful</li>
+                        <li><strong>Privacy:</strong> Respect the privacy of other users and their data</li>
+                        <li><strong>Constructive Engagement:</strong> Provide helpful and constructive feedback</li>
+                        <li><strong>Environmental Stewardship:</strong> Promote sustainable practices and environmental awareness</li>
+                    </ul>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="accept_norms" required>
+                        I have read and agree to follow the community norms
+                    </label>
+                </div>
+            </div>
+
+            <!-- Interests Section -->
+            <div class="setup-section">
+                <h3>Select Your Interests</h3>
+                <p>Choose topics that interest you to help us personalize your experience:</p>
+                <div class="interests-grid">
+                    <label class="interest-checkbox">
+                        <input type="checkbox" name="interests" value="Urban Forestry">
+                        <span>Urban Forestry</span>
+                    </label>
+                    <label class="interest-checkbox">
+                        <input type="checkbox" name="interests" value="Native Species">
+                        <span>Native Species</span>
+                    </label>
+                    <label class="interest-checkbox">
+                        <input type="checkbox" name="interests" value="Tree Identification">
+                        <span>Tree Identification</span>
+                    </label>
+                    <label class="interest-checkbox">
+                        <input type="checkbox" name="interests" value="Conservation">
+                        <span>Conservation</span>
+                    </label>
+                    <label class="interest-checkbox">
+                        <input type="checkbox" name="interests" value="Climate Action">
+                        <span>Climate Action</span>
+                    </label>
+                    <label class="interest-checkbox">
+                        <input type="checkbox" name="interests" value="Community Gardening">
+                        <span>Community Gardening</span>
+                    </label>
+                    <label class="interest-checkbox">
+                        <input type="checkbox" name="interests" value="Environmental Education">
+                        <span>Environmental Education</span>
+                    </label>
+                    <label class="interest-checkbox">
+                        <input type="checkbox" name="interests" value="Biodiversity">
+                        <span>Biodiversity</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Basic Profile Section -->
+            <div class="setup-section">
+                <h3>Complete Your Profile</h3>
+
+                <div class="form-field">
+                    <label for="id_nickname">Nickname (Optional):</label>
+                    {{ form.nickname }}
+                </div>
+
+                <div class="form-field">
+                    <label for="id_avatar">Profile Picture (Optional):</label>
+                    {{ form.avatar }}
+                </div>
+
+                <div class="form-field">
+                    <label for="id_bio">Bio (Optional):</label>
+                    {{ form.bio }}
+                </div>
+            </div>
+
+            <button type="submit" class="community-btn">Complete Setup</button>
+        </form>
+    </div>
+</div>
+
+<style>
+.setup-form {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.setup-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background-color: var(--card-background, #f9f9f9);
+    border-radius: 8px;
+}
+
+.setup-section h3 {
+    margin-top: 0;
+    color: var(--primary-color, #2d5016);
+}
+
+.norms-content ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.norms-content li {
+    margin-bottom: 0.75rem;
+    padding-left: 1rem;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    font-weight: 500;
+}
+
+.interests-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.interest-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background-color: var(--background-color, white);
+    border: 2px solid var(--border-color, #ddd);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.interest-checkbox:hover {
+    border-color: var(--primary-color, #2d5016);
+    background-color: var(--hover-background, #f0f0f0);
+}
+
+.interest-checkbox input[type="checkbox"] {
+    cursor: pointer;
+}
+
+.interest-checkbox span {
+    font-weight: 500;
+}
+
+.form-field {
+    margin-bottom: 1rem;
+}
+
+.form-field label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-field input[type="text"],
+.form-field textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color, #ddd);
+    border-radius: 4px;
+}
+
+.form-field textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.community-btn {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+}
+</style>
+{% endblock %}

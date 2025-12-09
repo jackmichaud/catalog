@@ -1,0 +1,301 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-container">
+    <h1 class="page-title">Notifications</h1>
+
+    <div class="notifications-header">
+        {% if notifications %}
+            <div class="header-actions">
+                <button id="delete-selected-btn" class="community-btn delete-btn" style="display: none;">Delete Selected</button>
+                <button id="mark-all-read-btn" class="community-btn">Mark All as Read</button>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="notifications-container">
+        {% if notifications %}
+            {% for notification in notifications %}
+                <div class="notification-item {% if not notification.is_read %}unread{% endif %}" data-notification-id="{{ notification.id }}">
+                    <div class="notification-checkbox">
+                        <input type="checkbox" class="notification-select" value="{{ notification.id }}">
+                    </div>
+                    <div class="notification-icon">
+                        {% if notification.notification_type == 'tree_flagged' %}
+                            <span class="icon-warning">⚠️</span>
+                        {% elif notification.notification_type == 'tree_unflagged' %}
+                            <span class="icon-success">✅</span>
+                        {% elif notification.notification_type == 'tree_deleted' %}
+                            <span class="icon-error">❌</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="notification-content">
+                        <div class="notification-message">{{ notification.message }}</div>
+                        <div class="notification-meta">
+                            <span class="notification-time">{{ notification.created_at|date:"M d, Y - g:i A" }}</span>
+                            {% if notification.sender %}
+                                <span class="notification-sender">from {{ notification.sender.get_display_name }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if not notification.is_read %}
+                        <button class="mark-read-btn" onclick="markAsRead({{ notification.id }})">Mark as Read</button>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-notifications">
+                <p>You have no notifications yet.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.notifications-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+}
+
+.header-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+}
+
+.header-actions .community-btn {
+    width: 150px;
+    height: 40px;
+    line-height: 40px;
+    white-space: nowrap;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    vertical-align: top;
+    margin: 0;
+    padding: 0.6rem 1.2rem;
+    box-sizing: border-box;
+}
+
+.delete-btn {
+    background-color: #dc3545;
+}
+
+#delete-selected-btn[style*="display: none"] {
+    display: none !important;
+}
+
+#delete-selected-btn[style*="display: inline-block"] {
+    display: inline-flex !important;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+.notifications-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    background-color: var(--card-background, white);
+    border: 1px solid var(--border-color, #ddd);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.notification-checkbox {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.notification-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.notification-item.unread {
+    background-color: var(--unread-background, #f0f8ff);
+    border-left: 4px solid var(--primary-color, #2d5016);
+}
+
+.notification-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.notification-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.notification-content {
+    flex-grow: 1;
+}
+
+.notification-message {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-color, #333);
+}
+
+.notification-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.875rem;
+    color: var(--secondary-text-color, #666);
+}
+
+.mark-read-btn {
+    padding: 0.5rem 1rem;
+    background-color: var(--primary-color, #2d5016);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: background-color 0.2s ease;
+}
+
+.mark-read-btn:hover {
+    background-color: var(--primary-hover, #1e3510);
+}
+
+.no-notifications {
+    text-align: center;
+    padding: 3rem;
+    color: var(--secondary-text-color, #666);
+}
+
+#mark-all-read-btn {
+    margin-bottom: 1rem;
+}
+</style>
+
+<script>
+async function markAsRead(notificationId) {
+    try {
+        const response = await fetch(`/api/notifications/${notificationId}/read/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        });
+
+        if (response.ok) {
+            const notificationElement = document.querySelector(`[data-notification-id="${notificationId}"]`);
+            notificationElement.classList.remove('unread');
+            const markReadBtn = notificationElement.querySelector('.mark-read-btn');
+            if (markReadBtn) {
+                markReadBtn.remove();
+            }
+            location.reload(); // Reload to update badge count
+        }
+    } catch (error) {
+        console.error('Error marking notification as read:', error);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const markAllBtn = document.getElementById('mark-all-read-btn');
+    const deleteBtn = document.getElementById('delete-selected-btn');
+    const checkboxes = document.querySelectorAll('.notification-select');
+
+    // Show/hide delete button based on checkbox selection
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
+            if (deleteBtn) {
+                deleteBtn.style.display = anyChecked ? 'inline-block' : 'none';
+            }
+        });
+    });
+
+    // Mark all as read
+    if (markAllBtn) {
+        markAllBtn.addEventListener('click', async function() {
+            try {
+                const response = await fetch('/api/notifications/mark-all-read/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+
+                if (response.ok) {
+                    location.reload();
+                }
+            } catch (error) {
+                console.error('Error marking all notifications as read:', error);
+            }
+        });
+    }
+
+    // Delete selected notifications
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', async function() {
+            const selectedIds = Array.from(checkboxes)
+                .filter(cb => cb.checked)
+                .map(cb => parseInt(cb.value));
+
+            if (selectedIds.length === 0) {
+                alert('Please select notifications to delete');
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to delete ${selectedIds.length} notification(s)?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/notifications/delete/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        notification_ids: selectedIds
+                    })
+                });
+
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    const data = await response.json();
+                    alert('Error deleting notifications: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error deleting notifications:', error);
+                alert('Error deleting notifications');
+            }
+        });
+    }
+});
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}
