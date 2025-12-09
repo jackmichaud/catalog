@@ -1,5 +1,22 @@
 from django import forms
-from .models import CustomUser, Message # <-- ADDED 'Message' IMPORT
+from .models import CustomUser, Message, Conversation # <-- ADDED 'Message' IMPORT
+
+class GroupConversationForm(forms.ModelForm):
+    participants = forms.ModelMultipleChoiceField(
+        queryset=CustomUser.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=True
+    )
+
+    class Meta:
+        model = Conversation
+        fields = ['name', 'participants']
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user:
+            self.fields['participants'].queryset = CustomUser.objects.exclude(id=user.id)
 
 class ProfileForm(forms.ModelForm):
     class Meta:

@@ -22,7 +22,7 @@
                 <div class="conversation-name">
                                     {{ other_user.nickname|default:other_user.username }}
                         </div>
-                <span class="user-role">({{ user.role }})</span>
+                <span class="user-role">({{ other_user.role }})</span>
                 {% if user.is_authenticated %}
                 <a href="{% url 'create_conversation' user_id=other_user.id %}" class="community-btn">{{ other_user.conversant|yesno:"View conversation,Start chat" }}</a>
                 {% endif %}

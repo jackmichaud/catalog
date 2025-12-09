@@ -1,13 +1,49 @@
-html, body {
+/* CSS Variables for Light/Dark Theme */
+:root {
+    --bg-primary: #f4f7f5;
+    --bg-secondary: #ffffff;
+    --bg-card: #ffffff;
+    --text-primary: #333;
+    --text-secondary: #777;
+    --text-muted: #999;
+    --nav-bg: #2e7d32;
+    --nav-hover: #388e3c;
+    --border-color: #ccc;
+    --border-light: #e0e0e0;
+    --shadow-sm: rgba(0, 0, 0, 0.1);
+    --shadow-md: rgba(0, 0, 0, 0.15);
+    --input-bg: #ffffff;
+    --input-border: #ccc;
+}
+
+[data-theme="dark"] {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #1e3a20;
+    --bg-card: #1e3a20;
+    --text-primary: #e0e0e0;
+    --text-secondary: #b0b0b0;
+    --text-muted: #808080;
+    --nav-bg: #1b5e20;
+    --nav-hover: #2e7d32;
+    --border-color: #2e7d32;
+    --border-light: #2e7d32;
+    --shadow-sm: rgba(0, 0, 0, 0.3);
+    --shadow-md: rgba(0, 0, 0, 0.5);
+    --input-bg: #1e3a20;
+    --input-border: #2e7d32;
+}
+
+html,
+body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background-color: #f4f7f5;
-    color: #333;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
     height: 100%;
 }
 
 nav {
-    background-color: #2e7d32;
+    background-color: var(--nav-bg);
     color: white;
     display: flex;
     justify-content: space-between;
@@ -33,7 +69,7 @@ nav li {
     display: flex;
     align-items: center;
 }
-    
+
 nav ul a {
     display: flex;
     height: 100%;
@@ -45,8 +81,35 @@ nav ul a {
 }
 
 nav a:hover {
-    background-color: #388e3c;
+    background-color: var(--nav-hover);
 }
+
+/* Navigation badge for unread messages */
+nav .badge {
+    background-color: #d32f2f;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-left: 6px;
+}
+
+/* Dark mode toggle button */
+#dark-mode-toggle {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: transform 0.2s ease;
+    line-height: 1;
+}
+
+#dark-mode-toggle:hover {
+    transform: scale(1.2);
+}
+
 
 /* Profile Dropdown Styles */
 .profile-dropdown {
@@ -80,7 +143,7 @@ nav a:hover {
     position: absolute;
     top: 100%;
     right: 0;
-    background-color: white;
+    background-color: var(--bg-card);
     min-width: 200px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     border-radius: 8px;
@@ -102,7 +165,7 @@ nav a:hover {
 .dropdown-menu a {
     display: block;
     padding: 12px 20px;
-    color: #333;
+    color: var(--text-primary);
     text-decoration: none;
     transition: background-color 0.2s ease;
     border-bottom: 1px solid #f0f0f0;
@@ -128,7 +191,7 @@ nav a:hover {
     font-size: 16px;
     margin-bottom: 30px;
 }
-    
+
 .mod-controls {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -178,7 +241,7 @@ nav a:hover {
     right: 30px;
     width: 300px;
     max-height: 400px;
-    background-color: white;
+    background-color: var(--bg-card);
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
     z-index: 99;
@@ -252,7 +315,7 @@ nav a:hover {
 
 .chat-user-popup .username {
     font-weight: 500;
-    color: #333;
+    color: var(--text-primary);
 }
 
 .chat-user-popup .chat-link {
@@ -310,7 +373,7 @@ nav a:hover {
     left: -410px;
     width: 360px;
     height: calc(100% - 100px);
-    background-color: #ffffff;
+    background-color: var(--bg-card);
     border-left: 2px solid #ddd;
     box-shadow: -4px 0 10px rgba(0, 0, 0, 0.15);
     border-top-right-radius: 12px;
@@ -349,13 +412,13 @@ nav a:hover {
 #tree-form label {
     font-weight: 600;
     font-size: 0.9rem;
-    color: #333;
+    color: var(--text-primary);
 }
 
 #tree-form input,
 #tree-form textarea {
     padding: 0.5rem 0.75rem;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 0.9rem;
     font-family: inherit;
@@ -413,7 +476,7 @@ nav a:hover {
 .page-text {
     font-size: 1.1rem;
     line-height: 1.6;
-    color: #333;
+    color: var(--text-primary);
     margin-bottom: 1.5rem;
 }
 
@@ -444,6 +507,15 @@ nav a:hover {
     background-color: #1b5e20;
 }
 
+/* Dark mode styles for community page */
+[data-theme="dark"] .community-section {
+    background-color: #2e5c2e;
+}
+
+[data-theme="dark"] .community-section h2 {
+    color: white;
+}
+
 
 .submit-tree-container {
     text-align: center;
@@ -471,6 +543,21 @@ nav a:hover {
     margin-bottom: 2rem;
 }
 
+/* Dark mode styles for profile page */
+[data-theme="dark"] .profile-box {
+    background-color: #2e5c2e;
+    color: white;
+}
+
+[data-theme="dark"] .profile-box p {
+    color: white;
+}
+
+[data-theme="dark"] .profile-box strong {
+    color: white;
+}
+
+
 .profile-form input[type="file"] {
     display: block;
     margin-top: 8px;
@@ -481,7 +568,7 @@ nav a:hover {
 .profile-form textarea {
     width: 100%;
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     font-size: 16px;
     margin-top: 5px;
@@ -491,7 +578,8 @@ nav a:hover {
 .profile-form input[type="email"]:focus,
 .profile-form textarea:focus {
     border-color: #4CAF50;
-    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.25); /* soft green glow */
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.25);
+    /* soft green glow */
     outline: none;
 }
 
@@ -540,7 +628,7 @@ nav a:hover {
 }
 
 .settings-description {
-    color: #777;
+    color: var(--text-secondary);
     font-size: 0.9rem;
 }
 
@@ -551,6 +639,47 @@ nav a:hover {
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
+
+/* Dark mode styles for account settings pages (email, password, etc) */
+[data-theme="dark"] .account-settings-box {
+    background-color: #2e5c2e;
+    color: white;
+}
+
+[data-theme="dark"] .page-title {
+    color: white;
+}
+
+[data-theme="dark"] .page-subtitle {
+    color: white;
+}
+
+[data-theme="dark"] .back-link {
+    color: white;
+}
+
+[data-theme="dark"] .back-link:hover {
+    color: #b0b0b0;
+}
+
+[data-theme="dark"] .email-item {
+    background-color: #1e3a20;
+    border-color: #2e7d32;
+}
+
+[data-theme="dark"] .email-address {
+    color: white;
+}
+
+[data-theme="dark"] .no-items {
+    background-color: #1e3a20;
+    color: white;
+}
+
+[data-theme="dark"] .add-email-section h3 {
+    color: white;
+}
+
 
 .back-link {
     display: inline-block;
@@ -609,7 +738,7 @@ fieldset {
 .email-address {
     font-weight: 600;
     font-size: 1.1rem;
-    color: #333;
+    color: var(--text-primary);
     display: block;
     margin-bottom: 8px;
 }
@@ -706,7 +835,7 @@ fieldset {
 .form-group-inline input[type="text"] {
     flex: 1;
     padding: 12px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     font-size: 1rem;
 }
@@ -754,12 +883,12 @@ fieldset {
 .connection-email {
     font-weight: 600;
     font-size: 1.1rem;
-    color: #333;
+    color: var(--text-primary);
     margin-bottom: 5px;
 }
 
 .connection-provider {
-    color: #777;
+    color: var(--text-secondary);
     font-size: 0.9rem;
 }
 
@@ -796,7 +925,7 @@ fieldset {
     display: flex;
     align-items: center;
     gap: 15px;
-    background-color: white;
+    background-color: var(--bg-card);
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -828,14 +957,37 @@ fieldset {
 .conversation-name {
     font-weight: 600;
     font-size: 1.1rem;
-    color: #333;
+    color: var(--text-primary);
     margin-bottom: 5px;
 }
 
 .conversation-preview {
-    color: #777;
+    color: var(--text-secondary);
     font-size: 0.9rem;
 }
+
+/* Unread conversation highlighting */
+.conversation-card.unread {
+    background-color: #e8f5e9;
+    border-left: 4px solid #2e7d32;
+}
+
+.conversation-card.unread .conversation-name {
+    font-weight: 700;
+    color: #1b5e20;
+}
+
+.unread-badge {
+    background-color: #d32f2f;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    min-width: 24px;
+    text-align: center;
+}
+
 
 .conversation-arrow {
     font-size: 2rem;
@@ -846,20 +998,20 @@ fieldset {
 .no-conversations {
     text-align: center;
     padding: 60px 20px;
-    background-color: white;
+    background-color: var(--bg-card);
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .no-conversations p {
-    color: #777;
+    color: var(--text-secondary);
     margin-bottom: 20px;
     font-size: 1.1rem;
 }
 
 /* Chat Container Styles */
 .chat-container {
-    background-color: white;
+    background-color: var(--bg-card);
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     overflow: hidden;
@@ -910,6 +1062,26 @@ fieldset {
     min-height: 0;
 }
 
+/* Dark mode styles for chat */
+[data-theme="dark"] .chat-header h3 span {
+    color: white !important;
+}
+
+[data-theme="dark"] .message-list {
+    background-color: #3a3a3a;
+}
+
+[data-theme="dark"] .message-form textarea {
+    background-color: #3a3a3a;
+    color: white;
+    border-color: #555;
+}
+
+[data-theme="dark"] .message-form textarea::placeholder {
+    color: #999;
+}
+
+
 .message-wrapper {
     display: flex;
 }
@@ -935,8 +1107,8 @@ fieldset {
 }
 
 .message-wrapper.received .message-bubble {
-    background-color: white;
-    color: #333;
+    background-color: var(--bg-card);
+    color: var(--text-primary);
     border: 1px solid #e0e0e0;
 }
 
@@ -976,7 +1148,7 @@ fieldset {
 
 .message-form {
     padding: 20px;
-    background-color: white;
+    background-color: var(--bg-card);
     border-top: 1px solid #e0e0e0;
     display: flex;
     gap: 10px;
@@ -994,7 +1166,7 @@ fieldset {
 .message-form textarea {
     width: 100%;
     padding: 12px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     font-size: 1rem;
     font-family: inherit;
@@ -1041,7 +1213,7 @@ fieldset {
 
 /* Logout Page Styles */
 .logout-box {
-    background-color: white;
+    background-color: var(--bg-card);
     padding: 40px;
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -1077,7 +1249,7 @@ fieldset {
 
 /* Auth Pages Styles (Login, Signup, Password Reset) */
 .auth-box {
-    background-color: white;
+    background-color: var(--bg-card);
     padding: 40px;
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -1097,7 +1269,7 @@ fieldset {
     display: block;
     font-weight: 600;
     margin-bottom: 8px;
-    color: #333;
+    color: var(--text-primary);
 }
 
 .form-group input[type="text"],
@@ -1105,7 +1277,7 @@ fieldset {
 .form-group input[type="password"] {
     width: 100%;
     padding: 12px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     font-size: 1rem;
     font-family: inherit;
@@ -1159,7 +1331,7 @@ fieldset {
 .auth-links {
     text-align: center;
     margin-top: 20px;
-    color: #777;
+    color: var(--text-secondary);
 }
 
 .auth-links a {
@@ -1196,7 +1368,7 @@ fieldset {
 
 .divider span {
     padding: 0 15px;
-    color: #777;
+    color: var(--text-secondary);
     font-size: 0.9rem;
 }
 
@@ -1207,12 +1379,12 @@ fieldset {
     gap: 10px;
     width: 100%;
     padding: 12px;
-    background-color: white;
+    background-color: var(--bg-card);
     border: 1px solid #ddd;
     border-radius: 8px;
     font-size: 1rem;
     font-weight: 600;
-    color: #333;
+    color: var(--text-primary);
     text-decoration: none;
     transition: all 0.2s ease;
 }
@@ -1221,4 +1393,3 @@ fieldset {
     background-color: #f5f5f5;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
-

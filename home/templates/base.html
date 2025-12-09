@@ -2,6 +2,7 @@
 
 <!DOCTYPE html>
 <html>
+
 <head>
     <link rel="icon" href="{% static 'home/favicon.ico' %}" type="image/x-icon">
 
@@ -17,6 +18,7 @@
 
     {% block extra_head %}{% endblock %}
 </head>
+
 <body>
     <!-- Shared Navbar -->
     <nav>
@@ -24,20 +26,22 @@
         <ul>
             <li><a href="{% url 'index' %}">Home</a></li>
             <li><a href="{% url 'about' %}">About</a></li>
+            <li><a href="{% url 'learn' %}">Learn More</a></li>
             <li><a href="{% url 'community' %}">Community</a></li>
             {% if user.role == 'moderator' %}
-                <li><a href="{% url 'moderator' %}">Moderation</a></li>
+            <li><a href="{% url 'moderator' %}">Moderation</a></li>
             {% endif %}
             {% if user.is_authenticated %}
-                <li><a href="{% url 'conversation_list' %}">Messages</a></li>
-                <li class="profile-dropdown">
-                    <a href="#" class="profile-toggle">Profile</a>
-                    <div class="dropdown-menu">
-                        <a href="{% url 'profile' %}">Your Profile</a>
-                        <a href="{% url 'account_settings' %}">Account Settings</a>
-                        <a href="{% url 'account_logout' %}">Logout</a>
-                    </div>
-                </li>
+            <li><a href="{% url 'conversation_list' %}">Messages{% if unread_message_count > 0 %} <span class="badge">
+                        {{unread_message_count }}</span>{% endif %}</a></li>
+            <li class="profile-dropdown">
+                <a href="#" class="profile-toggle">Profile</a>
+                <div class="dropdown-menu">
+                    <a href="{% url 'profile' %}">Your Profile</a>
+                    <a href="{% url 'account_settings' %}">Account Settings</a>
+                    <a href="{% url 'account_logout' %}">Logout</a>
+                </div>
+            </li>
             {% else %}
                 <li><a href="/auth-portal-catalog/login/">Login</a></li>
             {% endif %}
@@ -52,24 +56,29 @@
 
     <!-- Profile Dropdown Script -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const profileDropdown = document.querySelector('.profile-dropdown');
             const profileToggle = document.querySelector('.profile-toggle');
 
             if (profileToggle) {
-                profileToggle.addEventListener('click', function(e) {
+                profileToggle.addEventListener('click', function (e) {
                     e.preventDefault();
                     profileDropdown.classList.toggle('active');
                 });
 
                 // Close dropdown when clicking outside
-                document.addEventListener('click', function(e) {
+                document.addEventListener('click', function (e) {
                     if (!profileDropdown.contains(e.target)) {
                         profileDropdown.classList.remove('active');
                     }
                 });
             }
+
+            // Load saved theme on all pages
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
         });
     </script>
 </body>
+
 </html>
