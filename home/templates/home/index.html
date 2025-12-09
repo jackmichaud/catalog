@@ -47,6 +47,12 @@
 <button id="add-tree-btn" class="add-tree-btn">Add Tree</button>
 
 <div id="sidebar" class="sidebar">
+    <div style="padding: 15px; border-bottom: 1px solid #ddd; text-align: center; margin-bottom: 15px;">
+        <h3 style="margin-top: 0;">Data Tools</h3>
+        <a href="{% url 'export_trees_csv' %}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            Download CSV Data
+        </a>
+    </div>
     <form id="tree-form">
         <div class="sidebar-header">
             <h2>Add Tree</h2>

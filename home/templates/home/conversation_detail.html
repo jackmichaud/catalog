@@ -6,29 +6,55 @@
         <div class="chat-header">
             <a href="{% url 'conversation_list' %}" class="back-btn">← Back</a>
             <h3>
+                {% if conversation.is_group %}
+                {{ conversation.name }}
+                <span style="font-size: 0.8em; color: white; font-weight: normal;">
+                    ({% for user in conversation.participants.all %}{{ user.nickname|default:user.username }}
+                    {% if not forloop.last %},
+                    {% endif %}{% endfor %})
+                </span>
+                {% else %}
                 Chat with
                 {% for user in conversation.participants.all %}
-                    {% if user != request.user %}
-                        {{ user.nickname|default:user.username }}
-                    {% endif %}
+                {% if user != request.user %}
+                {{ user.nickname|default:user.username }}
+                {% endif %}
                 {% endfor %}
+                {% endif %}
             </h3>
+            {% if conversation.is_group %}
+            <a href="{% url 'leave_group' pk=conversation.pk %}" class="leave-group-btn"
+                onclick="return confirm('Are you sure you want to leave this group?');"
+                style="background-color: #d32f2f; color: white; padding: 8px 16px; border-radius: 5px; text-decoration: none; font-size: 0.9em;">Leave
+                Group</a>
+            {% endif %}
         </div>
 
         <div class="message-list" id="message-list">
             {% for message in messages %}
-                <div class="message-wrapper {% if message.sender == request.user %}sent{% else %}received{% endif %}">
-                    <div class="message-bubble">
-                        <div class="message-sender">{{ message.sender.nickname|default:message.sender.username }}</div>
-                        <div class="message-content">{{ message.content }}</div>
-                        {% if message.image_attachment %}
-                            <img src="{{ message.image_attachment.url }}" alt="Attachment" class="message-image">
+            <div class="message-wrapper {% if message.sender == request.user %}sent{% else %}received{% endif %}">
+                <div class="message-bubble">
+                    <div class="message-sender">{{ message.sender.nickname|default:message.sender.username }}</div>
+                    <div class="message-content">{{ message.content }}</div>
+                    {% if message.image_attachment %}
+                    <img src="{{ message.image_attachment.url }}" alt="Attachment" class="message-image">
+                    {% endif %}
+                    <div class="message-timestamp">{{ message.timestamp|date:"M d, g:i A" }}</div>
+                    {% if message.sender == request.user %}
+                    <div class="message-read-status" style="font-size: 0.75em; color: white; margin-top: 2px;">
+                        {% with read_count=message.read_by.count %}
+                        {% if read_count > 1 %}
+                        Read
+                        {% else %}
+                        Sent
                         {% endif %}
-                        <div class="message-timestamp">{{ message.timestamp|date:"M d, g:i A" }}</div>
+                        {% endwith %}
                     </div>
+                    {% endif %}
                 </div>
+            </div>
             {% empty %}
-                <div class="no-messages">No messages yet. Start the conversation!</div>
+            <div class="no-messages">No messages yet. Start the conversation!</div>
             {% endfor %}
         </div>
 
@@ -40,7 +66,7 @@
             </div>
             <button type="submit" class="send-btn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white">
-                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
                 </svg>
                 Send
             </button>
@@ -49,12 +75,12 @@
 </div>
 
 <script>
-// Auto-scroll to bottom of messages
-document.addEventListener('DOMContentLoaded', function() {
-    const messageList = document.getElementById('message-list');
-    if (messageList) {
-        messageList.scrollTop = messageList.scrollHeight;
-    }
-});
+    // Auto-scroll to bottom of messages
+    document.addEventListener('DOMContentLoaded', function () {
+        const messageList = document.getElementById('message-list');
+        if (messageList) {
+            messageList.scrollTop = messageList.scrollHeight;
+        }
+    });
 </script>
 {% endblock %}

@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, redirect, get_object_or_404
+import csv
 from django.http import HttpResponse
-from .forms import ProfileForm, MessageForm
+from .forms import ProfileForm, MessageForm, GroupConversationForm
 import os
 from django.contrib.auth.decorators import user_passes_test, login_required
 from .models import TreeSubmission, Conversation, Message, CustomUser
@@ -60,8 +61,10 @@ def profile(request):
         if form.is_valid():
             print("req.f", request.FILES)
             print(form.cleaned_data['avatar'])
-            form.save()
-            return redirect("profile")
+            user = form.save(commit=False)
+            user.profile_completed = True
+            user.save()
+            return redirect("index")  # Redirect to home after profile setup
     else:
         form = ProfileForm(instance=request.user)
     return render(request, 'home/profile.html', {'form': form})
@@ -70,10 +73,32 @@ def profile(request):
 def account_settings(request):
     return render(request, 'home/account_settings.html')
 
-@login_required
 def conversation_list(request):
     conversations = request.user.conversations.all()
-    return render(request, 'home/conversation_list.html', {'conversations': conversations})
+    
+    # Calculate unread counts for each conversation
+    conversations_with_unread = []
+    total_unread = 0
+    
+    for conversation in conversations:
+        # Count unread messages in this conversation
+        # Messages where user is NOT the sender AND user is NOT in read_by
+        unread_count = conversation.messages.exclude(
+            sender=request.user
+        ).exclude(
+            read_by=request.user
+        ).count()
+        
+        total_unread += unread_count
+        
+        # Add unread_count as an attribute to the conversation object
+        conversation.unread_count = unread_count
+        conversations_with_unread.append(conversation)
+    
+    return render(request, 'home/conversation_list.html', {
+        'conversations': conversations_with_unread,
+        'total_unread': total_unread
+    })
 
 @login_required
 def conversation_detail(request, pk):
@@ -94,6 +119,11 @@ def conversation_detail(request, pk):
         form = MessageForm()
 
     messages = conversation.messages.all()
+    
+    # Mark all messages in this conversation as read by current user
+    for message in messages:
+        if request.user not in message.read_by.all():
+            message.read_by.add(request.user)
     return render(request, 'home/conversation_detail.html', {
         'conversation': conversation,
         'messages': messages,
@@ -116,6 +146,48 @@ def create_conversation(request, user_id):
         new_conversation = Conversation.objects.create()
         new_conversation.participants.add(request.user, other_user)
         return redirect('conversation_detail', pk=new_conversation.pk)
+@login_required
+def create_group_conversation(request):
+    if request.method == 'POST':
+        form = GroupConversationForm(request.POST, user=request.user)
+        if form.is_valid():
+            conversation = form.save(commit=False)
+            conversation.is_group = True
+            conversation.admin = request.user
+            conversation.save()
+            
+            # Add participants
+            conversation.participants.set(form.cleaned_data['participants'])
+            conversation.participants.add(request.user) # Add creator to participants
+            
+            return redirect('conversation_detail', pk=conversation.pk)
+    else:
+        form = GroupConversationForm(user=request.user)
+    
+    return render(request, 'home/create_group.html', {'form': form})
+
+@login_required
+def leave_group(request, pk):
+    conversation = get_object_or_404(Conversation, pk=pk)
+    
+    # Check if it's a group and user is a participant
+    if not conversation.is_group:
+        return HttpResponse("This is not a group conversation.", status=400)
+    
+    if request.user not in conversation.participants.all():
+        return HttpResponse("You are not a participant in this conversation.", status=403)
+    
+    # If user is admin, transfer admin to another participant
+    if conversation.admin == request.user:
+        remaining_participants = conversation.participants.exclude(id=request.user.id)
+        if remaining_participants.exists():
+            conversation.admin = remaining_participants.first()
+            conversation.save()
+    
+    # Remove user from participants
+    conversation.participants.remove(request.user)
+    
+    return redirect('conversation_list')
 
 
 def about(request):
@@ -509,3 +581,33 @@ def mod_recent_activity(request):
     activities.sort(key=lambda x: x['time'], reverse=True)
 
     return JsonResponse({'activities': activities[:15]})
+
+def learn(request):
+    """Renders the static Learn page with educational resources."""
+    return render(request, 'home/learn.html')
+
+@login_required
+def export_trees_csv(request):
+    response = HttpResponse(
+        content_type="text/csv",
+        headers={"Content-Disposition": 'attachment; filename="charlottesville_trees.csv"'},
+    )
+
+    writer = csv.writer(response)
+    writer.writerow(["ID", "Species", "Description", "Latitude", "Longitude", "Submitted By", "Date"])
+
+    # Query only approved trees
+    trees = TreeSubmission.objects.filter(status='approved')
+
+    for tree in trees:
+        writer.writerow([
+            tree.id,
+            tree.species,
+            tree.description,
+            tree.latitude,
+            tree.longitude,
+            tree.user.username,
+            tree.submitted_at.strftime("%Y-%m-%d %H:%M:%S"),
+        ])
+
+    return response

@@ -13,13 +13,18 @@ if (typeof MAPBOX_TOKEN === 'undefined') {
 let map;
 try {
     mapboxgl.accessToken = MAPBOX_TOKEN;  // defined in template
+
+    // Check if dark mode is active
+    const currentTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('theme') || 'light';
+    const mapStyle = currentTheme === 'dark' ? 'mapbox://styles/mapbox/dark-v11' : 'mapbox://styles/mapbox/light-v11';
+
     map = new mapboxgl.Map({
         container: 'map',
-        style: 'mapbox://styles/mapbox/light-v11',
+        style: mapStyle,
         center: [-78.4767, 38.0293],
         zoom: 13
     });
-    console.log('Map object created successfully');
+    console.log('Map object created successfully with theme:', currentTheme);
 } catch (error) {
     console.error('ERROR creating map:', error);
     throw error;
@@ -194,7 +199,7 @@ function getCookie(name) {
 }
 
 // Event delegation for edit/delete buttons in popups
-document.addEventListener('click', async function(e) {
+document.addEventListener('click', async function (e) {
     // Handle edit button
     if (e.target.classList.contains('edit-tree-btn')) {
         const treeId = e.target.dataset.treeId;

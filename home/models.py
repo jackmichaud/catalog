@@ -17,6 +17,7 @@ class CustomUser(AbstractUser):
     bio = models.TextField(blank=True)
     sustainability_interests = models.CharField(max_length=255, blank=True)
     nickname = models.CharField(max_length=100, blank=True)
+    profile_completed = models.BooleanField(default=False)
 
     def get_display_name(self):
         """Return nickname if set, otherwise username"""
@@ -26,6 +27,12 @@ class Conversation(models.Model):
     participants = models.ManyToManyField(
         settings.AUTH_USER_MODEL, related_name="conversations"
     )
+    name = models.CharField(max_length=255, blank=True, null=True)
+    is_group = models.BooleanField(default=False)
+    admin = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="admin_conversations"
+    )
+
     def __str__(self):
         return ", ".join([user.get_display_name() for user in self.participants.all()])
 
@@ -41,6 +48,10 @@ class Message(models.Model):
 
     image_attachment = models.ImageField(
         upload_to='message_attachments/', storage=s3_storage, blank=True, null=True
+    )
+    
+    read_by = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, related_name="read_messages", blank=True
     )
 
     class Meta:
