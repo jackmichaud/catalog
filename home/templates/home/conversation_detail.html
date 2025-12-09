@@ -37,7 +37,7 @@
                     <div class="message-sender">{{ message.sender.nickname|default:message.sender.username }}</div>
                     <div class="message-content">{{ message.content }}</div>
                     {% if message.image_attachment %}
-                    <img src="{{ message.image_attachment.image.url }}" alt="Attachment" class="message-image">
+                    <img src="{{ message.image_attachment.public_url }}" alt="Attachment" class="message-image">
                     {% endif %}
                     <div class="message-timestamp">{{ message.timestamp|date:"M d, g:i A" }}</div>
                     {% if message.sender == request.user %}

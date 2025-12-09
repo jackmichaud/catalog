@@ -24,6 +24,12 @@ class CustomImage(models.Model):
     flaged = models.BooleanField(default=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
 
+    @property
+    def public_url(self):
+        if not self.private:
+            return self.image.url
+        return None
+
 class CustomUser(AbstractUser):
     ROLE_CHOICES = (
         ('user', 'User'),

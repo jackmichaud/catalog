@@ -19,7 +19,7 @@
             {% endif %}
             
             {% if user.avatar %}
-                <img src="{{ request.user.avatar.image.url }}" alt="Avatar">
+                <img src="{{ request.user.avatar.public_url }}" alt="Avatar">
             {% else %}
                 <p>No avatar uploaded.</p>
             {% endif %}

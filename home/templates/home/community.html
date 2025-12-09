@@ -14,8 +14,8 @@
             {% for other_user in other_users %}
             <div class="conversation-card">
                 <div class="conversation-avatar">
-                    {% if other_user.avatar %}
-                    <img src="{{ other_user.avatar.image.url }}" alt="{{ other_user.username }}'s avatar"
+                    {% if other_user.avatar and other_user.avatar.public_url %}
+                    <img src="{{ other_user.avatar.public_url }}" alt="{{ other_user.username }}'s avatar"
                         style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
                     {% else %}
                     <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="#2e7d32">
