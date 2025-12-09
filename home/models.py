@@ -63,9 +63,7 @@ class Message(models.Model):
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
-    image_attachment = models.ImageField(
-        upload_to='message_attachments/', storage=s3_storage, blank=True, null=True
-    )
+    image_attachment = models.ForeignKey(CustomImage, on_delete=models.SET_NULL, null=True, blank=True, default=None)
     
     read_by = models.ManyToManyField(
         settings.AUTH_USER_MODEL, related_name="read_messages", blank=True

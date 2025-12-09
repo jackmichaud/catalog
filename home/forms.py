@@ -50,6 +50,7 @@ class ProfileForm(forms.ModelForm):
         return instance
 
 class MessageForm(forms.ModelForm):
+    image_upload = forms.ImageField(required=False)
     class Meta:
         model = Message
         fields = ['content', 'image_attachment']
@@ -60,3 +61,18 @@ class MessageForm(forms.ModelForm):
             'content': '',
             'image_attachment': 'Attach Image'
         }
+    def save(self, commit=True, user=None):
+        instance = super().save(commit=False)
+        image_file = self.cleaned_data.get("image_upload")
+
+        if image_file and user:
+            custom_image = CustomImage.objects.create(
+                image=image_file,
+                user=user,
+                category="message_attachments"
+            )
+            instance.image_attachment = custom_image
+
+        if commit:
+            instance.save()
+        return instance
