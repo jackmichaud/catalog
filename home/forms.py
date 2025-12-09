@@ -18,6 +18,9 @@ class GroupConversationForm(forms.ModelForm):
         if user:
             self.fields['participants'].queryset = CustomUser.objects.exclude(id=user.id)
 
+        # Override the label for each user to show nickname instead of username
+        self.fields['participants'].label_from_instance = lambda obj: obj.get_display_name()
+
 class ProfileForm(forms.ModelForm):
     avatar_upload = forms.ImageField(required=False)
     class Meta:
