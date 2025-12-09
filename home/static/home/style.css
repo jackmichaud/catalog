@@ -56,6 +56,22 @@ nav {
     height: 60px;
 }
 
+nav h2 {
+    color: white;
+    margin: 0;
+}
+
+nav h2 a {
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+    line-height: 1;
+}
+
+nav h2 a:focus {
+    outline: none;
+}
+
 nav ul {
     list-style: none;
     display: flex;

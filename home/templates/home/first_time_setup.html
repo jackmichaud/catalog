@@ -85,8 +85,8 @@
                 </div>
 
                 <div class="form-field">
-                    <label for="id_avatar">Profile Picture (Optional):</label>
-                    {{ form.avatar }}
+                    <label for="id_avatar_upload">Profile Picture (Optional):</label>
+                    {{ form.avatar_upload }}
                 </div>
 
                 <div class="form-field">
@@ -196,6 +196,59 @@
     padding: 1rem;
     font-size: 1.1rem;
     margin-top: 1rem;
+}
+
+/* Dark mode styles */
+[data-theme="dark"] .page-title {
+    color: white;
+}
+
+[data-theme="dark"] .profile-box {
+    background-color: #2e5c2e;
+}
+
+[data-theme="dark"] .profile-box > h2,
+[data-theme="dark"] .profile-box > p {
+    color: white;
+}
+
+/* Keep setup sections light with black text in dark mode */
+[data-theme="dark"] .setup-section {
+    background-color: white;
+    color: black;
+}
+
+[data-theme="dark"] .setup-section h3 {
+    color: #2d5016;
+}
+
+[data-theme="dark"] .setup-section p,
+[data-theme="dark"] .setup-section li,
+[data-theme="dark"] .setup-section label,
+[data-theme="dark"] .setup-section strong {
+    color: black;
+}
+
+[data-theme="dark"] .checkbox-label {
+    color: black;
+}
+
+[data-theme="dark"] .interest-checkbox {
+    background-color: #f9f9f9;
+    border-color: #ddd;
+    color: black;
+}
+
+[data-theme="dark"] .interest-checkbox span {
+    color: black;
+}
+
+[data-theme="dark"] .form-field label {
+    color: black;
+}
+
+[data-theme="dark"] .error-message {
+    color: #721c24;
 }
 </style>
 {% endblock %}
