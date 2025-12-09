@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from .forms import ProfileForm, MessageForm, GroupConversationForm
 import os
 from django.contrib.auth.decorators import user_passes_test, login_required
-from .models import TreeSubmission, Conversation, Message, CustomUser
+from .models import TreeSubmission, Conversation, Message, CustomUser, Notification
 from django import forms
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
@@ -43,24 +43,57 @@ def index(request):
 @user_passes_test(is_moderator)
 def moderator(request):
     total_users = CustomUser.objects.count()
-    pending_trees = TreeSubmission.objects.filter(status='pending').count()
-    approved_trees = TreeSubmission.objects.filter(status='approved').count()
+    flagged_trees = TreeSubmission.objects.filter(is_flagged=True, is_deleted=False).count()
+    total_trees = TreeSubmission.objects.filter(is_deleted=False).count()
     total_messages = Message.objects.count()
 
     return render(request, 'home/moderator.html', {
         'total_users': total_users,
-        'pending_trees': pending_trees,
-        'approved_trees': approved_trees,
+        'pending_trees': flagged_trees,  # Now shows flagged trees count
+        'approved_trees': total_trees,   # Now shows total active trees
         'total_messages': total_messages,
     })
+
+@login_required
+def first_time_setup(request):
+    """Handle first-time user setup with norms and interests"""
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=request.user)
+
+        # Check if user accepted norms
+        if 'accept_norms' not in request.POST:
+            # Return form with error if norms not accepted
+            return render(request, 'home/first_time_setup.html', {
+                'form': form,
+                'error': 'You must accept the community norms to continue.'
+            })
+
+        # Get selected interests
+        interests = request.POST.getlist('interests')
+        interests_str = ', '.join(interests) if interests else ''
+
+        if form.is_valid():
+            user = form.save(commit=False)
+            # Save interests to the sustainability_interests field
+            user.sustainability_interests = interests_str
+            # Mark profile as completed
+            user.profile_completed = True
+            user.save()
+            return redirect("index")  # Redirect to home after setup
+    else:
+        form = ProfileForm(instance=request.user)
+
+    return render(request, 'home/first_time_setup.html', {'form': form})
 
 @login_required
 def profile(request):
     if request.method == 'POST':
         form = ProfileForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
-            form.save(user=request.user)
-            return redirect("profile")
+            user = form.save(commit=False)
+            user.profile_completed = True
+            user.save()
+            return redirect("index")  # Redirect to home after profile setup
     else:
         form = ProfileForm(instance=request.user)
     return render(request, 'home/profile.html', {'form': form})
@@ -232,24 +265,13 @@ def add_tree(request):
 
 @user_passes_test(is_moderator)
 def moderate_trees(request):
-    submissions = TreeSubmission.objects.filter(status='pending')
-
-    if request.method == 'POST':
-        submission_id = request.POST.get('submission_id')
-        action = request.POST.get('action')
-
-        submission = TreeSubmission.objects.get(id=submission_id)
-        if action == 'approve':
-            submission.status = 'approved'
-        elif action == 'reject':
-            submission.status = 'rejected'
-        submission.save()
-
-    return render(request, 'archive/moderate_trees.html', {'submissions': submissions})
+    # Now shows flagged trees instead of pending trees
+    flagged_trees = TreeSubmission.objects.filter(is_flagged=True, is_deleted=False)
+    return render(request, 'archive/moderate_trees.html', {'submissions': flagged_trees})
 
 def get_trees(request):
-    """API endpoint to fetch all approved trees for map display"""
-    approved_trees = TreeSubmission.objects.filter(status='approved')
+    """API endpoint to fetch all non-deleted trees for map display"""
+    trees = TreeSubmission.objects.filter(is_deleted=False)
     trees_data = [
         {
             'id': tree.id,
@@ -257,8 +279,10 @@ def get_trees(request):
             'latitude': tree.latitude,
             'longitude': tree.longitude,
             'description': tree.description,
+            'is_flagged': tree.is_flagged,
+            'submitted_by': tree.user.get_display_name(),
         }
-        for tree in approved_trees
+        for tree in trees
     ]
     return JsonResponse({'trees': trees_data})
 
@@ -303,8 +327,91 @@ def delete_tree(request, tree_id):
 
     try:
         tree = TreeSubmission.objects.get(id=tree_id)
-        tree.delete()
+        tree.is_deleted = True  # Soft delete
+        tree.save()
+
+        # Create notification for tree owner
+        Notification.objects.create(
+            recipient=tree.user,
+            sender=request.user,
+            notification_type='tree_deleted',
+            tree_submission=tree,
+            message=f"Your {tree.species} tree submission has been removed by a moderator."
+        )
+
         return JsonResponse({"success": True})
+    except TreeSubmission.DoesNotExist:
+        return JsonResponse({"error": "Tree not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+@login_required
+@csrf_exempt
+def flag_tree(request, tree_id):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        reason = data.get('reason', '')
+
+        tree = TreeSubmission.objects.get(id=tree_id)
+
+        # Prevent users from flagging their own trees
+        if tree.user == request.user:
+            return JsonResponse({"error": "You cannot flag your own tree"}, status=400)
+
+        # Prevent double-flagging
+        if tree.is_flagged:
+            return JsonResponse({"error": "This tree has already been flagged"}, status=400)
+
+        from django.utils import timezone
+        tree.is_flagged = True
+        tree.flagged_by = request.user
+        tree.flagged_at = timezone.now()
+        tree.flag_reason = reason
+        tree.save()
+
+        # Create notification for tree owner
+        Notification.objects.create(
+            recipient=tree.user,
+            sender=request.user,
+            notification_type='tree_flagged',
+            tree_submission=tree,
+            message=f"Your {tree.species} tree submission has been flagged for review. Reason: {reason}"
+        )
+
+        return JsonResponse({"success": True, "message": "Tree flagged for moderator review"})
+    except TreeSubmission.DoesNotExist:
+        return JsonResponse({"error": "Tree not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+@user_passes_test(is_moderator)
+@csrf_exempt
+def unflag_tree(request, tree_id):
+    """Moderators can unflag a tree (approve it)"""
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    try:
+        tree = TreeSubmission.objects.get(id=tree_id)
+        tree.is_flagged = False
+        tree.flagged_by = None
+        tree.flagged_at = None
+        tree.flag_reason = ''
+        tree.save()
+
+        # Create notification for tree owner
+        Notification.objects.create(
+            recipient=tree.user,
+            sender=request.user,
+            notification_type='tree_unflagged',
+            tree_submission=tree,
+            message=f"Good news! Your {tree.species} tree submission has been reviewed and approved by a moderator."
+        )
+
+        return JsonResponse({"success": True, "message": "Tree approved and unflagged"})
     except TreeSubmission.DoesNotExist:
         return JsonResponse({"error": "Tree not found"}, status=404)
     except Exception as e:
@@ -316,7 +423,7 @@ def mod_get_users(request):
     users_data = [
         {
             'id': user.id,
-            'username': user.username,
+            'username': user.get_display_name(),
             'email': user.email,
             'role': user.role,
             'date_joined': user.date_joined.isoformat(),
@@ -330,12 +437,12 @@ def mod_get_users(request):
 def mod_search_users(request):
     query = request.GET.get('q', '')
     users = CustomUser.objects.filter(
-        Q(username__icontains=query) | Q(email__icontains=query)
+        Q(username__icontains=query) | Q(email__icontains=query) | Q(nickname__icontains=query)
     )
     users_data = [
         {
             'id': user.id,
-            'username': user.username,
+            'username': user.get_display_name(),
             'email': user.email,
             'role': user.role,
         }
@@ -407,10 +514,10 @@ def mod_delete_user(request):
             return JsonResponse({"error": "You cannot delete your own account"}, status=400)
 
         user = CustomUser.objects.get(id=user_id)
-        username = user.username
+        display_name = user.get_display_name()
         user.delete()  # This will cascade delete related data (trees, messages, etc.)
 
-        return JsonResponse({"success": True, "message": f"User {username} deleted successfully"})
+        return JsonResponse({"success": True, "message": f"User {display_name} deleted successfully"})
     except CustomUser.DoesNotExist:
         return JsonResponse({"error": "User not found"}, status=404)
     except Exception as e:
@@ -444,14 +551,14 @@ def mod_activity(request):
 
     for tree in recent_trees:
         activities.append({
-            'user': tree.user.username,
+            'user': tree.user.get_display_name(),
             'action': f'Submitted tree: {tree.species}',
             'time': tree.submitted_at.strftime('%Y-%m-%d %H:%M'),
         })
 
     for msg in recent_messages:
         activities.append({
-            'user': msg.sender.username,
+            'user': msg.sender.get_display_name(),
             'action': 'Sent a message',
             'time': msg.timestamp.strftime('%Y-%m-%d %H:%M'),
         })
@@ -462,15 +569,35 @@ def mod_activity(request):
     return JsonResponse({'activities': activities[:15]})
 
 @user_passes_test(is_moderator)
+def mod_flagged_trees(request):
+    """API endpoint to get all flagged trees for moderator review"""
+    flagged_trees = TreeSubmission.objects.filter(is_flagged=True, is_deleted=False).order_by('-flagged_at')
+    trees_data = [
+        {
+            'id': tree.id,
+            'species': tree.species,
+            'latitude': tree.latitude,
+            'longitude': tree.longitude,
+            'description': tree.description,
+            'submitted_by': tree.user.get_display_name(),
+            'flagged_by': tree.flagged_by.get_display_name() if tree.flagged_by else 'Unknown',
+            'flagged_at': tree.flagged_at.strftime('%Y-%m-%d %H:%M') if tree.flagged_at else '',
+            'flag_reason': tree.flag_reason,
+        }
+        for tree in flagged_trees
+    ]
+    return JsonResponse({'trees': trees_data})
+
+@user_passes_test(is_moderator)
 def mod_tree_stats(request):
     from django.db.models import Count
 
-    pending = TreeSubmission.objects.filter(status='pending').count()
-    approved = TreeSubmission.objects.filter(status='approved').count()
-    rejected = TreeSubmission.objects.filter(status='rejected').count()
+    flagged = TreeSubmission.objects.filter(is_flagged=True, is_deleted=False).count()
+    active = TreeSubmission.objects.filter(is_deleted=False).count()
+    deleted = TreeSubmission.objects.filter(is_deleted=True).count()
 
-    # Get species counts
-    species_counts = TreeSubmission.objects.filter(status='approved').values('species').annotate(count=Count('species')).order_by('-count')[:10]
+    # Get species counts for active trees
+    species_counts = TreeSubmission.objects.filter(is_deleted=False).values('species').annotate(count=Count('species')).order_by('-count')[:10]
 
     species_data = [
         {'name': item['species'], 'count': item['count']}
@@ -478,9 +605,9 @@ def mod_tree_stats(request):
     ]
 
     return JsonResponse({
-        'pending': pending,
-        'approved': approved,
-        'rejected': rejected,
+        'pending': flagged,     # Now returns flagged trees count
+        'approved': active,     # Now returns active (non-deleted) trees
+        'rejected': deleted,    # Now returns deleted trees count
         'species': species_data,
     })
 
@@ -490,12 +617,13 @@ def mod_recent_activity(request):
     activities = []
 
     # Recent tree submissions
-    recent_trees = TreeSubmission.objects.all().order_by('-submitted_at')[:5]
+    recent_trees = TreeSubmission.objects.filter(is_deleted=False).order_by('-submitted_at')[:5]
     for tree in recent_trees:
+        status_text = 'flagged' if tree.is_flagged else 'active'
         activities.append({
             'time': tree.submitted_at.strftime('%Y-%m-%d %H:%M'),
-            'user': tree.user.username,
-            'description': f'Submitted {tree.species} tree ({tree.status})',
+            'user': tree.user.get_display_name(),
+            'description': f'Submitted {tree.species} tree ({status_text})',
         })
 
     # Recent user registrations
@@ -503,7 +631,7 @@ def mod_recent_activity(request):
     for user in recent_users:
         activities.append({
             'time': user.date_joined.strftime('%Y-%m-%d %H:%M'),
-            'user': user.username,
+            'user': user.get_display_name(),
             'description': 'Registered new account',
         })
 
@@ -526,8 +654,8 @@ def export_trees_csv(request):
     writer = csv.writer(response)
     writer.writerow(["ID", "Species", "Description", "Latitude", "Longitude", "Submitted By", "Date"])
 
-    # Query only approved trees
-    trees = TreeSubmission.objects.filter(status='approved')
+    # Query only active (non-deleted) trees
+    trees = TreeSubmission.objects.filter(is_deleted=False)
 
     for tree in trees:
         writer.writerow([
@@ -536,8 +664,92 @@ def export_trees_csv(request):
             tree.description,
             tree.latitude,
             tree.longitude,
-            tree.user.username,
+            tree.user.get_display_name(),
             tree.submitted_at.strftime("%Y-%m-%d %H:%M:%S"),
         ])
 
     return response
+
+@login_required
+def notifications(request):
+    """Display user's notifications"""
+    user_notifications = Notification.objects.filter(recipient=request.user)
+    return render(request, 'home/notifications.html', {
+        'notifications': user_notifications
+    })
+
+@login_required
+@csrf_exempt
+def mark_notification_read(request, notification_id):
+    """Mark a single notification as read"""
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    try:
+        notification = Notification.objects.get(id=notification_id, recipient=request.user)
+        notification.is_read = True
+        notification.save()
+        return JsonResponse({"success": True})
+    except Notification.DoesNotExist:
+        return JsonResponse({"error": "Notification not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+@login_required
+@csrf_exempt
+def mark_all_notifications_read(request):
+    """Mark all notifications as read for the current user"""
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    try:
+        Notification.objects.filter(recipient=request.user, is_read=False).update(is_read=True)
+        return JsonResponse({"success": True})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+@login_required
+@csrf_exempt
+def delete_notifications(request):
+    """Delete selected notifications for the current user"""
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        notification_ids = data.get('notification_ids', [])
+
+        if not notification_ids:
+            return JsonResponse({"error": "No notifications selected"}, status=400)
+
+        # Delete notifications that belong to the current user
+        deleted_count = Notification.objects.filter(
+            id__in=notification_ids,
+            recipient=request.user
+        ).delete()[0]
+
+        return JsonResponse({
+            "success": True,
+            "deleted_count": deleted_count
+        })
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+def get_notifications(request):
+    """API endpoint to get user's notifications"""
+    if not request.user.is_authenticated:
+        return JsonResponse({'notifications': []})
+
+    notifications = Notification.objects.filter(recipient=request.user)
+    notifications_data = [
+        {
+            'id': notif.id,
+            'type': notif.notification_type,
+            'message': notif.message,
+            'is_read': notif.is_read,
+            'created_at': notif.created_at.strftime('%Y-%m-%d %H:%M'),
+            'sender': notif.sender.get_display_name() if notif.sender else 'System',
+        }
+        for notif in notifications
+    ]
+    return JsonResponse({'notifications': notifications_data})

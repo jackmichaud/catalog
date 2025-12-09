@@ -19,12 +19,12 @@ from django.urls import path, include
 # from home.views import google_login_redirect
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('secure-admin-catalog-2025/', admin.site.urls),
     path('', include('home.urls')),
     path('accounts/', include('allauth.urls'))
 
     # AUTO-REDIRECT LOGIN → GOOGLE
     # path('accounts/login/', google_login_redirect, name='account_login'),
 
-    
+
 ]

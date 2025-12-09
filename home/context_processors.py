@@ -1,4 +1,4 @@
-from home.models import Message
+from home.models import Message, Notification
 
 def unread_messages(request):
     """
@@ -13,6 +13,19 @@ def unread_messages(request):
         ).exclude(
             read_by=request.user
         ).count()
-        
+
         return {'unread_message_count': unread_count}
     return {'unread_message_count': 0}
+
+def unread_notifications(request):
+    """
+    Context processor to provide unread notification count globally in templates.
+    """
+    if request.user.is_authenticated:
+        unread_count = Notification.objects.filter(
+            recipient=request.user,
+            is_read=False
+        ).count()
+
+        return {'unread_notification_count': unread_count}
+    return {'unread_notification_count': 0}
