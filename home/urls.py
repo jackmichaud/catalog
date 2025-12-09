@@ -43,4 +43,5 @@ urlpatterns = [
     path('api/notifications/<int:notification_id>/read/', views.mark_notification_read, name='mark_notification_read'),
     path('api/notifications/mark-all-read/', views.mark_all_notifications_read, name='mark_all_notifications_read'),
     path('api/notifications/delete/', views.delete_notifications, name='delete_notifications'),
+    path('manage-images/', views.manage_images, name='manage_images')
 ]

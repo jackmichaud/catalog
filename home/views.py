@@ -1,14 +1,15 @@
 from django.shortcuts import render, redirect, redirect, get_object_or_404
 import csv
 from django.http import HttpResponse
-from .forms import ProfileForm, MessageForm, GroupConversationForm, SPECIES_CHOICES
+from .forms import ProfileForm, MessageForm, GroupConversationForm, SPECIES_CHOICES, CustomImagePrivacyForm
 import os
 from django.contrib.auth.decorators import user_passes_test, login_required
-from .models import TreeSubmission, Conversation, Message, CustomUser, Notification
+from .models import TreeSubmission, Conversation, Message, CustomUser, Notification, CustomImage
 from django import forms
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.db.models import Q # For searching
+from django.forms import modelformset_factory
 import json
 # class TreeSubmissionForm(forms.ModelForm):
 #     class Meta:
@@ -754,3 +755,36 @@ def get_notifications(request):
         for notif in notifications
     ]
     return JsonResponse({'notifications': notifications_data})
+
+@login_required
+def manage_images(request):
+    ImageFormSet = modelformset_factory(
+        CustomImage,
+        form=CustomImagePrivacyForm,
+        extra=0,
+        can_delete=True
+    )
+
+    queryset = CustomImage.objects.filter(user=request.user)
+
+    if request.method == "POST":
+        formset = ImageFormSet(request.POST, request.FILES, queryset=queryset)
+        
+        if formset.is_valid():
+            instances = formset.save(commit=False)
+            print("instances", instances)
+
+            # Save updated private fields
+            for instance in instances:
+                instance.save()
+
+            # Handle deletion
+            for form in formset.forms:
+                if form.cleaned_data.get('DELETE'):
+                    form.instance.delete()
+
+            return redirect('manage_images')
+    else:
+        formset = ImageFormSet(queryset=queryset)
+
+    return render(request, 'home/manage_images.html', {'formset': formset})

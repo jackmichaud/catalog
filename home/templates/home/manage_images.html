@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %} Manage Images {% endblock %}
+
+{% block content %}
+
+<form method="post">
+    {% csrf_token %}
+    {{ formset.management_form }}
+
+    <table>
+        {% for form in formset %}
+            <tr>
+                <td>
+                    {% if form.instance.image %}
+                        <img src="{{ form.instance.image.url }}" style="max-width:150px;">
+                    {% endif %}
+                </td>
+                <td>
+                    {{ form.private }} Private
+                </td>
+                <td>
+                    {{ form.DELETE }} Delete
+                </td>
+            </tr>
+            {{ form.id }}
+        {% endfor %}
+    </table>
+
+    <button type="submit">Save Changes</button>
+</form>
+
+{% endblock %}

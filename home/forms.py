@@ -76,6 +76,11 @@ class MessageForm(forms.ModelForm):
             instance.save()
         return instance
 
+class CustomImagePrivacyForm(forms.ModelForm):
+    class Meta:
+        model = CustomImage
+        fields = ['private']
+
 SPECIES_CHOICES = [
     ("", "Please select an option"),
 
