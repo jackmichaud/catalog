@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, redirect, get_object_or_404
 import csv
 from django.http import HttpResponse
-from .forms import ProfileForm, MessageForm, GroupConversationForm
+from .forms import ProfileForm, MessageForm, GroupConversationForm, SPECIES_CHOICES
 import os
 from django.contrib.auth.decorators import user_passes_test, login_required
 from .models import TreeSubmission, Conversation, Message, CustomUser, Notification
@@ -37,7 +37,8 @@ def index(request):
     return render(request, 'home/index.html', {
         'all_users': all_users,
         "MAPBOX_TOKEN": mapbox_token,
-        'is_moderator': is_mod
+        'is_moderator': is_mod,
+        'species_choices': SPECIES_CHOICES,
     })
 
 @user_passes_test(is_moderator)
