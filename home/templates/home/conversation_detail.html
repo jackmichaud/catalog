@@ -37,7 +37,7 @@
                     <div class="message-sender">{{ message.sender.nickname|default:message.sender.username }}</div>
                     <div class="message-content">{{ message.content }}</div>
                     {% if message.image_attachment %}
-                    <img src="{{ message.image_attachment.url }}" alt="Attachment" class="message-image">
+                    <img src="{{ message.image_attachment.image.url }}" alt="Attachment" class="message-image">
                     {% endif %}
                     <div class="message-timestamp">{{ message.timestamp|date:"M d, g:i A" }}</div>
                     {% if message.sender == request.user %}
@@ -62,7 +62,7 @@
             {% csrf_token %}
             <div class="form-input-group">
                 {{ form.content }}
-                {{ form.image_attachment }}
+                {{ form.image_upload }}
             </div>
             <button type="submit" class="send-btn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white">

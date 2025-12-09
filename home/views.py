@@ -139,7 +139,7 @@ def conversation_detail(request, pk):
     if request.method == 'POST':
         form = MessageForm(request.POST, request.FILES)
         if form.is_valid():
-            message = form.save(commit=False)
+            message = form.save(commit=False, user=request.user)
             message.conversation = conversation
             message.sender = request.user
             message.save()

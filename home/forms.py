@@ -53,7 +53,7 @@ class MessageForm(forms.ModelForm):
     image_upload = forms.ImageField(required=False)
     class Meta:
         model = Message
-        fields = ['content', 'image_attachment']
+        fields = ['content']
         widgets = {
             'content': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Type your message...'})
         }
@@ -64,7 +64,6 @@ class MessageForm(forms.ModelForm):
     def save(self, commit=True, user=None):
         instance = super().save(commit=False)
         image_file = self.cleaned_data.get("image_upload")
-
         if image_file and user:
             custom_image = CustomImage.objects.create(
                 image=image_file,
