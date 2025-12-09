@@ -75,3 +75,39 @@ class TreeSubmission(models.Model):
 
     def __str__(self):
         return f"{self.species} ({self.latitude}, {self.longitude})"
+
+class Notification(models.Model):
+    NOTIFICATION_TYPES = (
+        ('tree_flagged', 'Tree Flagged'),
+        ('tree_unflagged', 'Tree Approved'),
+        ('tree_deleted', 'Tree Deleted'),
+    )
+
+    recipient = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='notifications'
+    )
+    sender = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='sent_notifications'
+    )
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES)
+    tree_submission = models.ForeignKey(
+        TreeSubmission,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.notification_type} for {self.recipient.get_display_name()}"

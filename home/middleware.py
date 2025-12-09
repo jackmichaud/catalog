@@ -22,6 +22,7 @@ class ProfileSetupMiddleware:
                     '/static/',
                     '/media/',
                     '/accounts/',  # Allow allauth URLs
+                    '/api/notifications/',  # Allow notification API calls
                 ]
 
                 if not any(request.path.startswith(path) for path in allowed_paths):

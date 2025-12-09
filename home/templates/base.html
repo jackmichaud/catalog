@@ -34,6 +34,8 @@
             {% if user.is_authenticated %}
             <li><a href="{% url 'conversation_list' %}">Messages{% if unread_message_count > 0 %} <span class="badge">
                         {{unread_message_count }}</span>{% endif %}</a></li>
+            <li><a href="{% url 'notifications' %}">Notifications{% if unread_notification_count > 0 %} <span class="badge">
+                        {{unread_notification_count }}</span>{% endif %}</a></li>
             <li class="profile-dropdown">
                 <a href="#" class="profile-toggle">Profile</a>
                 <div class="dropdown-menu">
