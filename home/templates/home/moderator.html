@@ -360,10 +360,10 @@
         <div class="mod-section">
             <h2>📝 Content Management</h2>
             <div class="mod-actions">
-                <a href="{% url 'moderate_trees' %}" class="mod-action-btn">
-                    <span class="icon">✅</span>
-                    <span>Review Tree Uploads</span>
-                </a>
+                <button class="mod-action-btn" onclick="showFlaggedTrees()">
+                    <span class="icon">🚩</span>
+                    <span>Review Flagged Trees</span>
+                </button>
                 <button class="mod-action-btn" onclick="showRecentActivity()">
                     <span class="icon">🕒</span>
                     <span>Recent Activity</span>
@@ -755,9 +755,86 @@
         document.getElementById('modalOverlay').classList.add('active');
     }
 
-    async function showRecentActivity() {
-        const response = await fetch('/moderator/api/recent-activity/');
-        const data = await response.json();
+async function showFlaggedTrees() {
+    const response = await fetch('/moderator/api/flagged-trees/');
+    const data = await response.json();
+
+    document.getElementById('modalTitle').textContent = 'Flagged Trees Queue';
+    document.getElementById('modalBody').innerHTML = `
+        ${data.trees.length === 0 ? '<p style="text-align: center; color: #666;">No flagged trees at this time.</p>' : `
+        <table class="activity-table">
+            <thead>
+                <tr>
+                    <th>Species</th>
+                    <th>Location</th>
+                    <th>Submitted By</th>
+                    <th>Flagged By</th>
+                    <th>Reason</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${data.trees.map(tree => `
+                    <tr>
+                        <td>${tree.species}</td>
+                        <td>${tree.latitude.toFixed(4)}, ${tree.longitude.toFixed(4)}</td>
+                        <td>${tree.submitted_by}</td>
+                        <td>${tree.flagged_by}</td>
+                        <td>${tree.flag_reason || 'No reason provided'}</td>
+                        <td>
+                            <button class="btn-approve-flag" data-tree-id="${tree.id}" style="background: #228B22; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; margin-right: 5px;">Approve</button>
+                            <button class="btn-delete-flag" data-tree-id="${tree.id}" style="background: #dc3545; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer;">Delete</button>
+                        </td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+        `}
+    `;
+
+    // Add event listeners for approve/delete buttons
+    document.querySelectorAll('.btn-approve-flag').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const treeId = e.target.dataset.treeId;
+            if (confirm('Approve this tree and remove the flag?')) {
+                const response = await fetch(`/api/trees/${treeId}/unflag/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+                const result = await response.json();
+                alert(result.message || 'Tree approved');
+                showFlaggedTrees(); // Refresh the list
+            }
+        });
+    });
+
+    document.querySelectorAll('.btn-delete-flag').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const treeId = e.target.dataset.treeId;
+            if (confirm('Delete this tree permanently?')) {
+                const response = await fetch(`/api/trees/${treeId}/delete/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+                const result = await response.json();
+                alert('Tree deleted successfully');
+                showFlaggedTrees(); // Refresh the list
+            }
+        });
+    });
+
+    document.getElementById('modalOverlay').classList.add('active');
+}
+
+async function showRecentActivity() {
+    const response = await fetch('/moderator/api/recent-activity/');
+    const data = await response.json();
 
         document.getElementById('modalTitle').textContent = 'Recent Platform Activity';
         document.getElementById('modalBody').innerHTML = `

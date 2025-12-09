@@ -52,6 +52,7 @@ map.on('load', async () => {
                 <div class="tree-popup">
                     <h3>${tree.species}</h3>
                     <p>${tree.description || 'No description'}</p>
+                    <p style="font-size: 0.9em; color: #666;">Submitted by: ${tree.submitted_by}</p>
             `;
 
             // Add moderator controls if user is a moderator
@@ -60,6 +61,15 @@ map.on('load', async () => {
                     <div class="moderator-controls">
                         <button class="edit-tree-btn" data-tree-id="${tree.id}">Edit</button>
                         <button class="delete-tree-btn" data-tree-id="${tree.id}">Delete</button>
+                    </div>
+                `;
+            } else if (IS_AUTHENTICATED && tree.submitted_by !== CURRENT_USER) {
+                // Regular users can flag trees (but not their own)
+                popupContent += `
+                    <div class="user-controls">
+                        <button class="flag-tree-btn" data-tree-id="${tree.id}" style="background: #ff9800; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px;">
+                            🚩 Flag for Review
+                        </button>
                     </div>
                 `;
             }
@@ -154,7 +164,7 @@ treeForm?.addEventListener('submit', async (e) => {
         if (!response.ok) throw new Error('Failed to submit tree');
 
         const result = await response.json();
-        alert('🌳 Tree submitted successfully! It will appear on the map after moderator approval.');
+        alert('🌳 Tree submitted successfully! It will appear on the map immediately.');
 
         // Reset UI
         treeForm.reset();
@@ -163,6 +173,9 @@ treeForm?.addEventListener('submit', async (e) => {
         addMode = false;
         if (addBtn) addBtn.textContent = 'Add Tree';
         map.getCanvas().style.cursor = '';
+
+        // Reload page to refresh map with new tree
+        location.reload();
 
     } catch (error) {
         console.error(error);
@@ -247,6 +260,40 @@ document.addEventListener('click', async function (e) {
         } catch (error) {
             console.error(error);
             alert('Error deleting tree. Please try again.');
+        }
+    }
+
+    // Handle flag button
+    if (e.target.classList.contains('flag-tree-btn')) {
+        const treeId = e.target.dataset.treeId;
+
+        const reason = prompt('Please provide a reason for flagging this tree (optional):');
+        if (reason === null) return; // User cancelled
+
+        try {
+            const response = await fetch(`/api/trees/${treeId}/flag/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({
+                    reason: reason || 'No reason provided'
+                }),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                alert(result.error || 'Failed to flag tree');
+                return;
+            }
+
+            alert('Tree flagged for moderator review successfully!');
+            location.reload();
+        } catch (error) {
+            console.error(error);
+            alert('Error flagging tree. Please try again.');
         }
     }
 });
