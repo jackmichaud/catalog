@@ -18,6 +18,8 @@ urlpatterns = [
     path("api/trees/", views.get_trees, name="get_trees"),
     path("api/trees/<int:tree_id>/edit/", views.edit_tree, name="edit_tree"),
     path("api/trees/<int:tree_id>/delete/", views.delete_tree, name="delete_tree"),
+    path("api/trees/<int:tree_id>/flag/", views.flag_tree, name="flag_tree"),
+    path("api/trees/<int:tree_id>/unflag/", views.unflag_tree, name="unflag_tree"),
     path('delete-account/', views.delete_account, name='delete_account'),
     # Moderator API endpoints
     path('moderator/api/users/', views.mod_get_users, name='mod_get_users'),
@@ -29,4 +31,5 @@ urlpatterns = [
     path('moderator/api/activity/', views.mod_activity, name='mod_activity'),
     path('moderator/api/tree-stats/', views.mod_tree_stats, name='mod_tree_stats'),
     path('moderator/api/recent-activity/', views.mod_recent_activity, name='mod_recent_activity'),
+    path('moderator/api/flagged-trees/', views.mod_flagged_trees, name='mod_flagged_trees'),
 ]

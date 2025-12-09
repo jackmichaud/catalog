@@ -38,6 +38,8 @@
 <script>
     const MAPBOX_TOKEN = "{{ MAPBOX_TOKEN }}";
     const IS_MODERATOR = {{ is_moderator|lower }};
+    const IS_AUTHENTICATED = {{ user.is_authenticated|lower }};
+    const CURRENT_USER = "{{ user.username }}";
 </script>
 
 <!-- Mapbox map -->

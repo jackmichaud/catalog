@@ -46,19 +46,17 @@ class Message(models.Model):
         return f"Message from {self.sender.username} at {self.timestamp.strftime('%Y-%m-%d %H:%M')}"
 
 class TreeSubmission(models.Model):
-    STATUS_CHOICES = (
-        ('pending', 'Pending'),
-        ('approved', 'Approved'),
-        ('rejected', 'Rejected'),
-    )
-
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     species = models.CharField(max_length=100)
     latitude = models.FloatField()
     longitude = models.FloatField()
     description = models.TextField(blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    is_flagged = models.BooleanField(default=False)
+    flagged_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='flagged_trees')
+    flagged_at = models.DateTimeField(null=True, blank=True)
+    flag_reason = models.TextField(blank=True)
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.species} ({self.latitude}, {self.longitude})"
