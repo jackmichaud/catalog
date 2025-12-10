@@ -2,7 +2,7 @@
 {% block title %}Moderate Trees{% endblock %}
 {% block content %}
 
-<style>
+<style nonce="{{ request.csp_nonce }}">
 .moderate-container {
     max-width: 1000px;
     margin: 40px auto;

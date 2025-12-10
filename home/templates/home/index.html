@@ -10,10 +10,10 @@
 {% block content %}
 
 <!-- Passing the mapbox token to JS -->
-<script>
+<script nonce="{{ request.csp_nonce }}">
     const MAPBOX_TOKEN = "{{ MAPBOX_TOKEN }}";
-    const IS_MODERATOR = {{ is_moderator|lower }};
-    const IS_AUTHENTICATED = {{ user.is_authenticated|lower }};
+    const IS_MODERATOR = {{ is_moderator | lower }};
+    const IS_AUTHENTICATED = {{ user.is_authenticated | lower }};
     const CURRENT_USER = "{{ user.nickname|default:user.username }}";
 </script>
 
@@ -68,7 +68,7 @@
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
 
-<style>
+<style nonce="{{ request.csp_nonce }}">
 
 .choices {
     width: 100%;
@@ -160,7 +160,7 @@
 }
 </style>
 <script src="{% static 'home/map.js' %}"></script>
-<script>
+<script nonce="{{ request.csp_nonce }}">
 // Chat popup toggle functionality
 document.addEventListener('DOMContentLoaded', function() {
     const chatToggleBtn = document.getElementById('chat-toggle-btn');

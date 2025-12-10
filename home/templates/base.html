@@ -14,7 +14,7 @@
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css" rel="stylesheet">
 
     <!-- Mapbox JS (available globally) -->
-    <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.js" nonce="{{ request.csp_nonce }}"></script>
 
     {% block extra_head %}{% endblock %}
 </head>
@@ -131,7 +131,7 @@
     {% block scripts %}{% endblock %}
 
     <!-- Profile Dropdown Script -->
-    <script>
+    <script nonce="{{ request.csp_nonce }}">
         document.addEventListener('DOMContentLoaded', function () {
             const profileDropdown = document.querySelector('.profile-dropdown');
             const profileToggle = document.querySelector('.profile-toggle');

@@ -182,7 +182,7 @@
 }
 </style>
 
-<script>
+<script nonce="{{ request.csp_nonce }}">
 async function markAsRead(notificationId) {
     try {
         const response = await fetch(`/api/notifications/${notificationId}/read/`, {

@@ -4,7 +4,7 @@
 {% block title %}Account Suspended | CataLog{% endblock %}
 
 {% block content %}
-<style>
+<style nonce="{{ request.csp_nonce }}">
 .inactive-container {
     max-width: 700px;
     margin: 80px auto;

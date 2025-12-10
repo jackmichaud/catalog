@@ -47,7 +47,7 @@
     </div>
 </div>
 
-<script>
+<script nonce="{{ request.csp_nonce }}">
     const editBtn = document.getElementById("edit-btn");
     const cancelBtn = document.getElementById("cancel-btn");
     const editForm = document.getElementById("edit-form");
