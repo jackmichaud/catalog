@@ -324,15 +324,15 @@
         <div class="mod-section">
             <h2>👥 User Management</h2>
             <div class="mod-actions">
-                <button class="mod-action-btn" onclick="showAllUsers()">
+                <button class="mod-action-btn" data-action="showAllUsers">
                     <span class="icon">👤</span>
                     <span>View All Users</span>
                 </button>
-                <button class="mod-action-btn" onclick="showSearchUsers()">
+                <button class="mod-action-btn" data-action="showSearchUsers">
                     <span class="icon">🔍</span>
                     <span>Search Users</span>
                 </button>
-                <button class="mod-action-btn" onclick="showManageRoles()">
+                <button class="mod-action-btn" data-action="showManageRoles">
                     <span class="icon">⚙️</span>
                     <span>Manage Roles</span>
                 </button>
@@ -342,15 +342,15 @@
         <div class="mod-section">
             <h2>📊 Activity Monitoring</h2>
             <div class="mod-actions">
-                <button class="mod-action-btn" onclick="showAnalytics()">
+                <button class="mod-action-btn" data-action="showAnalytics">
                     <span class="icon">📈</span>
                     <span>View Analytics</span>
                 </button>
-                <button class="mod-action-btn" onclick="showActivityReports()">
+                <button class="mod-action-btn" data-action="showActivityReports">
                     <span class="icon">📋</span>
                     <span>Activity Reports</span>
                 </button>
-                <button class="mod-action-btn" onclick="showTreeStats()">
+                <button class="mod-action-btn" data-action="showTreeStats">
                     <span class="icon">🌳</span>
                     <span>Tree Statistics</span>
                 </button>
@@ -360,15 +360,15 @@
         <div class="mod-section">
             <h2>📝 Content Management</h2>
             <div class="mod-actions">
-                <button class="mod-action-btn" onclick="showFlaggedTrees()">
+                <button class="mod-action-btn" data-action="showFlaggedTrees">
                     <span class="icon">🚩</span>
                     <span>Review Flagged Trees</span>
                 </button>
-                <button class="mod-action-btn" onclick="showRecentActivity()">
+                <button class="mod-action-btn" data-action="showRecentActivity">
                     <span class="icon">🕒</span>
                     <span>Recent Activity</span>
                 </button>
-                <button class="mod-action-btn" onclick="showSystemAlerts()">
+                <button class="mod-action-btn" data-action="showSystemAlerts">
                     <span class="icon">🔔</span>
                     <span>System Alerts</span>
                 </button>
@@ -382,7 +382,7 @@
     <div class="modal-content">
         <div class="modal-header">
             <h2 id="modalTitle">Modal Title</h2>
-            <button class="close-modal" onclick="closeModal()">&times;</button>
+            <button class="close-modal" id="closeModalBtn">&times;</button>
         </div>
         <div id="modalBody">
             <!-- Dynamic content will be inserted here -->
@@ -391,6 +391,19 @@
 </div>
 
 <script nonce="{{ request.csp_nonce }}">
+    // Set up event delegation for main action buttons
+    document.querySelectorAll('.mod-action-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const action = e.currentTarget.dataset.action;
+            if (typeof window[action] === 'function') {
+                window[action]();
+            }
+        });
+    });
+
+    // Close modal button
+    document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+
     function closeModal() {
         document.getElementById('modalOverlay').classList.remove('active');
     }
@@ -500,6 +513,8 @@
                 flex-wrap: nowrap;
             }
             .btn-toggle-role,
+            .btn-toggle-suspend,
+            .btn-delete-user-account,
             .btn-suspend-user,
             .btn-reinstate-user,
             .btn-delete-user {
@@ -521,9 +536,11 @@
             .btn-toggle-role:hover {
                 background: #1a6b1a;
             }
+            .btn-toggle-suspend,
             .btn-suspend-user {
                 background: #ff9800;
             }
+            .btn-toggle-suspend:hover,
             .btn-suspend-user:hover {
                 background: #f57c00;
             }
@@ -533,9 +550,11 @@
             .btn-reinstate-user:hover {
                 background: #1976D2;
             }
+            .btn-delete-user-account,
             .btn-delete-user {
                 background: #dc3545;
             }
+            .btn-delete-user-account:hover,
             .btn-delete-user:hover {
                 background: #c82333;
             }
@@ -564,13 +583,13 @@
                         <td><span class="role-badge role-${user.role}">${user.role}</span></td>
                         <td>
                             <div class="action-btn-group">
-                                <button onclick="toggleRole(${user.id}, '${user.role}')" class="btn-toggle-role">
+                                <button class="btn-toggle-role" data-user-id="${user.id}" data-user-role="${user.role}">
                                     ${user.role === 'user' ? 'Make Mod' : 'Make User'}
                                 </button>
-                                <button onclick="toggleSuspend(${user.id}, ${user.is_active}, '${user.username}')" class="${user.is_active ? 'btn-suspend-user' : 'btn-reinstate-user'}">
+                                <button class="btn-toggle-suspend" data-user-id="${user.id}" data-user-is-active="${user.is_active}" data-user-name="${user.username}" class="${user.is_active ? 'btn-suspend-user' : 'btn-reinstate-user'}">
                                     ${user.is_active ? 'Suspend' : 'Reinstate'}
                                 </button>
-                                <button onclick="deleteUser(${user.id}, '${user.username}')" class="btn-delete-user">
+                                <button class="btn-delete-user-account" data-user-id="${user.id}" data-user-name="${user.username}">
                                     Delete Account
                                 </button>
                             </div>
@@ -581,81 +600,95 @@
         </table>
     `;
         document.getElementById('modalOverlay').classList.add('active');
-    }
 
-    async function toggleRole(userId, currentRole) {
-        const newRole = currentRole === 'user' ? 'moderator' : 'user';
-        if (!confirm(`Change this user's role to ${newRole}?`)) return;
+        // Add event listeners for user management buttons
+        document.querySelectorAll('.btn-toggle-role').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const userId = parseInt(e.target.dataset.userId);
+                const currentRole = e.target.dataset.userRole;
+                const newRole = currentRole === 'user' ? 'moderator' : 'user';
+                if (!confirm(`Change this user's role to ${newRole}?`)) return;
 
-        const response = await fetch('/moderator/api/users/change-role/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({ user_id: userId, role: newRole })
+                const response = await fetch('/moderator/api/users/change-role/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ user_id: userId, role: newRole })
+                });
+
+                if (response.ok) {
+                    alert('Role changed successfully!');
+                    showManageRoles(); // Refresh the list
+                } else {
+                    alert('Error changing role');
+                }
+            });
         });
 
-        if (response.ok) {
-            alert('Role changed successfully!');
-            showManageRoles(); // Refresh the list
-        } else {
-            alert('Error changing role');
-        }
-    }
+        document.querySelectorAll('.btn-toggle-suspend').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const userId = parseInt(e.target.dataset.userId);
+                const isActive = e.target.dataset.userIsActive === 'true';
+                const username = e.target.dataset.userName;
+                const action = isActive ? 'suspend' : 'reinstate';
+                const message = isActive
+                    ? `Suspend "${username}"?\n\nThis will:\n- Prevent them from logging in\n- Keep their data intact\n- Can be reversed later`
+                    : `Reinstate "${username}"?\n\nThis will restore their access to the platform.`;
 
-    async function toggleSuspend(userId, isActive, username) {
-        const action = isActive ? 'suspend' : 'reinstate';
-        const message = isActive
-            ? `Suspend "${username}"?\n\nThis will:\n- Prevent them from logging in\n- Keep their data intact\n- Can be reversed later`
-            : `Reinstate "${username}"?\n\nThis will restore their access to the platform.`;
+                if (!confirm(message)) return;
 
-        if (!confirm(message)) return;
+                const response = await fetch('/moderator/api/users/suspend/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ user_id: userId, suspend: isActive })
+                });
 
-        const response = await fetch('/moderator/api/users/suspend/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({ user_id: userId, suspend: isActive })
+                if (response.ok) {
+                    alert(`User ${action}d successfully!`);
+                    showManageRoles(); // Refresh the list
+                } else {
+                    const data = await response.json();
+                    alert('Error: ' + (data.error || 'Unknown error'));
+                }
+            });
         });
 
-        if (response.ok) {
-            alert(`User ${action}d successfully!`);
-            showManageRoles(); // Refresh the list
-        } else {
-            const data = await response.json();
-            alert('Error: ' + (data.error || 'Unknown error'));
-        }
-    }
+        document.querySelectorAll('.btn-delete-user-account').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const userId = parseInt(e.target.dataset.userId);
+                const username = e.target.dataset.userName;
+                if (!confirm(`Are you sure you want to permanently delete the account for "${username}"?\n\nThis will delete:\n- Their profile\n- All their tree submissions\n- All their messages\n- All associated data\n\nThis action CANNOT be undone!`)) {
+                    return;
+                }
 
-    async function deleteUser(userId, username) {
-        if (!confirm(`Are you sure you want to permanently delete the account for "${username}"?\n\nThis will delete:\n- Their profile\n- All their tree submissions\n- All their messages\n- All associated data\n\nThis action CANNOT be undone!`)) {
-            return;
-        }
+                // Double confirmation for safety
+                if (!confirm(`FINAL CONFIRMATION: Delete "${username}" permanently?`)) {
+                    return;
+                }
 
-        // Double confirmation for safety
-        if (!confirm(`FINAL CONFIRMATION: Delete "${username}" permanently?`)) {
-            return;
-        }
+                const response = await fetch('/moderator/api/users/delete/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ user_id: userId })
+                });
 
-        const response = await fetch('/moderator/api/users/delete/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({ user_id: userId })
+                if (response.ok) {
+                    alert('User account deleted successfully!');
+                    showManageRoles(); // Refresh the list
+                } else {
+                    const data = await response.json();
+                    alert('Error deleting user: ' + (data.error || 'Unknown error'));
+                }
+            });
         });
-
-        if (response.ok) {
-            alert('User account deleted successfully!');
-            showManageRoles(); // Refresh the list
-        } else {
-            const data = await response.json();
-            alert('Error deleting user: ' + (data.error || 'Unknown error'));
-        }
     }
 
     async function showAnalytics() {
