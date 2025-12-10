@@ -75,8 +75,17 @@
 </div>
 
 <script>
-    // Auto-scroll to bottom of messages
+    // Auto-scroll to bottom of messages (most recent)
     document.addEventListener('DOMContentLoaded', function () {
+        const messageList = document.getElementById('message-list');
+        if (messageList) {
+            // Scroll to the bottom immediately to show most recent messages
+            messageList.scrollTop = messageList.scrollHeight;
+        }
+    });
+
+    // Also scroll to bottom when form is submitted (after page reload)
+    window.addEventListener('load', function () {
         const messageList = document.getElementById('message-list');
         if (messageList) {
             messageList.scrollTop = messageList.scrollHeight;

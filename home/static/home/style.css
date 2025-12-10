@@ -109,6 +109,8 @@ nav .badge {
     font-size: 0.75rem;
     font-weight: 700;
     margin-left: 6px;
+    z-index: 1000;
+    position: relative;
 }
 
 /* Dark mode toggle button */
