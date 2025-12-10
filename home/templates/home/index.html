@@ -24,16 +24,18 @@
     <button id="add-tree-btn" class="add-tree-btn">Add Tree</button>
 {% endif %}
 
-<div class="filter-div">
-    <button id="filter-btn" class="filter-btn">Filter</button>
-    <div class="filter-menu">
-        <div class="sidebar-header">
-            <h2>Filter</h2>
-            <button type="button" id="cancel-filter-btn" class="cancel-btn">&times;</button>
-        </div>
-        <a href="{% url 'profile' %}">Your Profile</a>
-        <a href="{% url 'account_settings' %}">Account Settings</a>
-        <a href="{% url 'account_logout' %}">Logout</a>
+<button id="filter-btn" style="position: fixed; top: 80px; right: 20px; z-index: 9999; background-color: #228B22; color: white; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; font-size: 1em; font-weight: 600; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);">
+    🔍 Filter
+</button>
+<div id="filter-dropdown" style="position: fixed; top: 130px; right: 20px; z-index: 9999; background-color: white; border: 3px solid #228B22; border-radius: 8px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); min-width: 250px; max-height: 400px; overflow-y: auto; display: none;">
+    <div style="padding: 16px; font-weight: bold; font-size: 1.1em; color: #228B22; border-bottom: 2px solid #e0e0e0; background-color: #f4f7f5;">
+        Filter by Species
+    </div>
+    <div class="filter-option" data-species="all" style="padding: 12px 16px; cursor: pointer; background-color: #e8f5e9; border-left: 3px solid #228B22; font-weight: 600;">
+        <strong>All Trees</strong>
+    </div>
+    <div id="species-list">
+        <!-- Species options will be populated by JavaScript -->
     </div>
 </div>
 
@@ -175,6 +177,91 @@
 .mapboxgl-popup-content {
     padding: 15px;
     min-width: 200px;
+}
+
+/* Filter button and dropdown styles */
+.filter-container {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.filter-btn {
+    background-color: #228B22;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-btn:hover {
+    background-color: #1b6e1b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.filter-btn svg {
+    stroke: white;
+}
+
+.filter-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background-color: white;
+    border: 2px solid #228B22;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    min-width: 250px;
+    max-height: 400px;
+    overflow-y: auto;
+    display: none;
+    z-index: 1001;
+}
+
+.filter-dropdown.show {
+    display: block !important;
+}
+
+.filter-dropdown-header {
+    padding: 16px;
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #228B22;
+    border-bottom: 2px solid #e0e0e0;
+    background-color: #f4f7f5;
+    border-radius: 8px 8px 0 0;
+}
+
+.filter-option {
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.filter-option:hover {
+    background-color: #f4f7f5;
+}
+
+.filter-option.active {
+    background-color: #e8f5e9;
+    border-left-color: #228B22;
+    font-weight: 600;
+}
+
+.species-list {
+    max-height: 300px;
+    overflow-y: auto;
 }
 </style>
 <script src="{% static 'home/map.js' %}"></script>
