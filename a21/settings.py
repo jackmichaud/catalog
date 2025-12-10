@@ -248,3 +248,24 @@ CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[
     'http://127.0.0.1:8000',
     'https://cs3240-a21-12d856f83fd4.herokuapp.com',
 ])
+
+# Content Security Policy (CSP) defaults — overridable via environment variables.
+# These should be as narrow as possible for your deployment.
+CSP_SCRIPT_SRC = env.list('CSP_SCRIPT_SRC', default=[
+    'https://api.mapbox.com',
+    'https://cdn.jsdelivr.net',
+])
+CSP_STYLE_SRC = env.list('CSP_STYLE_SRC', default=[
+    'https://fonts.googleapis.com',
+    'https://api.mapbox.com',
+    'https://cdn.jsdelivr.net',
+])
+CSP_CONNECT_SRC = env.list('CSP_CONNECT_SRC', default=[
+    'https://api.mapbox.com',
+])
+CSP_FONT_SRC = env.list('CSP_FONT_SRC', default=[
+    'https://fonts.gstatic.com',
+])
+CSP_IMG_SRC = env.list('CSP_IMG_SRC', default=[
+    # add hostnames you host images from (e.g., your S3 custom domain)
+])

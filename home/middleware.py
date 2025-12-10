@@ -59,25 +59,36 @@ class CSPMiddleware:
         # Build policy parts (tightened)
         s3_domain = getattr(settings, 'AWS_S3_CUSTOM_DOMAIN', None)
 
-        # No 'unsafe-inline' or 'unsafe-eval' — use nonces for inline scripts/styles instead
-        script_src = ["'self'", f"'nonce-{nonce}'", 'https://accounts.google.com', 'https://apis.google.com', 'https://www.googletagmanager.com', 'https://www.google-analytics.com']
-        style_src = ["'self'", f"'nonce-{nonce}'", 'https://fonts.googleapis.com']
-        img_src = ["'self'", 'data:', 'blob:']
-        connect_src = ["'self'", 'https://accounts.google.com', 'https://apis.google.com']
-        font_src = ["'self'", 'https://fonts.gstatic.com', 'data:']
+        # No 'unsafe-inline' or 'unsafe-eval' — use nonces for inline scripts/styles instead.
+        # Use narrow, configurable external sources from settings to avoid overly-broad 'https:' defaults.
+        extra_script_src = getattr(settings, 'CSP_SCRIPT_SRC', [])
+        extra_style_src = getattr(settings, 'CSP_STYLE_SRC', [])
+        extra_connect_src = getattr(settings, 'CSP_CONNECT_SRC', [])
+        extra_font_src = getattr(settings, 'CSP_FONT_SRC', [])
+        extra_img_src = list(getattr(settings, 'CSP_IMG_SRC', []))
 
-        if s3_domain:
+        script_src = ["'self'", f"'nonce-{nonce}'"] + extra_script_src
+        style_src = ["'self'", f"'nonce-{nonce}'"] + extra_style_src
+        img_src = ["'self'", 'blob:'] + extra_img_src
+        connect_src = ["'self'"] + extra_connect_src
+        font_src = ["'self'"] + extra_font_src
+
+        if s3_domain and s3_domain not in extra_img_src:
             img_src.append(f'https://{s3_domain}')
+        if s3_domain and s3_domain not in extra_connect_src:
             connect_src.append(f'https://{s3_domain}')
 
         # Join directives
         directives = [
-            f"default-src 'self' https:",
+            # Keep default-src narrow and explicitly set script/style/connect/img/font
+            f"default-src 'self'",
             f"script-src {' '.join(script_src)}",
             f"style-src {' '.join(style_src)}",
             f"img-src {' '.join(img_src)}",
             f"connect-src {' '.join(connect_src)}",
             f"font-src {' '.join(font_src)}",
+            # Disallow plugin/object embedding
+            "object-src 'none'",
             "frame-ancestors 'none'",
             "base-uri 'self'",
             "form-action 'self'",
