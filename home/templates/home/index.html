@@ -24,7 +24,18 @@
     <button id="add-tree-btn" class="add-tree-btn">Add Tree</button>
 {% endif %}
 
-<button id="filter-btn" class="filter-btn">Filter</button>
+<div class="filter-div">
+    <button id="filter-btn" class="filter-btn">Filter</button>
+    <div class="filter-menu">
+        <div class="sidebar-header">
+            <h2>Filter</h2>
+            <button type="button" id="cancel-sidebar-btn" class="cancel-btn">&times;</button>
+        </div>
+        <a href="{% url 'profile' %}">Your Profile</a>
+        <a href="{% url 'account_settings' %}">Account Settings</a>
+        <a href="{% url 'account_logout' %}">Logout</a>
+    </div>
+</div>
 
 <div id="sidebar" class="sidebar">
     <form id="tree-form" method="post" enctype="multipart/form-data" action="{% url 'index' %}">
@@ -168,29 +179,17 @@
 </style>
 <script src="{% static 'home/map.js' %}"></script>
 <script nonce="{{ request.csp_nonce }}">
-// Chat popup toggle functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const chatToggleBtn = document.getElementById('chat-toggle-btn');
-    const chatPopup = document.getElementById('chat-user-popup');
-    const closeBtn = document.getElementById('close-chat-popup');
 
-    if (chatToggleBtn && chatPopup) {
-        chatToggleBtn.addEventListener('click', function() {
-            chatPopup.classList.toggle('open');
-        });
+const filterBtn = document.getElementById("filter-btn");
+const dropdown = document.querySelector(".dropdown-menu");
 
-        if (closeBtn) {
-            closeBtn.addEventListener('click', function() {
-                chatPopup.classList.remove('open');
-            });
-        }
+filterBtn.addEventListener("click", () => {
+    dropdown.classList.toggle("show");
+});
 
-        // Close popup when clicking outside
-        document.addEventListener('click', function(event) {
-            if (!chatPopup.contains(event.target) && !chatToggleBtn.contains(event.target)) {
-                chatPopup.classList.remove('open');
-            }
-        });
+document.addEventListener("click", (e) => {
+    if (!dropdown.contains(e.target) && !filterBtn.contains(e.target)) {
+        dropdown.classList.remove("show");
     }
 });
 

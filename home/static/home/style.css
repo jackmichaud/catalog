@@ -628,6 +628,26 @@ nav .badge {
     left: 20px;
 }
 
+.filter-div {
+    position: absolute;
+    top: 80px;
+    right: 20px;
+}
+
+.filter-dropdown {
+    background-color: var(--bg-card);
+    min-width: 200px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+
 .filter-btn {
     background-color: #2e7d32;
     color: white;
@@ -637,9 +657,6 @@ nav .badge {
     cursor: pointer;
     transition: background-color 0.2s ease-in-out;
     z-index: 10;
-    position: absolute;
-    top: 80px;
-    right: 20px;
 }
 
 .filter-btn:hover {
