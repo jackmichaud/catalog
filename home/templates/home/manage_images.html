@@ -81,10 +81,42 @@
         text-align: center;
         vertical-align: middle;
     }
+
+    .success-message {
+        background-color: #228B22;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 4px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        opacity: 1;
+        transition: opacity 0.5s ease-out;
+    }
+
+    .success-message.fade-out {
+        opacity: 0;
+    }
+
+    .success-message svg {
+        flex-shrink: 0;
+    }
 </style>
 
 <div class="page-container">
     <h1 class="page-title">Manage Your Images</h1>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="success-message">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
 
     <div class="profile-box">
         {% if formset %}
@@ -152,6 +184,20 @@
 </div>
 
 <script nonce="{{ request.csp_nonce }}">
+    // Fade out success message after 3 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        const successMessage = document.querySelector('.success-message');
+        if (successMessage) {
+            setTimeout(function() {
+                successMessage.classList.add('fade-out');
+                // Remove element from DOM after fade animation completes
+                setTimeout(function() {
+                    successMessage.remove();
+                }, 500); // Match the transition duration
+            }, 3000); // Show for 3 seconds before fading
+        }
+    });
+
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {

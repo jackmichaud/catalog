@@ -318,6 +318,48 @@
                                 ${!notification.is_read ? '<div class="unread-dot"></div>' : ''}
                             </div>
                         `).join('');
+
+                        // Add click event listeners to mark notifications as read
+                        document.querySelectorAll('.notification-dropdown-item').forEach(item => {
+                            item.addEventListener('click', async function(e) {
+                                const notificationId = this.dataset.notificationId;
+                                const isUnread = this.classList.contains('unread');
+
+                                // Only mark as read if it's currently unread
+                                if (isUnread) {
+                                    try {
+                                        const response = await fetch(`/api/notifications/${notificationId}/read/`, {
+                                            method: 'POST',
+                                            headers: {
+                                                'X-CSRFToken': getCookie('csrftoken')
+                                            }
+                                        });
+
+                                        if (response.ok) {
+                                            // Update UI
+                                            this.classList.remove('unread');
+                                            const unreadDot = this.querySelector('.unread-dot');
+                                            if (unreadDot) {
+                                                unreadDot.remove();
+                                            }
+
+                                            // Update badge count
+                                            const badge = document.querySelector('.notifications-dropdown .badge');
+                                            if (badge) {
+                                                const currentCount = parseInt(badge.textContent);
+                                                if (currentCount > 1) {
+                                                    badge.textContent = currentCount - 1;
+                                                } else {
+                                                    badge.remove();
+                                                }
+                                            }
+                                        }
+                                    } catch (error) {
+                                        console.error('Error marking notification as read:', error);
+                                    }
+                                }
+                            });
+                        });
                     } else {
                         notificationsList.innerHTML = '<div class="no-notifications-dropdown">No notifications</div>';
                     }
