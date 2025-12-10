@@ -102,6 +102,7 @@ class CustomImagePrivacyForm(forms.ModelForm):
         fields = ['private']
 
 class TreeForm(forms.ModelForm):
+    image_upload = forms.ImageField(required=False)
     class Meta:
         model = TreeSubmission
         fields = [
@@ -110,9 +111,23 @@ class TreeForm(forms.ModelForm):
             'species',
             'height',
             'diameter',
-            'image',
             'description',
         ]
+    def save(self, commit=True, user=None):
+        instance = super().save(commit=False)
+        print(self.cleaned_data)
+        image_file = self.cleaned_data.get("image_upload")
+        if image_file and user:
+            custom_image = CustomImage.objects.create(
+                image=image_file,
+                user=user,
+                category="tree_images"
+            )
+            instance.image = custom_image
+
+        if commit:
+            instance.save()
+        return instance
 
 SPECIES_CHOICES = [
     ("", "Please select an option"),

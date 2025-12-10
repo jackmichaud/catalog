@@ -51,8 +51,8 @@
         <label for="diameter">Diameter (in)</label>
         <input id="diameter" type="number" name="diameter" min="0" placeholder="e.g. 10" required />
 
-        <label for="image">Image</label>
-        <input id="image" type="file" accept=".jpg, .jpeg, .png, .svg" name="image" />
+        <label for="image_upload">Image</label>
+        {{ tree_form.image_upload }}
 
         <label for="description">Description</label>
         <textarea id="description" name="description" placeholder="Optional notes..."></textarea>

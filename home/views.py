@@ -39,7 +39,8 @@ def index(request):
     if request.method == "POST":
         form = TreeForm(request.POST, request.FILES)
         if form.is_valid():
-            tree = form.save(commit=False)
+            print(form.data, form.files)
+            tree = form.save(commit=False, user=request.user)
             tree.user = request.user
             tree.save()
             url = f"{reverse('index')}?tree_submitted=1"
@@ -305,7 +306,7 @@ def get_trees(request):
             'description': tree.description,
             'height': tree.height,
             'diameter': tree.diameter,
-            'image': tree.image.url if tree.image else None,
+            'image': tree.image.public_url if tree.image else None,
             'is_flagged': tree.is_flagged,
             'submitted_by': tree.user.get_display_name(),
         }
