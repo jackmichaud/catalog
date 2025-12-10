@@ -24,6 +24,21 @@
     <button id="add-tree-btn" class="add-tree-btn">Add Tree</button>
 {% endif %}
 
+<button id="filter-btn" class="filter-btn-main">
+    🔍 Filter
+</button>
+<div id="filter-dropdown" class="filter-dropdown-main">
+    <div class="filter-dropdown-header-main">
+        Filter by Species
+    </div>
+    <div class="filter-option active" data-species="all">
+        <strong>All Trees</strong>
+    </div>
+    <div id="species-list" class="species-list-main">
+        <!-- Species options will be populated by JavaScript -->
+    </div>
+</div>
+
 <div id="sidebar" class="sidebar">
     <form id="tree-form" method="post" enctype="multipart/form-data" action="{% url 'index' %}" novalidate>
         {% csrf_token %}
@@ -194,34 +209,87 @@
     color: #dc3545;
     font-weight: bold;
 }
+
+/* CSP-compliant filter styles */
+.filter-btn-main {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 9999;
+    background-color: #228B22;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.filter-btn-main:hover {
+    background-color: #1b6e1b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.filter-dropdown-main {
+    position: fixed;
+    top: 130px;
+    right: 20px;
+    z-index: 9999;
+    background-color: white;
+    border: 3px solid #228B22;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    min-width: 250px;
+    max-height: 400px;
+    overflow-y: auto;
+    display: none;
+}
+
+.filter-dropdown-main.show {
+    display: block;
+}
+
+.filter-dropdown-header-main {
+    padding: 16px;
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #228B22;
+    border-bottom: 2px solid #e0e0e0;
+    background-color: #f4f7f5;
+}
+
+.filter-dropdown-main .filter-option {
+    padding: 12px 16px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: background-color 0.2s ease;
+}
+
+.filter-dropdown-main .filter-option:hover {
+    background-color: #f4f7f5;
+}
+
+.filter-dropdown-main .filter-option.active {
+    background-color: #e8f5e9;
+    border-left-color: #228B22;
+    font-weight: 600;
+}
+
+.species-list-main {
+    max-height: 300px;
+    overflow-y: auto;
+}
 </style>
 <script src="{% static 'home/map.js' %}"></script>
 <script nonce="{{ request.csp_nonce }}">
-// Chat popup toggle functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const chatToggleBtn = document.getElementById('chat-toggle-btn');
-    const chatPopup = document.getElementById('chat-user-popup');
-    const closeBtn = document.getElementById('close-chat-popup');
 
-    if (chatToggleBtn && chatPopup) {
-        chatToggleBtn.addEventListener('click', function() {
-            chatPopup.classList.toggle('open');
-        });
+const filterBtn = document.getElementById("filter-btn");
+const dropdown = document.querySelector(".dropdown-menu");
 
-        if (closeBtn) {
-            closeBtn.addEventListener('click', function() {
-                chatPopup.classList.remove('open');
-            });
-        }
-
-        // Close popup when clicking outside
-        document.addEventListener('click', function(event) {
-            if (!chatPopup.contains(event.target) && !chatToggleBtn.contains(event.target)) {
-                chatPopup.classList.remove('open');
-            }
-        });
-    }
-});
 
 document.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search);
