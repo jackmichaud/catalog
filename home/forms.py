@@ -157,6 +157,8 @@ class TreeForm(forms.ModelForm):
             instance.save()
         return instance
 
+# AI Use: Generated with ChatGPT on 2025-12-8
+#  Prompt: "Please generate an extensive list of species choices for trees"
 SPECIES_CHOICES = [
     ("", "Please select an option"),
 
