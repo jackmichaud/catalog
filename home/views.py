@@ -33,6 +33,7 @@ def index(request):
         all_users = CustomUser.objects.exclude(id=request.user.id)
         is_mod = request.user.role == 'moderator'
 
+    form_has_errors = False
     # Handle form submit
     if request.method == "POST":
         form = TreeForm(request.POST, request.FILES)
@@ -43,7 +44,7 @@ def index(request):
             url = f"{reverse('index')}?tree_submitted=1"
             return redirect(url)
         else:
-            messages.error(request, "❌ There was an error submitting your tree. Please fix the highlighted fields.")
+            form_has_errors = True
             print("FORM ERRORS:", form.errors)
             print("POST DATA:", request.POST)
     else:
@@ -59,18 +60,7 @@ def index(request):
         'species_choices': SPECIES_CHOICES,
         'tree_form': form,
         'trees': trees,
-    })
-
-    # This line was wrong: .all(is_deleted=False)
-    trees = TreeSubmission.objects.filter(is_deleted=False)
-
-    return render(request, 'home/index.html', {
-        'all_users': all_users,
-        "MAPBOX_TOKEN": mapbox_token,
-        'is_moderator': is_mod,
-        'species_choices': SPECIES_CHOICES,
-        'tree_form': form,
-        'trees': trees,
+        'form_has_errors': form_has_errors,
     })
 
 @user_passes_test(is_moderator)

@@ -51,6 +51,11 @@ map.on('load', async () => {
             let popupContent = `
                 <div class="tree-popup">
                     <h3>${tree.species}</h3>
+                    <p>${tree.height || 'No height'}</p>
+                    <p>${tree.diameter || 'No diameter'}</p>
+                    <p>${tree.latitude || 'No latitude'}</p>
+                    <p>${tree.longitude || 'No longitude'}</p>
+                    <p>${tree.image || 'No image'}</p>
                     <p>${tree.description || 'No description'}</p>
                     <p style="font-size: 0.9em; color: #666;">Submitted by: ${tree.submitted_by}</p>
             `;
