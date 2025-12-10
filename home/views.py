@@ -809,6 +809,7 @@ def manage_images(request):
                 if form.cleaned_data.get('DELETE'):
                     form.instance.delete()
 
+            messages.success(request, 'Changes saved successfully!')
             return redirect('manage_images')
     else:
         formset = ImageFormSet(queryset=queryset)
