@@ -22,7 +22,9 @@
 <button id="add-tree-btn" class="add-tree-btn">Add Tree</button>
 
 <div id="sidebar" class="sidebar">
-    <form id="tree-form">
+    <form id="tree-form" method="post" enctype="multipart/form-data" action="{% url 'index' %}">
+        {% csrf_token %}
+        {{ tree_form.non_field_errors }}
         <div class="sidebar-header">
             <h2>Add Tree</h2>
             <button type="button" id="cancel-sidebar-btn" class="cancel-btn">&times;</button>
@@ -185,6 +187,26 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+
+    // Success alert from query param
+    if (params.get('tree_submitted') === '1') {
+        alert('🌳 Tree submitted successfully!');
+
+        // Remove the query param so refreshing the page doesn’t re-alert
+        params.delete('tree_submitted');
+        const newQuery = params.toString();
+        const newUrl = window.location.pathname + (newQuery ? '?' + newQuery : '');
+        window.history.replaceState({}, '', newUrl);
+    }
+
+    // Error alert from Django context
+    {% if form_has_errors %}
+        alert('❌ There was an error submitting your tree');
+    {% endif %}
 });
 </script>
 {% endblock %}
