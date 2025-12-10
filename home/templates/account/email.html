@@ -15,7 +15,7 @@
                         {% for emailaddress in emailaddresses %}
                             <div class="email-item">
                                 <div class="email-info">
-                                    <input type="radio" name="email" id="email_radio_{{ forloop.counter }}" value="{{ emailaddress.email }}" style="display: none;">
+                                    <input type="radio" name="email" id="email_radio_{{ forloop.counter }}" value="{{ emailaddress.email }}" class="csp-5790ffba29">
                                     <span class="email-address">{{ emailaddress.email }}</span>
                                     <div class="email-badges">
                                         {% if emailaddress.verified %}

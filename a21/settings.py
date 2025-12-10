@@ -153,6 +153,12 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# Include the project-level `static/` directory so files like
+# `static/home/csp-inline-fixes.css` are served in DEBUG and found by collectstatic.
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -242,6 +248,12 @@ if not DEBUG:
     # Additional security settings
     SECURE_REFERRER_POLICY = 'same-origin'
 
+# Cookie HttpOnly settings
+# Default to HttpOnly in production but allow overriding via env for special cases (e.g., JS needing cookie access).
+# Use env.bool so you can set CSRF_COOKIE_HTTPONLY=False locally if needed.
+CSRF_COOKIE_HTTPONLY = env.bool('CSRF_COOKIE_HTTPONLY', default=not DEBUG)
+SESSION_COOKIE_HTTPONLY = env.bool('SESSION_COOKIE_HTTPONLY', default=True)
+
 # CSRF trusted origins (add your production domain)
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[
     'http://localhost:8000',
@@ -254,18 +266,26 @@ CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[
 CSP_SCRIPT_SRC = env.list('CSP_SCRIPT_SRC', default=[
     'https://api.mapbox.com',
     'https://cdn.jsdelivr.net',
+    'https://unpkg.com',
+    'https://www.googletagmanager.com',
+    'https://www.google-analytics.com',
 ])
 CSP_STYLE_SRC = env.list('CSP_STYLE_SRC', default=[
     'https://fonts.googleapis.com',
     'https://api.mapbox.com',
     'https://cdn.jsdelivr.net',
+    'https://unpkg.com',
 ])
 CSP_CONNECT_SRC = env.list('CSP_CONNECT_SRC', default=[
     'https://api.mapbox.com',
+    'https://events.mapbox.com',
+    'https://events.mapbox.com',
 ])
 CSP_FONT_SRC = env.list('CSP_FONT_SRC', default=[
     'https://fonts.gstatic.com',
 ])
 CSP_IMG_SRC = env.list('CSP_IMG_SRC', default=[
     # add hostnames you host images from (e.g., your S3 custom domain)
+    'data:',
+    'blob:',
 ])

@@ -59,10 +59,10 @@ map.on('load', async () => {
             // Image block
             if (tree.image) {
                 popupContent += `
-                    <div style="margin: 8px 0;">
+                    <div class="csp-popup-margin">
                         <img src="${tree.image}"
                             alt="${tree.species}"
-                            style="max-width: 100%; max-height: 200px; border-radius: 4px; object-fit: cover;" />
+                            class="csp-popup-img" />
                     </div>
                 `;
             } else {
@@ -71,7 +71,7 @@ map.on('load', async () => {
 
             popupContent += `
                     <p>${tree.description || 'No description'}</p>
-                    <p style="font-size: 0.9em; color: #666;">Submitted by: ${tree.submitted_by}</p>
+                    <p class="csp-popup-meta">Submitted by: ${tree.submitted_by}</p>
             `;
 
             // Add moderator controls if user is a moderator
@@ -86,7 +86,7 @@ map.on('load', async () => {
                 // Regular users can flag trees (but not their own)
                 popupContent += `
                     <div class="user-controls">
-                        <button class="flag-tree-btn" data-tree-id="${tree.id}" style="background: #ff9800; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px;">
+                        <button class="flag-tree-btn csp-flag-btn" data-tree-id="${tree.id}">
                             🚩 Flag for Review
                         </button>
                     </div>
@@ -123,12 +123,12 @@ addBtn?.addEventListener('click', () => {
     if (addMode) {
         // entering add mode
         sidebar?.classList.add('open');
-        map.getCanvas().style.cursor = 'crosshair';
+        map.getCanvas().classList.add('csp-map-crosshair');
         addBtn.textContent = 'Cancel';
     } else {
         // canceling add mode
         sidebar?.classList.remove('open');
-        map.getCanvas().style.cursor = '';
+        map.getCanvas().classList.remove('csp-map-crosshair');
         if (tempMarker) tempMarker.remove();
         addBtn.textContent = 'Add Tree';
     }
@@ -155,7 +155,7 @@ map.on('click', (e) => {
 cancelBtn?.addEventListener('click', () => {
     sidebar?.classList.remove('open');
     if (tempMarker) tempMarker.remove();
-    map.getCanvas().style.cursor = '';
+    map.getCanvas().classList.remove('csp-map-crosshair');
     addMode = false;
     if (addBtn) addBtn.textContent = 'Add Tree';
 });

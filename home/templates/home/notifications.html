@@ -7,7 +7,7 @@
     <div class="notifications-header">
         {% if notifications %}
             <div class="header-actions">
-                <button id="delete-selected-btn" class="community-btn delete-btn" style="display: none;">Delete Selected</button>
+                <button id="delete-selected-btn" class="community-btn delete-btn csp-5790ffba29" >Delete Selected</button>
                 <button id="mark-all-read-btn" class="community-btn">Mark All as Read</button>
             </div>
         {% endif %}
@@ -53,7 +53,7 @@
     </div>
 </div>
 
-<style>
+<style nonce="{{ request.csp_nonce }}">
 .notifications-header {
     display: flex;
     justify-content: flex-end;

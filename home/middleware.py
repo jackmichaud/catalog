@@ -79,14 +79,18 @@ class CSPMiddleware:
             connect_src.append(f'https://{s3_domain}')
 
         # Join directives
+        # Set default-src to 'none' to require explicit allowlisting for all resource types.
+        # Add worker-src to permit blob: workers (Mapbox uses blob workers).
         directives = [
-            # Keep default-src narrow and explicitly set script/style/connect/img/font
-            f"default-src 'self'",
+            "default-src 'none'",
             f"script-src {' '.join(script_src)}",
+            # Allow nonces for inline <style> blocks; inline style attributes were replaced by classes.
             f"style-src {' '.join(style_src)}",
             f"img-src {' '.join(img_src)}",
             f"connect-src {' '.join(connect_src)}",
             f"font-src {' '.join(font_src)}",
+            # Workers created from blobs (Mapbox) need blob: allowed here
+            "worker-src 'self' blob:",
             # Disallow plugin/object embedding
             "object-src 'none'",
             "frame-ancestors 'none'",

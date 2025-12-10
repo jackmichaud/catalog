@@ -664,7 +664,7 @@
 
         document.getElementById('modalTitle').textContent = 'Platform Analytics';
         document.getElementById('modalBody').innerHTML = `
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+        <div class="csp-fe4b157c20">
             <div class="stat-card">
                 <h3>Total Users</h3>
                 <p class="stat-number">${data.total_users}</p>
@@ -720,7 +720,7 @@
 
         document.getElementById('modalTitle').textContent = 'Tree Statistics';
         document.getElementById('modalBody').innerHTML = `
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 20px;">
+        <div class="csp-3b1c761e59">
             <div class="stat-card">
                 <h3>Pending</h3>
                 <p class="stat-number">${data.pending}</p>
@@ -761,7 +761,7 @@ async function showFlaggedTrees() {
 
     document.getElementById('modalTitle').textContent = 'Flagged Trees Queue';
     document.getElementById('modalBody').innerHTML = `
-        ${data.trees.length === 0 ? '<p style="text-align: center; color: #666;">No flagged trees at this time.</p>' : `
+        ${data.trees.length === 0 ? '<p class="csp-525f9d39a7">No flagged trees at this time.</p>' : `
         <table class="activity-table">
             <thead>
                 <tr>
@@ -782,8 +782,8 @@ async function showFlaggedTrees() {
                         <td>${tree.flagged_by}</td>
                         <td>${tree.flag_reason || 'No reason provided'}</td>
                         <td>
-                            <button class="btn-approve-flag" data-tree-id="${tree.id}" style="background: #228B22; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; margin-right: 5px;">Approve</button>
-                            <button class="btn-delete-flag" data-tree-id="${tree.id}" style="background: #dc3545; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer;">Delete</button>
+                            <button class="btn-approve-flag csp-25050d435d" data-tree-id="${tree.id}" >Approve</button>
+                            <button class="btn-delete-flag csp-fdc9bff13c" data-tree-id="${tree.id}" >Delete</button>
                         </td>
                     </tr>
                 `).join('')}
