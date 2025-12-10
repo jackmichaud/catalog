@@ -628,7 +628,21 @@ nav .badge {
     left: 20px;
 }
 
-.add-tree-btn:hover {
+.filter-btn {
+    background-color: #2e7d32;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    z-index: 10;
+    position: absolute;
+    top: 80px;
+    right: 20px;
+}
+
+.filter-btn:hover {
     background-color: #1b5e20;
 }
 

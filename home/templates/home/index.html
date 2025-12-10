@@ -24,6 +24,8 @@
     <button id="add-tree-btn" class="add-tree-btn">Add Tree</button>
 {% endif %}
 
+<button id="filter-btn" class="filter-btn">Filter</button>
+
 <div id="sidebar" class="sidebar">
     <form id="tree-form" method="post" enctype="multipart/form-data" action="{% url 'index' %}">
         {% csrf_token %}
