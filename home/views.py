@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, redirect, get_object_or_404
 import csv
 from django.http import HttpResponse
-from .forms import ProfileForm, MessageForm, GroupConversationForm, SPECIES_CHOICES
+from .forms import ProfileForm, MessageForm, GroupConversationForm, SPECIES_CHOICES, TreeForm 
 import os
 from django.contrib.auth.decorators import user_passes_test, login_required
 from .models import TreeSubmission, Conversation, Message, CustomUser, Notification
@@ -10,10 +10,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.db.models import Q # For searching
 import json
-# class TreeSubmissionForm(forms.ModelForm):
-#     class Meta:
-#         model = TreeSubmission
-#         fields = ['tree_name', 'location', 'description']
 
 def is_moderator(user):
     return user.is_authenticated and user.role == 'moderator'
@@ -30,15 +26,36 @@ def index(request):
     mapbox_token = os.getenv("MAPBOX_TOKEN")
     all_users = []
     is_mod = False
+
     if request.user.is_authenticated:
         all_users = CustomUser.objects.exclude(id=request.user.id)
         is_mod = request.user.role == 'moderator'
+
+    # Handle form submit
+    if request.method == "POST":
+        form = TreeForm(request.POST, request.FILES)
+        if form.is_valid():
+            tree = form.save(commit=False)
+
+            tree.user = request.user
+            tree.save()
+            return redirect('index')
+        else:
+            print(form.errors)
+            print("POST DATA: ", request.POST)
+    else:
+        form = TreeForm()
+
+    # This line was wrong: .all(is_deleted=False)
+    trees = TreeSubmission.objects.filter(is_deleted=False)
 
     return render(request, 'home/index.html', {
         'all_users': all_users,
         "MAPBOX_TOKEN": mapbox_token,
         'is_moderator': is_mod,
         'species_choices': SPECIES_CHOICES,
+        'tree_form': form,
+        'trees': trees,
     })
 
 @user_passes_test(is_moderator)

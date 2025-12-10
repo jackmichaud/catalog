@@ -22,7 +22,9 @@
 <button id="add-tree-btn" class="add-tree-btn">Add Tree</button>
 
 <div id="sidebar" class="sidebar">
-    <form id="tree-form">
+    <form id="tree-form" method="post" enctype="multipart/form-data" action="{% url 'index' %}">
+        {% csrf_token %}
+        {{ tree_form.non_field_errors }}
         <div class="sidebar-header">
             <h2>Add Tree</h2>
             <button type="button" id="cancel-sidebar-btn" class="cancel-btn">&times;</button>
