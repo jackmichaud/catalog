@@ -2,7 +2,7 @@
 {% block title %}Moderator Dashboard{% endblock %}
 {% block content %}
 
-<style>
+<style nonce="{{ request.csp_nonce }}">
     .mod-dashboard {
         max-width: 1200px;
         margin: 40px auto;
@@ -390,7 +390,7 @@
     </div>
 </div>
 
-<script>
+<script nonce="{{ request.csp_nonce }}">
     function closeModal() {
         document.getElementById('modalOverlay').classList.remove('active');
     }
@@ -473,7 +473,7 @@
 
         document.getElementById('modalTitle').textContent = 'Manage User Roles';
         document.getElementById('modalBody').innerHTML = `
-        <style>
+        <style nonce="{{ request.csp_nonce }}">
             .manage-roles-table {
                 width: 100%;
                 border-collapse: collapse;
