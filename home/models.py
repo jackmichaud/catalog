@@ -15,7 +15,7 @@ class CustomImage(models.Model):
     CATEGORY_CHOICES = [
         ("avatars", "Avatar"),
         ("message_attachments", "Attachment"),
-        ("trees", "Tree")
+        ("tree_images", "Tree")
     ]
 
     image = models.ImageField(upload_to=custom_image_path, storage=s3_storage, null=False, blank=False)
@@ -86,7 +86,7 @@ class TreeSubmission(models.Model):
     species = models.CharField(max_length=100)
     latitude = models.FloatField()
     longitude = models.FloatField()
-    image = models.ImageField(upload_to='tree_images/', storage=s3_storage, blank=True, null=True)
+    image = models.ForeignKey(CustomImage, on_delete=models.SET_NULL, null=True, blank=True, default=None)
     height = models.FloatField(null=True, blank=True)
     diameter = models.FloatField(null=True, blank=True)
     description = models.TextField(blank=True)
