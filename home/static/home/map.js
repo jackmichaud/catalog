@@ -11,6 +11,9 @@ if (typeof MAPBOX_TOKEN === 'undefined') {
 }
 
 let map;
+let allMarkers = []; // Store all markers for filtering
+let allTrees = []; // Store all tree data
+
 try {
     mapboxgl.accessToken = MAPBOX_TOKEN;  // defined in template
 
@@ -42,6 +45,12 @@ map.on('load', async () => {
         const data = await response.json();
         console.log('Received trees data:', data);
         console.log('Number of approved trees:', data.trees.length);
+
+        allTrees = data.trees; // Store all trees for filtering
+
+        // Get unique species for filter dropdown
+        const uniqueSpecies = [...new Set(data.trees.map(tree => tree.species))].sort();
+        populateSpeciesFilter(uniqueSpecies);
 
         // Add a marker for each approved tree
         data.trees.forEach(tree => {
@@ -102,6 +111,12 @@ map.on('load', async () => {
                 .setLngLat([tree.longitude, tree.latitude])
                 .setPopup(popup)
                 .addTo(map);
+
+            // Store marker with species info for filtering
+            allMarkers.push({
+                marker: marker,
+                species: tree.species
+            });
 
             // Fix Mapbox accessibility issue: remove aria-hidden from close button
             popup.on('open', () => {
@@ -294,5 +309,90 @@ document.addEventListener('click', async function (e) {
             console.error(error);
             alert('Error flagging tree. Please try again.');
         }
+    }
+});
+
+// Filter functionality
+function populateSpeciesFilter(species) {
+    const speciesList = document.getElementById('species-list');
+    if (!speciesList) return;
+
+    speciesList.innerHTML = '';
+
+    species.forEach(sp => {
+        const option = document.createElement('div');
+        option.className = 'filter-option';
+        option.dataset.species = sp;
+        option.textContent = sp;
+
+        speciesList.appendChild(option);
+    });
+}
+
+function filterBySpecies(selectedSpecies) {
+    allMarkers.forEach(item => {
+        if (selectedSpecies === 'all') {
+            // Show all markers
+            item.marker.getElement().style.display = 'block';
+        } else {
+            // Show only markers matching the selected species
+            if (item.species === selectedSpecies) {
+                item.marker.getElement().style.display = 'block';
+            } else {
+                item.marker.getElement().style.display = 'none';
+            }
+        }
+    });
+}
+
+// Initialize filter button after DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    const filterBtn = document.getElementById('filter-btn');
+    const filterDropdown = document.getElementById('filter-dropdown');
+
+    console.log('Filter button:', filterBtn);
+    console.log('Filter dropdown:', filterDropdown);
+
+    if (filterBtn && filterDropdown) {
+        filterBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            console.log('Filter button clicked');
+
+            // Toggle show class
+            filterDropdown.classList.toggle('show');
+            console.log('Dropdown toggled, has show class:', filterDropdown.classList.contains('show'));
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!filterDropdown.contains(e.target) && !filterBtn.contains(e.target)) {
+                filterDropdown.classList.remove('show');
+            }
+        });
+
+        // Handle filter option clicks
+        filterDropdown.addEventListener('click', (e) => {
+            const option = e.target.closest('.filter-option');
+            if (!option) return;
+
+            console.log('Selected species:', option.dataset.species);
+
+            // Remove active class from all options
+            filterDropdown.querySelectorAll('.filter-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+
+            // Add active class to clicked option
+            option.classList.add('active');
+
+            // Filter markers
+            const selectedSpecies = option.dataset.species;
+            filterBySpecies(selectedSpecies);
+
+            // Close dropdown
+            filterDropdown.classList.remove('show');
+        });
+    } else {
+        console.error('Filter button or dropdown not found!');
     }
 });
