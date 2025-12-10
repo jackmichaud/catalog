@@ -100,6 +100,7 @@ class CustomImagePrivacyForm(forms.ModelForm):
 
 class TreeForm(forms.ModelForm):
     image_upload = forms.ImageField(required=False)
+
     class Meta:
         model = TreeSubmission
         fields = [
@@ -110,6 +111,36 @@ class TreeForm(forms.ModelForm):
             'diameter',
             'description',
         ]
+        error_messages = {
+            'latitude': {
+                'required': 'Please click on the map to set a location.',
+            },
+            'longitude': {
+                'required': 'Please click on the map to set a location.',
+            },
+            'species': {
+                'required': 'Please select a tree species from the dropdown.',
+            },
+        }
+
+    def clean_latitude(self):
+        latitude = self.cleaned_data.get('latitude')
+        if not latitude:
+            raise forms.ValidationError('Please click on the map to set a location.')
+        return latitude
+
+    def clean_longitude(self):
+        longitude = self.cleaned_data.get('longitude')
+        if not longitude:
+            raise forms.ValidationError('Please click on the map to set a location.')
+        return longitude
+
+    def clean_species(self):
+        species = self.cleaned_data.get('species')
+        if not species or species == "":
+            raise forms.ValidationError('Please select a tree species from the dropdown.')
+        return species
+
     def save(self, commit=True, user=None):
         instance = super().save(commit=False)
         print(self.cleaned_data)

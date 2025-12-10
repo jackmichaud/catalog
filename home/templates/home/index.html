@@ -25,21 +25,24 @@
 {% endif %}
 
 <div id="sidebar" class="sidebar">
-    <form id="tree-form" method="post" enctype="multipart/form-data" action="{% url 'index' %}">
+    <form id="tree-form" method="post" enctype="multipart/form-data" action="{% url 'index' %}" novalidate>
         {% csrf_token %}
-        {{ tree_form.non_field_errors }}
+
         <div class="sidebar-header">
             <h2>Add Tree</h2>
             <button type="button" id="cancel-sidebar-btn" class="cancel-btn">&times;</button>
         </div>
-        <label for="latitude">Latitude</label>
-        <input id="latitude" type="text" name="latitude" readonly required />
 
-        <label for="longitude">Longitude</label>
-        <input id="longitude" type="text" name="longitude" readonly required />
+        <div id="form-errors" class="form-errors"></div>
 
-        <label for="species">Species</label>
-        <select id="species" name="species" required>
+        <label for="latitude">Latitude <span class="required-field">*</span></label>
+        <input id="latitude" type="text" name="latitude" readonly />
+
+        <label for="longitude">Longitude <span class="required-field">*</span></label>
+        <input id="longitude" type="text" name="longitude" readonly />
+
+        <label for="species">Species <span class="required-field">*</span></label>
+        <select id="species" name="species">
             <option value="" disabled selected>Please select an option</option>
             {% for value, label in species_choices %}
                 {% if value %}
@@ -48,16 +51,16 @@
             {% endfor %}
         </select>
 
-        <label for="height">Height (ft)</label>
-        <input id="height" type="number" name="height" min="0" placeholder="e.g. 10" required />
+        <label for="height">Height (ft) <span class="required-field">*</span></label>
+        <input id="height" type="number" name="height" min="0" placeholder="e.g. 10" />
 
-        <label for="diameter">Diameter (in)</label>
-        <input id="diameter" type="number" name="diameter" min="0" placeholder="e.g. 10" required />
+        <label for="diameter">Diameter (in) <span class="required-field">*</span></label>
+        <input id="diameter" type="number" name="diameter" min="0" placeholder="e.g. 10" />
 
-        <label for="image_upload">Image</label>
+        <label for="image_upload">Image (Optional)</label>
         {{ tree_form.image_upload }}
 
-        <label for="description">Description</label>
+        <label for="description">Description (Optional)</label>
         <textarea id="description" name="description" placeholder="Optional notes..."></textarea>
 
         <button type="submit">Submit</button>
@@ -163,6 +166,34 @@
     padding: 15px;
     min-width: 200px;
 }
+
+.form-errors {
+    background-color: #dc3545;
+    color: white;
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    display: none;
+}
+
+.form-errors.show {
+    display: block;
+}
+
+.form-errors ul {
+    margin: 0;
+    padding-left: 20px;
+    list-style-type: disc;
+}
+
+.form-errors li {
+    margin: 4px 0;
+}
+
+.required-field {
+    color: #dc3545;
+    font-weight: bold;
+}
 </style>
 <script src="{% static 'home/map.js' %}"></script>
 <script nonce="{{ request.csp_nonce }}">
@@ -199,16 +230,81 @@ document.addEventListener('DOMContentLoaded', () => {
     if (params.get('tree_submitted') === '1') {
         alert('🌳 Tree submitted successfully!');
 
-        // Remove the query param so refreshing the page doesn’t re-alert
+        // Remove the query param so refreshing the page doesn't re-alert
         params.delete('tree_submitted');
         const newQuery = params.toString();
         const newUrl = window.location.pathname + (newQuery ? '?' + newQuery : '');
         window.history.replaceState({}, '', newUrl);
     }
 
+    // Form validation
+    const treeForm = document.getElementById('tree-form');
+    const formErrors = document.getElementById('form-errors');
+
+    if (treeForm) {
+        treeForm.addEventListener('submit', function(e) {
+            const latitude = document.getElementById('latitude').value.trim();
+            const longitude = document.getElementById('longitude').value.trim();
+            const species = document.getElementById('species').value;
+            const height = document.getElementById('height').value.trim();
+            const diameter = document.getElementById('diameter').value.trim();
+
+            const errors = [];
+
+            // Check in top-to-bottom order
+            // 1. Check for missing latitude/longitude
+            if (!latitude || !longitude) {
+                errors.push('Please click on the map to set a location for the tree.');
+            }
+
+            // 2. Check for missing species
+            if (!species || species === '') {
+                errors.push('Please select a tree species from the dropdown.');
+            }
+
+            // 3. Check for missing height
+            if (!height || height === '') {
+                errors.push('Please enter the tree height in feet.');
+            }
+
+            // 4. Check for missing diameter
+            if (!diameter || diameter === '') {
+                errors.push('Please enter the tree diameter in inches.');
+            }
+
+            // If there are errors, prevent submission and show warnings
+            if (errors.length > 0) {
+                e.preventDefault();
+
+                let errorHTML = '<strong>Please fix the following errors:</strong><ul>';
+                errors.forEach(error => {
+                    errorHTML += `<li>${error}</li>`;
+                });
+                errorHTML += '</ul>';
+
+                formErrors.innerHTML = errorHTML;
+                formErrors.classList.add('show');
+
+                // Scroll to top of sidebar to show errors
+                const sidebar = document.getElementById('sidebar');
+                if (sidebar) {
+                    sidebar.scrollTop = 0;
+                }
+            } else {
+                // Clear any previous errors
+                formErrors.classList.remove('show');
+                formErrors.innerHTML = '';
+            }
+        });
+    }
+
     // Error alert from Django context
     {% if form_has_errors %}
-        alert('❌ There was an error submitting your tree');
+        const formErrors = document.getElementById('form-errors');
+        if (formErrors) {
+            formErrors.innerHTML = '<strong>There was an error submitting your tree.</strong> Please check all required fields.';
+            formErrors.classList.add('show');
+        }
     {% endif %}
 });
 </script>
