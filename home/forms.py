@@ -1,5 +1,5 @@
 from django import forms
-from .models import CustomUser, Message, Conversation, CustomImage # <-- ADDED 'Message' IMPORT
+from .models import CustomUser, Message, Conversation, CustomImage, TreeSubmission # <-- ADDED 'Message' IMPORT
 
 class GroupConversationForm(forms.ModelForm):
     participants = forms.ModelMultipleChoiceField(
@@ -100,6 +100,19 @@ class CustomImagePrivacyForm(forms.ModelForm):
     class Meta:
         model = CustomImage
         fields = ['private']
+
+class TreeForm(forms.ModelForm):
+    class Meta:
+        model = TreeSubmission
+        fields = [
+            'latitude',
+            'longitude',
+            'species',
+            'height',
+            'diameter',
+            'image',
+            'description',
+        ]
 
 SPECIES_CHOICES = [
     ("", "Please select an option"),

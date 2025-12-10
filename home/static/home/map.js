@@ -51,6 +51,11 @@ map.on('load', async () => {
             let popupContent = `
                 <div class="tree-popup">
                     <h3>${tree.species}</h3>
+                    <p>${tree.height || 'No height'}</p>
+                    <p>${tree.diameter || 'No diameter'}</p>
+                    <p>${tree.latitude || 'No latitude'}</p>
+                    <p>${tree.longitude || 'No longitude'}</p>
+                    <p>${tree.image || 'No image'}</p>
                     <p>${tree.description || 'No description'}</p>
                     <p style="font-size: 0.9em; color: #666;">Submitted by: ${tree.submitted_by}</p>
             `;
@@ -142,45 +147,17 @@ cancelBtn?.addEventListener('click', () => {
 });
 
 treeForm?.addEventListener('submit', async (e) => {
-    e.preventDefault();
+    // // e.preventDefault();
 
-    const data = {
-        latitude: parseFloat(treeForm.latitude.value),
-        longitude: parseFloat(treeForm.longitude.value),
-        species: treeForm.species.value,
-        description: treeForm.description.value,
-    };
+    // alert('🌳 Tree submitted successfully! It will appear on the map immediately.');
 
-    try {
-        const response = await fetch('/api/trees/add/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken'),
-            },
-            body: JSON.stringify(data),
-        });
-
-        if (!response.ok) throw new Error('Failed to submit tree');
-
-        const result = await response.json();
-        alert('🌳 Tree submitted successfully! It will appear on the map immediately.');
-
-        // Reset UI
-        treeForm.reset();
-        sidebar?.classList.remove('open');
-        if (tempMarker) tempMarker.remove();
-        addMode = false;
-        if (addBtn) addBtn.textContent = 'Add Tree';
-        map.getCanvas().style.cursor = '';
-
-        // Reload page to refresh map with new tree
-        location.reload();
-
-    } catch (error) {
-        console.error(error);
-        alert('Error submitting tree. Please try again.');
-    }
+    // // Reset UI
+    // treeForm.reset();
+    // sidebar?.classList.remove('open');
+    // if (tempMarker) tempMarker.remove();
+    // addMode = false;
+    // if (addBtn) addBtn.textContent = 'Add Tree';
+    // map.getCanvas().style.cursor = '';
 });
 
 function getCookie(name) {

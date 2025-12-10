@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, redirect, get_object_or_404
 import csv
 from django.http import HttpResponse
-from .forms import ProfileForm, MessageForm, GroupConversationForm, SPECIES_CHOICES, CustomImagePrivacyForm
+from .forms import ProfileForm, MessageForm, GroupConversationForm, SPECIES_CHOICES, CustomImagePrivacyForm, TreeForm 
 import os
 from django.contrib.auth.decorators import user_passes_test, login_required
 from .models import TreeSubmission, Conversation, Message, CustomUser, Notification, CustomImage
@@ -11,10 +11,8 @@ from django.http import JsonResponse
 from django.db.models import Q # For searching
 from django.forms import modelformset_factory
 import json
-# class TreeSubmissionForm(forms.ModelForm):
-#     class Meta:
-#         model = TreeSubmission
-#         fields = ['tree_name', 'location', 'description']
+from django.contrib import messages
+from django.urls import reverse
 
 def is_moderator(user):
     return user.is_authenticated and user.role == 'moderator'
@@ -31,15 +29,39 @@ def index(request):
     mapbox_token = os.getenv("MAPBOX_TOKEN")
     all_users = []
     is_mod = False
+
     if request.user.is_authenticated:
         all_users = CustomUser.objects.exclude(id=request.user.id)
         is_mod = request.user.role == 'moderator'
+
+    form_has_errors = False
+    # Handle form submit
+    if request.method == "POST":
+        form = TreeForm(request.POST, request.FILES)
+        if form.is_valid():
+            tree = form.save(commit=False)
+            tree.user = request.user
+            tree.save()
+            url = f"{reverse('index')}?tree_submitted=1"
+            return redirect(url)
+        else:
+            form_has_errors = True
+            print("FORM ERRORS:", form.errors)
+            print("POST DATA:", request.POST)
+    else:
+        form = TreeForm()
+
+    # Trees to render on the map
+    trees = TreeSubmission.objects.filter(is_deleted=False)
 
     return render(request, 'home/index.html', {
         'all_users': all_users,
         "MAPBOX_TOKEN": mapbox_token,
         'is_moderator': is_mod,
         'species_choices': SPECIES_CHOICES,
+        'tree_form': form,
+        'trees': trees,
+        'form_has_errors': form_has_errors,
     })
 
 @user_passes_test(is_moderator)
