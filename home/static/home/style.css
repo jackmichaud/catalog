@@ -632,6 +632,7 @@ nav .badge {
     position: absolute;
     top: 80px;
     right: 20px;
+    z-index: 10;
 }
 
 .filter-dropdown {
@@ -644,9 +645,8 @@ nav .badge {
     visibility: hidden;
     transform: translateY(-10px);
     transition: all 0.3s ease;
-    z-index: 1000;
+    z-index: 10;
 }
-
 
 .filter-btn {
     background-color: #2e7d32;
@@ -656,6 +656,20 @@ nav .badge {
     border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.2s ease-in-out;
+    z-index: 10;
+    right: 0px;
+}
+
+.filter-menu {
+    background-color: var(--bg-card);
+    min-width: 200px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
     z-index: 10;
 }
 

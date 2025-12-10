@@ -29,7 +29,7 @@
     <div class="filter-menu">
         <div class="sidebar-header">
             <h2>Filter</h2>
-            <button type="button" id="cancel-sidebar-btn" class="cancel-btn">&times;</button>
+            <button type="button" id="cancel-filter-btn" class="cancel-btn">&times;</button>
         </div>
         <a href="{% url 'profile' %}">Your Profile</a>
         <a href="{% url 'account_settings' %}">Account Settings</a>
@@ -183,15 +183,6 @@
 const filterBtn = document.getElementById("filter-btn");
 const dropdown = document.querySelector(".dropdown-menu");
 
-filterBtn.addEventListener("click", () => {
-    dropdown.classList.toggle("show");
-});
-
-document.addEventListener("click", (e) => {
-    if (!dropdown.contains(e.target) && !filterBtn.contains(e.target)) {
-        dropdown.classList.remove("show");
-    }
-});
 
 document.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search);
