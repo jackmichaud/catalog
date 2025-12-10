@@ -19,7 +19,10 @@
 
 <!-- Mapbox map -->
 <div id="map"></div>
-<button id="add-tree-btn" class="add-tree-btn">Add Tree</button>
+
+{% if user.is_authenticated %}
+    <button id="add-tree-btn" class="add-tree-btn">Add Tree</button>
+{% endif %}
 
 <div id="sidebar" class="sidebar">
     <form id="tree-form" method="post" enctype="multipart/form-data" action="{% url 'index' %}">
