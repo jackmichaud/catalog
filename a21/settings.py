@@ -28,12 +28,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-c-d&xg4%8)u%mmk@#&b=8+9oesi(yc^=uf8+2f0%etobia$%x$'
+SECRET_KEY = env('SECRET_KEY', default='django-insecure-c-d&xg4%8)u%mmk@#&b=8+9oesi(yc^=uf8+2f0%etobia$%x$')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env("DEBUG").strip().lower() == 'true'
+DEBUG = env("DEBUG", default="False").strip().lower() == 'true'
 
-ALLOWED_HOSTS = ['*']
+# Only allow specific hosts in production
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[
+    'localhost',
+    '127.0.0.1',
+    'cs3240-a21-12d856f83fd4.herokuapp.com',
+])
 
 
 # Application definition
@@ -215,12 +220,30 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # Security settings for production
 import os
 if not DEBUG:
+    # HTTPS/SSL settings
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+
+    # Security headers
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
-    SECURE_HSTS_SECONDS = 31536000
+
+    # HSTS (HTTP Strict Transport Security)
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
+
+    # Proxy header for SSL termination (e.g., Heroku, AWS)
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+    # Additional security settings
+    SECURE_REFERRER_POLICY = 'same-origin'
+
+# CSRF trusted origins (add your production domain)
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'https://cs3240-a21-12d856f83fd4.herokuapp.com',
+])
