@@ -303,6 +303,9 @@ def get_trees(request):
             'latitude': tree.latitude,
             'longitude': tree.longitude,
             'description': tree.description,
+            'height': tree.height,
+            'diameter': tree.diameter,
+            'image': tree.image.url if tree.image else None,
             'is_flagged': tree.is_flagged,
             'submitted_by': tree.user.get_display_name(),
         }

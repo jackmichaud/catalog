@@ -51,11 +51,25 @@ map.on('load', async () => {
             let popupContent = `
                 <div class="tree-popup">
                     <h3>${tree.species}</h3>
-                    <p>${tree.height || 'No height'}</p>
-                    <p>${tree.diameter || 'No diameter'}</p>
-                    <p>${tree.latitude || 'No latitude'}</p>
-                    <p>${tree.longitude || 'No longitude'}</p>
-                    <p>${tree.image || 'No image'}</p>
+                    <p>(${tree.latitude ?? 'No latitude'}, ${tree.longitude ?? 'No longitude'})</p>
+                    <p>${tree.height ? 'Height: ' + tree.height + ' ft' : 'No height'}</p>
+                    <p>${tree.diameter ? 'Diameter: ' + tree.diameter + ' in' : 'No diameter'}</p>
+            `;
+
+            // Image block
+            if (tree.image) {
+                popupContent += `
+                    <div style="margin: 8px 0;">
+                        <img src="${tree.image}"
+                            alt="${tree.species}"
+                            style="max-width: 100%; max-height: 200px; border-radius: 4px; object-fit: cover;" />
+                    </div>
+                `;
+            } else {
+                popupContent += `<p>No image</p>`;
+            }
+
+            popupContent += `
                     <p>${tree.description || 'No description'}</p>
                     <p style="font-size: 0.9em; color: #666;">Submitted by: ${tree.submitted_by}</p>
             `;
