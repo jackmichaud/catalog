@@ -324,21 +324,6 @@ function populateSpeciesFilter(species) {
         option.className = 'filter-option';
         option.dataset.species = sp;
         option.textContent = sp;
-        option.style.padding = '12px 16px';
-        option.style.cursor = 'pointer';
-        option.style.borderLeft = '3px solid transparent';
-
-        // Add hover effect
-        option.addEventListener('mouseenter', function() {
-            if (this.style.backgroundColor !== 'rgb(232, 245, 233)') {
-                this.style.backgroundColor = '#f4f7f5';
-            }
-        });
-        option.addEventListener('mouseleave', function() {
-            if (this.style.backgroundColor !== 'rgb(232, 245, 233)') {
-                this.style.backgroundColor = '';
-            }
-        });
 
         speciesList.appendChild(option);
     });
@@ -373,20 +358,15 @@ document.addEventListener('DOMContentLoaded', () => {
             e.stopPropagation();
             console.log('Filter button clicked');
 
-            // Toggle display using inline style
-            if (filterDropdown.style.display === 'none' || !filterDropdown.style.display) {
-                filterDropdown.style.display = 'block';
-                console.log('Dropdown opened');
-            } else {
-                filterDropdown.style.display = 'none';
-                console.log('Dropdown closed');
-            }
+            // Toggle show class
+            filterDropdown.classList.toggle('show');
+            console.log('Dropdown toggled, has show class:', filterDropdown.classList.contains('show'));
         });
 
         // Close dropdown when clicking outside
         document.addEventListener('click', (e) => {
             if (!filterDropdown.contains(e.target) && !filterBtn.contains(e.target)) {
-                filterDropdown.style.display = 'none';
+                filterDropdown.classList.remove('show');
             }
         });
 
@@ -397,24 +377,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
             console.log('Selected species:', option.dataset.species);
 
-            // Remove active styling from all options
+            // Remove active class from all options
             filterDropdown.querySelectorAll('.filter-option').forEach(opt => {
-                opt.style.backgroundColor = '';
-                opt.style.borderLeft = '';
-                opt.style.fontWeight = '';
+                opt.classList.remove('active');
             });
 
-            // Add active styling to clicked option
-            option.style.backgroundColor = '#e8f5e9';
-            option.style.borderLeft = '3px solid #228B22';
-            option.style.fontWeight = '600';
+            // Add active class to clicked option
+            option.classList.add('active');
 
             // Filter markers
             const selectedSpecies = option.dataset.species;
             filterBySpecies(selectedSpecies);
 
             // Close dropdown
-            filterDropdown.style.display = 'none';
+            filterDropdown.classList.remove('show');
         });
     } else {
         console.error('Filter button or dropdown not found!');
