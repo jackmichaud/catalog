@@ -307,7 +307,6 @@
                     if (data.notifications && data.notifications.length > 0) {
                         notificationsList.innerHTML = data.notifications.map(notification => `
                             <div class="notification-dropdown-item ${!notification.is_read ? 'unread' : ''}" data-notification-id="${notification.id}">
-                                <input type="checkbox" class="notification-checkbox-dropdown" value="${notification.id}" onclick="event.stopPropagation(); toggleDeleteButton();">
                                 <div class="notification-icon-dropdown">
                                     ${notification.notification_type === 'tree_flagged' ? '⚠️' :
                                       notification.notification_type === 'tree_unflagged' ? '✅' : '❌'}

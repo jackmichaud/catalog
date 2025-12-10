@@ -95,13 +95,21 @@ map.on('load', async () => {
 
             popupContent += `</div>`;
 
+            const popup = new mapboxgl.Popup({ offset: 25 })
+                .setHTML(popupContent);
+
             const marker = new mapboxgl.Marker({ color: '#228B22' })
                 .setLngLat([tree.longitude, tree.latitude])
-                .setPopup(
-                    new mapboxgl.Popup({ offset: 25 })
-                        .setHTML(popupContent)
-                )
+                .setPopup(popup)
                 .addTo(map);
+
+            // Fix Mapbox accessibility issue: remove aria-hidden from close button
+            popup.on('open', () => {
+                const closeBtn = popup.getElement().querySelector('.mapboxgl-popup-close-button');
+                if (closeBtn) {
+                    closeBtn.removeAttribute('aria-hidden');
+                }
+            });
         });
         console.log('All markers added successfully');
     } catch (error) {
