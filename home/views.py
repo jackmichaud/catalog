@@ -10,6 +10,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.db.models import Q # For searching
 import json
+from django.contrib import messages
+from django.urls import reverse
 
 def is_moderator(user):
     return user.is_authenticated and user.role == 'moderator'
@@ -36,15 +38,28 @@ def index(request):
         form = TreeForm(request.POST, request.FILES)
         if form.is_valid():
             tree = form.save(commit=False)
-
             tree.user = request.user
             tree.save()
-            return redirect('index')
+            url = f"{reverse('index')}?tree_submitted=1"
+            return redirect(url)
         else:
-            print(form.errors)
-            print("POST DATA: ", request.POST)
+            messages.error(request, "❌ There was an error submitting your tree. Please fix the highlighted fields.")
+            print("FORM ERRORS:", form.errors)
+            print("POST DATA:", request.POST)
     else:
         form = TreeForm()
+
+    # Trees to render on the map
+    trees = TreeSubmission.objects.filter(is_deleted=False)
+
+    return render(request, 'home/index.html', {
+        'all_users': all_users,
+        "MAPBOX_TOKEN": mapbox_token,
+        'is_moderator': is_mod,
+        'species_choices': SPECIES_CHOICES,
+        'tree_form': form,
+        'trees': trees,
+    })
 
     # This line was wrong: .all(is_deleted=False)
     trees = TreeSubmission.objects.filter(is_deleted=False)
