@@ -289,3 +289,7 @@ CSP_IMG_SRC = env.list('CSP_IMG_SRC', default=[
     'data:',
     'blob:',
 ])
+
+
+TIME_ZONE = "America/New_York"
+USE_TZ = True
