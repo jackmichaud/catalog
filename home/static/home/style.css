@@ -100,17 +100,29 @@ nav a:hover {
     background-color: var(--nav-hover);
 }
 
-/* Navigation badge for unread messages */
+/* Navigation badge for unread messages - position top-right of the icon */
+nav .nav-item-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
 nav .badge {
     background-color: #d32f2f;
     color: white;
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 999px;
+    font-size: 0.65rem;
     font-weight: 700;
-    margin-left: 6px;
     z-index: 1000;
-    position: relative;
+    position: absolute;
+    top: 2px; /* lowered so badge sits on top-right of the icon */
+    right: -2px; /* pull slightly left so it isn't off-screen */
+    min-width: 18px;
+    height: 18px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
 }
 
 /* Dark mode toggle button */

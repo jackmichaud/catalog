@@ -814,3 +814,37 @@ def manage_images(request):
         formset = ImageFormSet(queryset=queryset)
 
     return render(request, 'home/manage_images.html', {'formset': formset})
+
+
+@login_required
+@csrf_exempt
+def image_toggle(request, image_id):
+    """API endpoint to toggle image private status or delete an image."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+
+    try:
+        img = CustomImage.objects.get(id=image_id, user=request.user)
+    except CustomImage.DoesNotExist:
+        return JsonResponse({'error': 'Image not found'}, status=404)
+
+    try:
+        data = json.loads(request.body) if request.body else {}
+    except json.JSONDecodeError:
+        data = {}
+
+    action = data.get('action') or request.POST.get('action')
+    if not action:
+        return JsonResponse({'error': 'No action provided'}, status=400)
+
+    if action == 'toggle-private':
+        img.private = not img.private
+        img.save()
+        return JsonResponse({'success': True, 'is_private': img.private})
+
+    if action == 'toggle-delete':
+        # Perform immediate deletion (this mirrors the old "check and save" behavior by removing the instance)
+        img.delete()
+        return JsonResponse({'success': True, 'is_deleted': True})
+
+    return JsonResponse({'error': 'Unknown action'}, status=400)

@@ -4,6 +4,85 @@
 {% block title %} Manage Images {% endblock %}
 
 {% block content %}
+<style nonce="{{ request.csp_nonce }}">
+    .image-management-table {
+        width: 100%;
+    }
+
+    .toggle-btn {
+        padding: 8px 14px;
+        border: 2px solid #ddd;
+        border-radius: 20px;
+        background: #f0f0f0;
+        color: #666;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.85em;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .toggle-btn.off {
+        background: #e8e8e8;
+        color: #666;
+    }
+
+    .toggle-btn.on {
+        background: #228B22;
+        color: white;
+    }
+
+    .toggle-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .delete-btn {
+        background: #dc3545;
+        color: white;
+    }
+
+    .delete-btn.off {
+        background: #e8e8e8;
+        color: #666;
+    }
+
+    .delete-btn.on {
+        background: #dc3545;
+        color: white;
+    }
+
+    .loading-spinner {
+        display: none;
+        width: 16px;
+        height: 16px;
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid #228B22;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-left: 8px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .btn-container {
+        display: flex;
+        align-items: center;
+        justify-content: center; /* center buttons within their table cell */
+        gap: 8px;
+    }
+
+    /* Center table headers and cells so action buttons align under their column headers */
+    .image-management-table th,
+    .image-management-table td {
+        text-align: center;
+        vertical-align: middle;
+    }
+</style>
+
 <div class="page-container">
     <h1 class="page-title">Manage Your Images</h1>
 
@@ -12,44 +91,116 @@
             <form method="post">
                 {% csrf_token %}
                 {{ formset.management_form }}
-
-                <table class="csp-b468078e20">
+            <table class="csp-b468078e20 image-management-table">
                     <thead>
                         <tr>
                             <th class="csp-e43d0bc383">Image</th>
                             <th class="csp-e43d0bc383">Category</th>
-                            <th class="csp-67a4880172">Private</th>
+                            <th class="csp-67a4880172">Privacy</th>
                             <th class="csp-67a4880172">Delete</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for form in formset %}
-                            <tr class="csp-107f03f664">
+                    {% for form in formset %}
+                        <tr class="csp-107f03f664" data-image-id="{{ form.instance.id }}">
+                            {# Render hidden form fields so the formset can be submitted normally #}
+                            {{ form.id }}
+                            <td style="display:none;">{{ form.private }}{{ form.DELETE }}</td>
                                 <td class="csp-ed0293f9fe">
                                     {% if form.instance.image %}
-                                        <img src="{{ form.instance.image.url }}" class="csp-6f8b60e5b0">
+                                    <img src="{{ form.instance.image.url }}" class="csp-6f8b60e5b0">
                                     {% endif %}
                                 </td>
                                 <td class="csp-ed0293f9fe">
                                     {{ form.instance.get_category_display }}
                                 </td>
                                 <td class="csp-4c578c0921">
-                                    <input type="checkbox" name="{{ form.private.html_name }}" id="{{ form.private.id_for_label }}" {% if form.instance.private %}checked{% endif %} class="csp-09e3e49764">
+                                <div class="btn-container">
+                                    <button class="toggle-btn toggle-private {% if form.instance.private %}on{% else %}off{% endif %}" 
+                                            data-image-id="{{ form.instance.id }}" 
+                                            data-private-input-id="{{ form.private.id_for_label }}"
+                                            type="button">
+                                        {% if form.instance.private %}Hidden{% else %}Visible{% endif %}
+                                    </button>
+                                    <div class="loading-spinner" data-image-id="{{ form.instance.id }}" data-spinner="private"></div>
+                                </div>
                                 </td>
                                 <td class="csp-4c578c0921">
-                                    <input type="checkbox" name="{{ form.DELETE.html_name }}" id="{{ form.DELETE.id_for_label }}" class="csp-09e3e49764">
+                                <div class="btn-container">
+                                    <button class="toggle-btn delete-btn {% if form.instance.delete %}on{% else %}off{% endif %}" 
+                                            data-image-id="{{ form.instance.id }}" 
+                                            data-delete-input-id="{{ form.DELETE.id_for_label }}"
+                                            type="button">
+                                        {% if form.instance.delete %}Marked{% else %}Keep{% endif %}
+                                    </button>
+                                    <div class="loading-spinner" data-image-id="{{ form.instance.id }}" data-spinner="delete"></div>
+                                </div>
                                 </td>
                             </tr>
-                            {{ form.id }}
-                        {% endfor %}
+                    {% endfor %}
                     </tbody>
-                </table>
+            </table>
 
-                <button type="submit" class="community-btn csp-4f7f1ad5d8" >Save Changes</button>
+            <div style="margin-top: 16px;">
+                <button type="submit" class="community-btn csp-4f7f1ad5d8">Save Changes</button>
+            </div>
             </form>
         {% else %}
             <p>You haven't uploaded any images yet.</p>
         {% endif %}
     </div>
 </div>
+
+<script nonce="{{ request.csp_nonce }}">
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Set up event listeners for toggle buttons — update hidden form inputs and UI only; changes saved on form submit
+    document.querySelectorAll('.toggle-private').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const inputId = btn.dataset.privateInputId;
+            const input = document.getElementById(inputId);
+            if (!input) return;
+
+            // toggle the checkbox state
+            input.checked = !input.checked;
+
+            // update UI
+            btn.classList.toggle('on');
+            btn.classList.toggle('off');
+            btn.textContent = input.checked ? 'Hidden' : 'Visible';
+        });
+    });
+
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const inputId = btn.dataset.deleteInputId;
+            const input = document.getElementById(inputId);
+            if (!input) return;
+
+            // toggle the checkbox state (mark for deletion)
+            input.checked = !input.checked;
+
+            // update UI
+            btn.classList.toggle('on');
+            btn.classList.toggle('off');
+            btn.textContent = input.checked ? 'Marked' : 'Keep';
+        });
+    });
+</script>
+
 {% endblock %}
