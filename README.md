@@ -1,8 +1,8 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/k4pNZww7)
-
 # CataLog
 
 A modern catalog application built with Django that allows users to browse, search, and manage items in a categorized system. Also supports chats and posts for users to interact with each other and collaborate on sustainability efforts.
+
+Live demo: https://cs3240-a21-12d856f83fd4.herokuapp.com/ (taken down)
 
 ## Features
 
