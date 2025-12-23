@@ -34,8 +34,8 @@ A modern catalog application built with Django that allows users to browse, sear
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/your-username/project-a-21.git
-cd project-a-21
+git clone https://github.com/your-username/catalog.git
+cd catalog
 ```
 
 2. Set up a virtual environment and install dependencies:
