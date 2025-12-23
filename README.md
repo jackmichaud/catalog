@@ -65,17 +65,6 @@ Open [http://localhost:8000](http://localhost:8000) in your browser to view the 
 
 The admin panel is available at [http://localhost:8000/admin](http://localhost:8000/admin). Use the superuser credentials you created during setup.
 
-## Project Structure
-
-```
-project-a-21/
-├── catalog/           # Main application code
-├── home/              # Homepage and base templates
-├── manage.py          # Django management script
-├── requirements.txt   # Project dependencies
-└── README.md          # This file
-```
-
 ## Contributing
 
 1. Fork the repository
